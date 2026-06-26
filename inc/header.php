@@ -449,6 +449,11 @@ $currency = $settings['currency'];
         .dropdown span { margin-right: auto; margin-left: 10px; }
         .dropdown i.fa-chevron-down { font-size: 11px; color: var(--text-muted); }
 
+        /* Logo */
+        .nav-left img {
+            height: 38px;
+        }
+
     </style>
 </head>
 <body>
