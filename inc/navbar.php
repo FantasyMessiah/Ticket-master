@@ -1,8 +1,6 @@
 <div class="top-bar">
     <div class="top-bar-left">
-        <span><i class="fa-solid fa-flag" style="color:#2e7d32;"></i> MX</span>
         <span><i class="fa-regular fa-comment-dots"></i> EN</span>
-        <span><i class="fa-solid fa-location-arrow" style="font-size: 9px;"></i> All of Mexico</span>
     </div>
     <div class="top-bar-right">
         <a href="#">Help</a>
@@ -10,7 +8,9 @@
 </div>
 
 <header class="main-header">
-    <div class="logo">ticketmaster®</div>
+    <a href="/index.php">
+        <img src="assets/images/logo.png" alt="<?php echo htmlspecialchars($site_name ?? 'ticketmaster®'); ?>">
+    </a>
     <nav class="nav-links">
         <a href="#">Concerts & Festivals</a>
         <a href="#">Theater & Culture</a>
