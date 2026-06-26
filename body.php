@@ -254,56 +254,7 @@
         </div>
     </div>
 
-    <!-- HOW IT WORKS -->
-    <div class="section">
-        <h2><i class="fa-solid fa-ticket icon-red"></i> How It Works - 3 Simple Steps</h2>
-        <div class="steps">
-            <div class="step">
-                <i class="fa-solid fa-search icon-blue"></i>
-                <h3>1. Discover Events</h3>
-                <p>Browse upcoming concerts, festivals, and tours near you or worldwide. Filter by artist, date, or venue.</p>
-            </div>
-            <div class="step">
-                <i class="fa-solid fa-seat icon-red"></i>
-                <h3>2. Choose Your Seats</h3>
-                <p>Select from interactive seating charts with real-time availability and pricing.</p>
-            </div>
-            <div class="step">
-                <i class="fa-solid fa-credit-card icon-green"></i>
-                <h3>3. Buy Securely & Enjoy</h3>
-                <p>Complete your purchase with confidence. Get tickets instantly via mobile or email.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- WHY CHOOSE US -->
-    <div class="section">
-        <h2><i class="fa-solid fa-shield-halved icon-blue"></i> Why Fans Trust Us</h2>
-        <div class="cards">
-            <div class="card">
-                <i class="fa-solid fa-check-circle icon-green"></i>
-                <h3>Verified Tickets</h3>
-                <p>100% guaranteed authentic tickets. No fakes, no stress.</p>
-            </div>
-            <div class="card">
-                <i class="fa-solid fa-clock icon-blue"></i>
-                <h3>Instant Delivery</h3>
-                <p>Receive tickets immediately after purchase — mobile tickets or print-at-home.</p>
-            </div>
-            <div class="card">
-                <i class="fa-solid fa-lock icon-green"></i>
-                <h3>Secure Checkout</h3>
-                <p>Bank-level encryption and multiple payment options including Apple Pay.</p>
-            </div>
-            <div class="card">
-                <i class="fa-solid fa-headset icon-blue"></i>
-                <h3>24/7 Support</h3>
-                <p>Dedicated fan support for any questions before or after your event.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- FEATURED CONCERTS / EVENTS -->
+    <!-- UPCOMING CONCERTS / EVENTS -->
     <div class="section">
         <h2><i class="fa-solid fa-fire icon-red"></i> Featured Concerts</h2>
         <div class="cards">
@@ -348,7 +299,53 @@
         </div>
     </div>
 
-    <!-- PLATFORM STATS -->
+<!-- FEATURED CONCERTS / EVENTS -->
+    <div class="section">
+        <h2><i class="fa-solid fa-fire icon-red"></i> Featured Concerts</h2>
+        <div class="cards">
+            <div class="card event-card">
+                <img src="https://picsum.photos/id/1015/600/300" alt="Taylor Swift">
+                <div class="event-info">
+                    <div class="date">
+                        <strong>JUL</strong><br>15
+                    </div>
+                    <h3>Taylor Swift | The Eras Tour</h3>
+                    <p>MetLife Stadium • East Rutherford, NJ</p>
+                    <br>
+                    <a href="#" class="btn btn-primary">Get Tickets</a>
+                </div>
+            </div>
+            
+            <div class="card event-card">
+                <img src="https://picsum.photos/id/201/600/300" alt="Drake">
+                <div class="event-info">
+                    <div class="date">
+                        <strong>JUL</strong><br>22
+                    </div>
+                    <h3>Drake • It's All A Blur</h3>
+                    <p>Scotiabank Arena • Toronto, ON</p>
+                    <br>
+                    <a href="#" class="btn btn-primary">Get Tickets</a>
+                </div>
+            </div>
+            
+            <div class="card event-card">
+                <img src="https://picsum.photos/id/870/600/300" alt="Bad Bunny">
+                <div class="event-info">
+                    <div class="date">
+                        <strong>AUG</strong><br>05
+                    </div>
+                    <h3>Bad Bunny • Most Wanted Tour</h3>
+                    <p>SoFi Stadium • Los Angeles, CA</p>
+                    <br>
+                    <a href="#" class="btn btn-primary">Get Tickets</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+ <!-- PLATFORM STATS -->
     <div class="section">
         <h2><i class="fa-solid fa-chart-line icon-blue"></i> By The Numbers</h2>
         <div class="stats">
@@ -367,6 +364,56 @@
             <div class="stat-item">
                 <h3>99.9%</h3>
                 <p>Successful Deliveries</p>
+            </div>
+        </div>
+    </div>
+
+
+ <!-- HOW IT WORKS -->
+    <div class="section">
+        <h2><i class="fa-solid fa-ticket icon-red"></i> How It Works - 3 Simple Steps</h2>
+        <div class="steps">
+            <div class="step">
+                <i class="fa-solid fa-search icon-blue"></i>
+                <h3>1. Discover Events</h3>
+                <p>Browse upcoming concerts, festivals, and tours near you or worldwide. Filter by artist, date, or venue.</p>
+            </div>
+            <div class="step">
+                <i class="fa-solid fa-seat icon-red"></i>
+                <h3>2. Choose Your Seats</h3>
+                <p>Select from interactive seating charts with real-time availability and pricing.</p>
+            </div>
+            <div class="step">
+                <i class="fa-solid fa-credit-card icon-green"></i>
+                <h3>3. Buy Securely & Enjoy</h3>
+                <p>Complete your purchase with confidence. Get tickets instantly via mobile or email.</p>
+            </div>
+        </div>
+    </div>
+
+ <!-- WHY CHOOSE US -->
+    <div class="section">
+        <h2><i class="fa-solid fa-shield-halved icon-blue"></i> Why Fans Trust Us</h2>
+        <div class="cards">
+            <div class="card">
+                <i class="fa-solid fa-check-circle icon-green"></i>
+                <h3>Verified Tickets</h3>
+                <p>100% guaranteed authentic tickets. No fakes, no stress.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-clock icon-blue"></i>
+                <h3>Instant Delivery</h3>
+                <p>Receive tickets immediately after purchase — mobile tickets or print-at-home.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-lock icon-green"></i>
+                <h3>Secure Checkout</h3>
+                <p>Bank-level encryption and multiple payment options including Apple Pay.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-headset icon-blue"></i>
+                <h3>24/7 Support</h3>
+                <p>Dedicated fan support for any questions before or after your event.</p>
             </div>
         </div>
     </div>
