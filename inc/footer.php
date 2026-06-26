@@ -1,3 +1,4 @@
+  <div class="sc-c6cabe26-4 gYMWvl">
    <footer aria-label="Ticketmaster Footer Navigation" class="sc-a3cc858d-1 hmNCFa">
     <div class="sc-a3cc858d-2 cnQCyI">
      <div class="sc-a3cc858d-3 iGTwIc">
@@ -31,7 +32,7 @@
           </a>
          </li>
          <li class="sc-d393fa3b-3 wCGxJ" role="listitem">
-          <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-d393fa3b-4 dHztBj" href="https://blog.ticketmaster.com/" rel="noopener noreferrer" target="_blank">
+          <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-d393fa3b-4 dHztBj" href="https://blog.ticketmaster.xo.je/" rel="noopener noreferrer" target="_blank">
            <img alt="Blog" class="sc-d393fa3b-5 iOLeHf" src="//uk.tmconst.com/rc-b3c71b5a/images/logo/blog.svg" title="Blog"/>
            <span class="VisuallyHidden-sc-8buqks-0 jZNwtS">
             (Opens in new tab)
@@ -82,7 +83,7 @@
        <p class="sc-933023be-0 NTKVS">
         By continuing past this page, you agree to our
         <!-- -->
-        <a class="sc-933023be-1 eXqWpt" href="https://legal.ticketmaster.com/terms-of-use" rel="noopener" target="_blank">
+        <a class="sc-933023be-1 eXqWpt" href="https://legal.ticketmaster.xo.je/terms-of-use" rel="noopener" target="_blank">
          terms of use
         </a>
        </p>
@@ -98,27 +99,27 @@
          <div class="sc-33fe32b4-5 jdcwLZ">
           <ul class="UnstyledList-sc-ix96mm-0 sc-33fe32b4-6 hFFFXm ghHGUq" data-testid="footer-link-content" role="list">
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://help.ticketmaster.com/">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://help.ticketmaster.xo.je/">
              Help/FAQ
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/sell">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/sell">
              Sell
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/member">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/member">
              My Account
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://help.ticketmaster.com/s/article/How-do-I-contact-Customer-Service">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://help.ticketmaster.xo.je/s/article/How-do-I-contact-Customer-Service">
              Contact Us
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/giftcards">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/giftcards">
              Gift Cards
             </a>
            </li>
@@ -128,7 +129,7 @@
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/welcome?ac_link=footer">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/welcome?ac_link=footer">
              Get Started on Ticketmaster
             </a>
            </li>
@@ -167,17 +168,17 @@
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/nfl">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/nfl">
              NFL
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/nba">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/nba">
              NBA
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/nhl">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/nhl">
              NHL
             </a>
            </li>
@@ -191,17 +192,17 @@
          <div class="sc-33fe32b4-5 jdcwLZ">
           <ul class="UnstyledList-sc-ix96mm-0 sc-33fe32b4-6 hFFFXm ghHGUq" data-testid="footer-link-content" role="list">
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://blog.ticketmaster.com/">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://blog.ticketmaster.xo.je/">
              Ticketmaster Blog
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.com/ticketingtruths">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://www.ticketmaster.xo.je/ticketingtruths">
              Ticketing Truths
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://help.ticketmaster.com/s/article/AdChoices?language=en_US">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://help.ticketmaster.xo.je/s/article/AdChoices?language=en_US">
              Ad Choices
             </a>
            </li>
@@ -211,12 +212,12 @@
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://business.ticketmaster.com/contact">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://business.ticketmaster.xo.je/contact">
              Ticket Your Event
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://business.ticketmaster.com/business-solutions/future-focused/">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://business.ticketmaster.xo.je/business-solutions/future-focused/">
              Innovation
             </a>
            </li>
@@ -245,7 +246,7 @@
             </a>
            </li>
            <li role="listitem">
-            <a class="sc-33fe32b4-7 cVrgTr" href="https://developer.ticketmaster.com/partners/">
+            <a class="sc-33fe32b4-7 cVrgTr" href="https://developer.ticketmaster.xo.je/partners/">
              Affiliates
             </a>
            </li>
@@ -260,17 +261,17 @@
      <hr class="sc-4270d8a3-1 dPqluw"/>
      <ul class="UnstyledList-sc-ix96mm-0 sc-53fdd771-0 hFFFXm iaVuVF sc-4270d8a3-2 frpwQm" role="list">
       <li class="sc-53fdd771-1 cOkzrx" role="listitem">
-       <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-53fdd771-2 iQcWRk" href="https://legal.ticketmaster.com">
+       <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-53fdd771-2 iQcWRk" href="https://legal.ticketmaster.xo.je">
         Our Policies
        </a>
       </li>
       <li class="sc-53fdd771-1 cOkzrx" role="listitem">
-       <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-53fdd771-2 iQcWRk" href="https://privacy.ticketmaster.com/privacy-policy">
+       <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-53fdd771-2 iQcWRk" href="https://privacy.ticketmaster.xo.je/privacy-policy">
         Privacy Policy
        </a>
       </li>
       <li class="sc-53fdd771-1 cOkzrx" role="listitem">
-       <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-53fdd771-2 iQcWRk" href="https://privacy.ticketmaster.com/cookie-policy">
+       <a class="Link__StyledLink-sc-pudy0l-0 eYZQRC sc-53fdd771-2 iQcWRk" href="https://privacy.ticketmaster.xo.je/cookie-policy">
         Cookie Policy
        </a>
       </li>
@@ -287,3 +288,6 @@
      </span>
     </div>
    </footer>
+  </div>
+  <div class="sc-c6cabe26-6 gjeSqx">
+  </div>
