@@ -1,9 +1,14 @@
 <div class="top-bar">
     <div class="top-bar-left">
-        <span><i class="fa-regular fa-comment-dots"></i> EN</span>
+        <span><i class="fa-regular fa-comment-dots"></i> US</span>
     </div>
     <div class="top-bar-right">
+        <a href="#">Hotels</a>
+        <a href="#">Sell</a>
+        <a href="#">Gift Cards</a>
         <a href="#">Help</a>
+        <a href="#">VIP</a>
+        <a href="/paypal.php"><img src="assets/images/paypal.png" alt="PayPal"></a>
     </div>
 </div>
 
@@ -12,24 +17,23 @@
         <img src="assets/images/logo.png" alt="<?php echo htmlspecialchars($site_name ?? 'ticketmaster®'); ?>">
     </a>
     <nav class="nav-links">
-        <a href="#">Concerts & Festivals</a>
-        <a href="#">Theater & Culture</a>
+        <a href="#">Concerts</a>
         <a href="#">Sports</a>
+        <a href="#">Arts, Theater & Comedy</a>
         <a href="#">Family</a>
-        <a href="#">Special Events</a>
         <a href="#">Cities</a>
     </nav>
     <div class="header-actions">
         <div class="search-container">
             <div class="search-texts">
                 <span class="search-label">SEARCH</span>
-                <input type="text" placeholder="Artist, event, or venue" spellcheck="false">
+                <input type="text" placeholder="Artist, Event or Venue" spellcheck="false">
             </div>
             <i class="fa-solid fa-magnifying-glass"></i>
         </div>
         <button class="btn-ingresa">
             <i class="fa-regular fa-user" style="font-size: 18px;"></i>
-            Sign In
+            Sign In/Register
         </button>
     </div>
 </header>
