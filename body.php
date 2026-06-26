@@ -208,7 +208,7 @@
     <div class="grid-4">
         <div class="event-card">
             <div style="position:relative;">
-                <img src="https://picsum.photos/id/1015/600/400" alt="Taylor Swift">
+                <img src="assets/images/bts.jpg" alt="Taylor Swift">
                 <div class="date-badge">JUL<br><strong>15</strong></div>
             </div>
             <div class="event-info">
