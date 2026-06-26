@@ -1,4 +1,3 @@
-# 4. INDEX.PHP
 <?php
 session_start();
 include 'db.php';
