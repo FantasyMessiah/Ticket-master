@@ -10,7 +10,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     align-items: center;
     justify-content: space-between;
     padding: 14px 20px;
-    background: #fff;
+    background: #024cdf;
     border-bottom: 1px solid #eaeaea;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     position: sticky;
