@@ -204,7 +204,7 @@
 
 <!-- Update this line in .hero -->
 background: linear-gradient(rgba(18,18,18,0.65), rgba(18,18,18,0.75)), 
-            url('assets/images/hero/hero-main.jpg') center/cover no-repeat;
+            url('assets/images/hero-main.jpg') center/cover no-repeat;
 
 
     <!-- 2. UPCOMING EVENTS - 4 Grid -->
