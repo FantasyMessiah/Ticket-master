@@ -79,7 +79,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 .nav-right a {
     text-decoration: none;
-    color: #333;
+    color: #fff;
     font-weight: 500;
     display: flex;
     align-items: center;
