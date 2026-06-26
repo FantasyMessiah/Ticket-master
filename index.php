@@ -383,98 +383,13 @@
     </div>
    </header>
   </div>
-  <main id="main-content">
-   <h1 class="VisuallyHidden-sc-8buqks-0 jZNwtS">
-    Ticketmaster United States
-   </h1>
-   <section>
-    <h2 class="VisuallyHidden-sc-8buqks-0 jZNwtS">
-     Highlights
-    </h2>
-    <div class="sc-4cb04cd1-0 bzblQn" data-testid="tmPromotedHero">
-     <div class="sc-4cb04cd1-1 fhVLIP">
-      <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-4cb04cd1-5 ePcAgt">
-      </div>
-      <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-4cb04cd1-6 kAfhsI">
-      </div>
-      <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-4cb04cd1-7 bOfkS">
-      </div>
-      <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-4cb04cd1-8 vkkdZ">
-      </div>
-     </div>
-    </div>
-   </section>
-   <div class="sc-c6cabe26-1 eCESmA">
-    <div class="sc-c6cabe26-2 dONBRu" id="main-column">
-     <div class="sc-ca936b87-0 iLmOeq" data-testid="tmPromotedSpotlights">
-      <div class="sc-ca936b87-1 jMgtdY">
-       <ul class="sc-ca936b87-2 cROIhg">
-        <li class="sc-ca936b87-3 cAhEBY">
-         <a class="sc-b039e2a5-0 cJBIQx">
-          <div class="sc-b039e2a5-1 bXEEhI">
-           <div class="sc-b039e2a5-7 blwAtS">
-           </div>
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-6 igdeoT">
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-5 kOBLlV">
-          </div>
-         </a>
-        </li>
-        <li class="sc-ca936b87-3 cAhEBY">
-         <a class="sc-b039e2a5-0 cJBIQx">
-          <div class="sc-b039e2a5-1 bXEEhI">
-           <div class="sc-b039e2a5-7 blwAtS">
-           </div>
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-6 igdeoT">
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-5 kOBLlV">
-          </div>
-         </a>
-        </li>
-        <li class="sc-ca936b87-3 cAhEBY">
-         <a class="sc-b039e2a5-0 cJBIQx">
-          <div class="sc-b039e2a5-1 bXEEhI">
-           <div class="sc-b039e2a5-7 blwAtS">
-           </div>
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-6 igdeoT">
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-5 kOBLlV">
-          </div>
-         </a>
-        </li>
-        <li class="sc-ca936b87-3 cAhEBY">
-         <a class="sc-b039e2a5-0 cJBIQx">
-          <div class="sc-b039e2a5-1 bXEEhI">
-           <div class="sc-b039e2a5-7 blwAtS">
-           </div>
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-6 igdeoT">
-          </div>
-          <div class="Skeleton__Shimmer-sc-112e39k-0 iFOEHJ sc-b039e2a5-5 kOBLlV">
-          </div>
-         </a>
-        </li>
-       </ul>
-      </div>
-     </div>
 
 
 
 
 
 
-
-        
-
-
-
-
-    </div>
-   </div>
-  </main>
+     
   <div class="sc-c6cabe26-4 gYMWvl">
    <footer aria-label="Ticketmaster Footer Navigation" class="sc-a3cc858d-1 hmNCFa">
     <div class="sc-a3cc858d-2 cnQCyI">
