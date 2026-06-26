@@ -256,7 +256,7 @@
 
     <!-- UPCOMING CONCERTS / EVENTS -->
     <div class="section">
-        <h2><i class="fa-solid fa-fire icon-red"></i> Featured Concerts</h2>
+        <h2><i class="fa-solid fa-fire icon-red"></i> UPCOMING Concerts</h2>
         <div class="cards">
             <div class="card event-card">
                 <img src="https://picsum.photos/id/1015/600/300" alt="Taylor Swift">
