@@ -3,7 +3,7 @@
 
 <?php include "inc/head.php"; ?>
 <?php include "inc/navbar1.php"; ?> 
-    <?php include "inc/countries.php"; ?>
+ 
 <body>
     <div id="__next">
         <div class="sc-d727d306-0 llCpYZ">
@@ -31,7 +31,7 @@
          </a>
         </section>    
         
-<?php include "inc/header.php"; ?>
+    <?php include "inc/header.php"; ?>
 <?php include "body.php"; ?>        
 <?php include "inc/footer.php"; ?>
 
