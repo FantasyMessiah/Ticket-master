@@ -43,7 +43,7 @@
         </div>
 
         <!-- Center Navigation Links -->
-        <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-white">
+        <ul class="hidden md:flex items-center gap-8 text-sm font-bold text-white">
           <li><a href="#" class="nav-link">Concerts</a></li>
           <li><a href="#" class="nav-link">Sports</a></li>
           <li><a href="#" class="nav-link">Arts, Theater &amp; Comedy</a></li>
