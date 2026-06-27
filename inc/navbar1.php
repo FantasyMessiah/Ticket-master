@@ -60,10 +60,13 @@
 
         <!-- Preferred Payments Partner -->
         <div class="flex items-center gap-3 pl-6 border-l border-gray-700">
-          <span class="text-xs text-gray-400 whitespace-nowrap">Preferred Payments Partner</span>
-          <a href="https://www.paypal.com" target="_blank">
-            <img src="assets/images/Paypalnavbar1.png" alt="PayPal" class="h-6">
-          </a>
+            <span class="text-xs text-gray-400 whitespace-nowrap">
+                Preferred Payments Partner
+            </span>
+        
+            <a href="https://www.paypal.com" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-paypal text-3xl text-[#00457C] hover:text-[#0070BA] transition-colors duration-200"></i>
+            </a>
         </div>
       </div>
     </div>
