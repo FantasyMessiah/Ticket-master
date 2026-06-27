@@ -378,24 +378,24 @@
         <div class="carousel" id="near-carousel">
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/1015/600/400" alt="">
-                    <div class="date-badge">JUL 15</div>
+                    <img src="assets/images/ChappellRoan.jpg" alt="">
+                    <div class="date-badge">AUG 29</div>
                 </div>
                 <div class="event-info">
-                    <h3>Taylor Swift</h3>
-                    <p>MetLife Stadium • East Rutherford</p>
-                    <p class="price">From $89</p>
+                    <h3>Chappell Roan</h3>
+                    <p>Daisy Chain Fields • Irvine, CA</p>
+                    <p class="price">From $310</p>
                 </div>
             </div>
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/60/600/400" alt="">
-                    <div class="date-badge">JUL 25</div>
+                    <img src="assets/images/Benson-Boone.jpg" alt="">
+                    <div class="date-badge">JUL 07</div>
                 </div>
                 <div class="event-info">
-                    <h3>Morgan Wallen</h3>
-                    <p>Yankee Stadium • New York</p>
-                    <p class="price">From $45</p>
+                    <h3>Benson Boone</h3>
+                    <p>Wanted Man Tour • PPG Paints Arena</p>
+                    <p class="price">From $50</p>
                 </div>
             </div>
             <div class="event-card">
@@ -411,13 +411,13 @@
             </div>
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/870/600/400" alt="">
-                    <div class="date-badge">AUG 10</div>
+                    <img src="assets/images/Olivia.jpg" alt="">
+                    <div class="date-badge">OCT 29</div>
                 </div>
                 <div class="event-info">
                     <h3>Olivia Rodrigo</h3>
-                    <p>TD Garden • Boston</p>
-                    <p class="price">From $55</p>
+                    <p>The Unraveled Tour • Value City Arena</p>
+                    <p class="price">From $180</p>
                 </div>
             </div>
         </div>
