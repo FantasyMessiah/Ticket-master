@@ -19,7 +19,7 @@
 <body class="bg-white text-gray-900">
 
   <!-- Navbar1 - Dark Background -->
-  <div class="relative bg-[#121212] text-white border-b border-gray-800 h-9 shadow-sm">
+  <div class="relative bg-[#121212] text-white border-b border-gray-800 h-12 shadow-sm">
   
     <!-- Main centered content -->
     <div class="max-w-7xl mx-auto h-full px-0 lg:px-6 flex items-center justify-between text-sm">
