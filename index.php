@@ -386,13 +386,6 @@
   </div>
 
 
-
-
-
-
      
-<?php include "inc/footer.php"; ?>
-
-
-
-<?php include "script2.php"; ?><div data-testid="modals" id="modals"></div></body>
+<?php include "inc/footer.php"; ?></div><?php include "script2.php"; ?><div data-testid="modals" id="modals"></div>
+</body>
