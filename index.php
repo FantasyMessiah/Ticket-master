@@ -75,11 +75,18 @@ include "inc/header1.php";
         Toggle search bar
        </span>
       </button>
-      <button class="sc-574d9268-0 bqynt" data-testid="accountLink" role="link">
-       <div class="LoadingSpinner__Container-sc-1aovhdo-0 kUUzjI">
-        <span class="Spinner__AnimatedSpinner-sc-337kba-0 fWVojV">
-        </span>
-       </div>
+      <button className="sc-574d9268-0 bqynt" data-testid="accountLink" role="link">
+        <UserIcon />
+       const UserIcon = () => (
+         <svg
+           width="1.5em"
+           height="1.5em"
+           viewBox="0 0 24 24"
+           aria-hidden="true"
+         >
+           <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"/>
+         </svg>
+       );
        <span>
         Sign In/Register
        </span>
