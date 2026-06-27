@@ -276,7 +276,7 @@
         <div class="carousel" id="trending-carousel">
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/1015/600/400" alt="">
+                    <img src="assets/images/Olivia.jpg" alt="">
                     <div class="date-badge">JUL 15</div>
                 </div>
                 <div class="event-info">
