@@ -216,34 +216,23 @@
                 <p>MetLife Stadium • East Rutherford, NJ</p>
                 <p>Sat, AUG 01 • 8:00 PM</p>
                 <p>Sun, AUG 02 • 8:00 PM</p>
-                <p class="price">From $89</p>
+                <p class="price">From $150</p>
                 <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
             </div>
         </div>
 
         <div class="event-card">
             <div style="position:relative;">
-                <img src="https://picsum.photos/id/201/600/400" alt="Drake">
-                <div class="date-badge">JUL<br><strong>22</strong></div>
+                <img src="assets/images/straykids.jpg" alt="Drake">
+                <div class="date-badge">JUL<br><strong>25-29</strong></div>
             </div>
             <div class="event-info">
-                <h3>Drake - It's All A Blur Tour</h3>
-                <p>Scotiabank Arena • Toronto, ON</p>
-                <p>Wed, Jul 22 • 8:00 PM</p>
-                <p class="price">From $65</p>
-                <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
-            </div>
-        </div>
-
-        <div class="event-card">
-            <div style="position:relative;">
-                <img src="https://picsum.photos/id/870/600/400" alt="Bad Bunny">
-                <div class="date-badge">AUG<br><strong>05</strong></div>
-            </div>
-            <div class="event-info">
-                <h3>Bad Bunny - Most Wanted Tour</h3>
-                <p>SoFi Stadium • Los Angeles, CA</p>
-                <p>Wed, Aug 5 • 8:30 PM</p>
+                <h3>Stray kids - RUN IT (Part 1) World Tour</h3>
+                <p>KSPO Dome • South Korea, ON</p>
+                <p>Sat, Jul 25 • 6:00 PM</p>
+                <p>Sun, Jul 26 • 5:00 PM</p>
+                <p>Wed, Jul 29 • 6:00 PM</p>
+                <p>Sat, AUG 01 • 5:00 PM</p>
                 <p class="price">From $75</p>
                 <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
             </div>
@@ -251,14 +240,30 @@
 
         <div class="event-card">
             <div style="position:relative;">
-                <img src="https://picsum.photos/id/133/600/400" alt="Billie Eilish">
-                <div class="date-badge">AUG<br><strong>12</strong></div>
+                <img src="assets/images/Bad-Bunny.jpg" alt="Bad Bunny">
+                <div class="date-badge">JUL<br><strong>10-11</strong></div>
             </div>
             <div class="event-info">
-                <h3>Billie Eilish - Hit Me Hard Tour</h3>
-                <p>United Center • Chicago, IL</p>
-                <p>Wed, Aug 12 • 7:30 PM</p>
-                <p class="price">From $55</p>
+                <h3>Bad Bunny - DeBÍ TiRAR MáS FOToS World Tour</h3>
+                <p>Strawberry Arena • Stocholm, SW</p>
+                <p>Fri, JUL 10 • 7:00 PM</p>
+                <p>Sat, JUL 11 • 7:00 PM</p>
+                <p class="price">From $40</p>
+                <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <div style="position:relative;">
+                <img src="assets/images/My-Chemical-Romance.jpg" alt="Billie Eilish">
+                <div class="date-badge">JUL-AUG<br><strong>08-30</strong></div>
+            </div>
+            <div class="event-info">
+                <h3>My Chemical Romance - Long Live The Black Parade Tour</h3>
+                <p>Wembley Stadium • London, UK</p>
+                <p>Wed, JUL 8 • 5:00 PM</p>
+                <p>Fri, JUL 10 • 5:00 PM</p>
+                <p class="price">From $50</p>
                 <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
             </div>
         </div>
