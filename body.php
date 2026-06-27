@@ -277,45 +277,45 @@
             <div class="event-card">
                 <div style="position:relative;">
                     <img src="assets/images/Olivia.jpg" alt="">
-                    <div class="date-badge">JUL 15</div>
+                    <div class="date-badge">OCT 29</div>
                 </div>
                 <div class="event-info">
-                    <h3>Taylor Swift</h3>
-                    <p>The Eras Tour • MetLife Stadium</p>
-                    <p class="price">From $89</p>
+                    <h3>Olivia Rodrigo</h3>
+                    <p>The Unraveled Tour • Value City Arena</p>
+                    <p class="price">From $250</p>
                 </div>
             </div>
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/201/600/400" alt="">
-                    <div class="date-badge">JUL 22</div>
+                    <img src="assets/images/Benson-Boone.jpg" alt="">
+                    <div class="date-badge">JUL 07</div>
                 </div>
                 <div class="event-info">
-                    <h3>Drake</h3>
-                    <p>It's All A Blur • Scotiabank Arena</p>
-                    <p class="price">From $65</p>
+                    <h3>Benson Boone</h3>
+                    <p>Wanted Man Tour • PPG Paints Arena</p>
+                    <p class="price">From $55</p>
                 </div>
             </div>
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/870/600/400" alt="">
+                    <img src="assets/images/Bad-Bunny.jpg" alt="">
                     <div class="date-badge">AUG 05</div>
                 </div>
                 <div class="event-info">
                     <h3>Bad Bunny</h3>
-                    <p>Most Wanted Tour • SoFi Stadium</p>
-                    <p class="price">From $75</p>
+                    <p>DeBÍ TiRAR MáS FOToS World Tour • Strawberry Arena</p>
+                    <p class="price">From $40</p>
                 </div>
             </div>
             <div class="event-card">
                 <div style="position:relative;">
-                    <img src="https://picsum.photos/id/133/600/400" alt="">
-                    <div class="date-badge">AUG 12</div>
+                    <img src="assets/images/Gracie-Abrams.jpg" alt="">
+                    <div class="date-badge">DEC 02</div>
                 </div>
                 <div class="event-info">
-                    <h3>Billie Eilish</h3>
-                    <p>Hit Me Hard • United Center</p>
-                    <p class="price">From $55</p>
+                    <h3>Gracie Abrams</h3>
+                    <p>The Look At My Life Tour • Ball Arena</p>
+                    <p class="price">From $95</p>
                 </div>
             </div>
         </div>
