@@ -19,7 +19,7 @@
 <body class="bg-white text-gray-900">
 
   <!-- Navbar1 - Dark Background -->
-  <div class="bg-[#121212] text-white border-b border-gray-800 py-2 shadow-sm">
+  <div class="bg-[#121212] text-white border-b border-gray-800 py-1.5 shadow-sm">
     <div class="max-w-7xl mx-auto px-6 flex items-center justify-between text-sm">
       
       <!-- Left: Country Selector -->
