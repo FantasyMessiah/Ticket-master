@@ -65,7 +65,7 @@
             </span>
         
             <a href="https://www.paypal.com" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-paypal text-3xl text-[#00457C] hover:text-[#0070BA] transition-colors duration-200"></i>
+                <i class="fab fa-paypal text-3xl text-[#fff] hover:text-[#0070BA] transition-colors duration-200"></i>
             </a>
         </div>
       </div>
