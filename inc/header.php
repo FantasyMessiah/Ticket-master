@@ -33,7 +33,7 @@
                  fill="none"
                  viewBox="0 0 24 24"
                  stroke="currentColor"
-                 stroke-width="2">
+                 stroke-width="1">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
             </svg>
           </button>
@@ -42,7 +42,7 @@
           <a href="#" class="flex items-start">
             <img src="assets/images/logo.png"
                  alt="Ticketmaster"
-                 class="h-8 w-auto">
+                 class="h-5 w-auto">
           </a>
         </div>
 
