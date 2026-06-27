@@ -1,28 +1,13 @@
 <script>
-const openBtn = document.querySelector(".dROoME"); // hamburger button
-const sidebar = document.querySelector(".sidebar");
-const overlay = document.querySelector(".sidebar-overlay");
-const closeBtn = document.querySelector(".sidebar-close");
+const toggle = document.getElementById("menuToggle");
+const menu = document.getElementById("mobileMenu");
 
-function openSidebar() {
-    sidebar.classList.add("active");
-    overlay.classList.add("active");
-    document.body.style.overflow = "hidden";
-}
+toggle.addEventListener("click", () => {
 
-function closeSidebar() {
-    sidebar.classList.remove("active");
-    overlay.classList.remove("active");
-    document.body.style.overflow = "";
-}
+    menu.classList.toggle("show");
 
-openBtn.addEventListener("click", openSidebar);
-closeBtn.addEventListener("click", closeSidebar);
-overlay.addEventListener("click", closeSidebar);
+    const expanded = menu.classList.contains("show");
 
-document.addEventListener("keydown", function(e){
-    if(e.key === "Escape"){
-        closeSidebar();
-    }
+    toggle.setAttribute("aria-expanded", expanded);
 });
 </script>
