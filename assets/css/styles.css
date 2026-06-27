@@ -549,4 +549,111 @@
       .cAhEBY{width:100%;padding:0 4px 32px;}/*!sc*/
       @media (min-width: 720px){.cAhEBY{width:50%;padding-inline-end:8px;padding-inline-start:8px;}}/*!sc*/
       data-styled.g1986[id="sc-ca936b87-3"]{content:"cAhEBY,"}/*!sc*/
+      /* Overlay */
+      
+      .sidebar-overlay{
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,.55);
+          opacity:0;
+          visibility:hidden;
+          transition:.3s;
+          z-index:9998;
+      }
+      
+      /* Sidebar */
+      
+      .sidebar{
+      
+          position:fixed;
+          top:0;
+          left:-340px;
+      
+          width:340px;
+          max-width:85%;
+      
+          height:100vh;
+      
+          background:#121212;
+      
+          color:#fff;
+      
+          transition:.35s ease;
+      
+          z-index:9999;
+      
+          display:flex;
+          flex-direction:column;
+      }
+      
+      .sidebar.active{
+          left:0;
+      }
+      
+      .sidebar-overlay.active{
+          opacity:1;
+          visibility:visible;
+      }
+      
+      .sidebar-header{
+      
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+      
+          padding:22px 20px;
+      
+          border-bottom:1px solid rgba(255,255,255,.1);
+      }
+      
+      .sidebar-logo svg{
+          height:28px;
+          width:auto;
+      }
+      
+      .sidebar-close{
+      
+          background:none;
+          border:none;
+      
+          color:#fff;
+      
+          font-size:30px;
+      
+          cursor:pointer;
+      }
+      
+      .sidebar-menu{
+      
+          display:flex;
+          flex-direction:column;
+      }
+      
+      .sidebar-menu a{
+      
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+      
+          color:#fff;
+      
+          text-decoration:none;
+      
+          padding:20px;
+      
+          font-size:15px;
+          font-weight:600;
+      
+          border-bottom:1px solid rgba(255,255,255,.08);
+      
+          transition:.2s;
+      }
+      
+      .sidebar-menu a:hover{
+          background:#1c1c1c;
+      }
+      
+      .sidebar-menu a span:last-child{
+          font-size:22px;
+      }
 </style>
