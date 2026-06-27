@@ -67,7 +67,7 @@
         <a href="#" class="nav-link">VIP</a>
       </nav>
       
-      <a href="#" class="h-full flex items-center">
+      <a href="#" class="h-full flex items-center ml-6">
         <img
           src="assets/paypal_small.svg"
           alt="PayPal"
