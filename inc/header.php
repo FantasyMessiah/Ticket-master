@@ -19,25 +19,26 @@
 </head>
 <body>
 
-  <!-- Top Navbar -->
+  <!-- Top Navbar - Increased Size -->
   <nav class="bg-[#024DDF] text-white border-b border-blue-800">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex items-center justify-between h-20"> <!-- Increased height -->
+        
         <!-- Left: Hamburger + Logo -->
-        <div class="flex items-center gap-4">
-          <button class="p-2 hover:bg-[#013ba8] rounded-md transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+        <div class="flex items-center gap-5">
+          <button class="p-3 hover:bg-[#013ba8] rounded-md transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
             </svg>
           </button>
           
           <a href="#">
-            <img src="assets/images/logo.png" alt="Ticketmaster" class="h-9 w-auto">
+            <img src="assets/images/logo.png" alt="Ticketmaster" class="h-11 w-auto">
           </a>
         </div>
 
         <!-- Center Categories -->
-        <ul class="hidden md:flex items-center gap-7 text-sm font-medium">
+        <ul class="hidden md:flex items-center gap-8 text-base font-medium">
           <li><a href="#" class="nav-link">Concerts</a></li>
           <li><a href="#" class="nav-link">Sports</a></li>
           <li><a href="#" class="nav-link">Arts, Theater &amp; Comedy</a></li>
@@ -47,7 +48,7 @@
 
         <!-- Right: Sign In -->
         <button onclick="alert('Sign in would open here')"
-                class="flex items-center gap-2 px-5 py-2 border border-white rounded-lg hover:bg-white hover:text-[#024DDF] transition-all font-medium text-sm">
+                class="flex items-center gap-2 px-6 py-3 border border-white rounded-xl hover:bg-white hover:text-[#024DDF] transition-all font-medium text-sm">
           <i class="fas fa-user"></i>
           <span>Sign In / Register</span>
         </button>
@@ -56,9 +57,9 @@
   </nav>
 
   <!-- Compact Search Bar - Reduced Size -->
-  <div class="bg-[#024DDF] pb-4 pt-2">
-    <div class="max-w-5xl mx-auto px-6"> <!-- Reduced overall width -->
-      <div class="bg-white text-gray-900 rounded-2xl shadow-lg p-1.5"> <!-- Reduced padding -->
+  <div class="bg-[#024DDF] pb-5 pt-2">
+    <div class="max-w-4xl mx-auto px-6"> <!-- Further reduced width -->
+      <div class="bg-white text-gray-900 rounded-2xl shadow-lg p-1 max-w-full mx-auto">
         <form action="/search" class="flex items-center">
           
           <!-- Location -->
@@ -66,8 +67,7 @@
             <i class="fas fa-map-marker-alt text-[#024DDF] text-xl"></i>
             <div>
               <label class="text-xs text-gray-500">Location</label>
-              <input type="text" placeholder="City or Zip Code"
-                     class="bg-transparent outline-none w-full text-sm">
+              <input type="text" placeholder="City or Zip Code" class="bg-transparent outline-none w-full text-sm">
             </div>
           </div>
 
@@ -82,10 +82,9 @@
           </div>
 
           <!-- Search -->
-          <div class="flex items-center gap-3 px-5 py-2.5 flex-[1.6]">
+          <div class="flex items-center gap-3 px-5 py-2.5 flex-[1.5]">
             <i class="fas fa-search text-[#024DDF] text-xl"></i>
-            <input type="text" placeholder="Artist, Event or Venue"
-                   class="bg-transparent outline-none flex-1 text-sm">
+            <input type="text" placeholder="Artist, Event or Venue" class="bg-transparent outline-none flex-1 text-sm">
           </div>
 
           <!-- Search Button -->
