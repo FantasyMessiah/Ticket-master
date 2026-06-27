@@ -45,23 +45,26 @@
                  alt="Ticketmaster"
                  class="h-6 lg:h-[26px] w-auto">
           </a>
+
+          <!-- Center Categories -->
+          <ul class="hidden md:flex items-center gap-8 lg:gap-5 text-base lg:text-1.5xl font-bold">
+            <li><a href="#" class="nav-link">Concerts</a></li>
+            <li><a href="#" class="nav-link">Sports</a></li>
+            <li><a href="#" class="nav-link">Arts, Theater &amp; Comedy</a></li>
+            <li><a href="#" class="nav-link">Family</a></li>
+            <li><a href="#" class="nav-link">Cities</a></li>
+          </ul>
+          
         </div>
   
-        <!-- Center Categories -->
-        <ul class="hidden md:flex items-center gap-8 lg:gap-5 text-base lg:text-1.5xl font-bold">
-          <li><a href="#" class="nav-link">Concerts</a></li>
-          <li><a href="#" class="nav-link">Sports</a></li>
-          <li><a href="#" class="nav-link">Arts, Theater &amp; Comedy</a></li>
-          <li><a href="#" class="nav-link">Family</a></li>
-          <li><a href="#" class="nav-link">Cities</a></li>
-        </ul>
+
   
         <!-- Right: Sign In -->
         <div class="flex items-center">
           <a href="register.php"
              class="flex items-center gap-2 lg:gap-3 text-white hover:text-[#024DDF] transition-colors duration-200">
             <i class="fa-regular fa-user text-1xl lg:text-2xl"></i>
-            <span class="hidden md:inline font-bold text-sm lg:text-1xl">
+            <span class="hidden md:inline font-bold text-sm lg:text-1.5xl">
               Sign In / Register
             </span>
           </a>
