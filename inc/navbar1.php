@@ -38,36 +38,35 @@
         </a>
       </div>
   
-      <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center h-full pr-4">
-        <nav class="flex items-center gap-7 font-medium">
-          <a href="#" class="nav-link flex items-center gap-1.5">
-
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 01-2-2H7a2 2 0 01-2 2v16m14 0h2m-2 0h-5m-4 0H3" />
-            </svg>
-
-            Hotels
-          </a>
-  
-          <a href="#" class="nav-link">Sell</a>
-  
-          <a href="#" class="nav-link flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-1a2 2 0 01-2-2H9a2 2 0 01-2-2v-1a2 2 0 012-2m0 0V9a2 2 0 012-2" />
-            </svg>
-            Gift Cards
-          </a>
-  
-          <a href="#" class="nav-link">Help</a>
-          <a href="#" class="nav-link">VIP</a>
-        </nav>
-      </div>
   
     </div>
   
     <!-- PayPal pinned to top-right edge -->
     <div class="hidden md:flex absolute top-0 right-0 h-full items-center border-l border-gray-700 pl-2">
+
+      <nav class="flex items-center gap-7 font-medium">
+        <a href="#" class="nav-link flex items-center gap-1.5">
+
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 01-2-2H7a2 2 0 01-2 2v16m14 0h2m-2 0h-5m-4 0H3" />
+          </svg>
+
+          Hotels
+        </a>
+
+        <a href="#" class="nav-link">Sell</a>
+
+        <a href="#" class="nav-link flex items-center gap-1.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-1a2 2 0 01-2-2H9a2 2 0 01-2-2v-1a2 2 0 012-2m0 0V9a2 2 0 012-2" />
+          </svg>
+          Gift Cards
+        </a>
+
+        <a href="#" class="nav-link">Help</a>
+        <a href="#" class="nav-link">VIP</a>
+      </nav>
+      
       <a href="#" class="h-full flex items-center">
         <img
           src="assets/paypal_small.svg"
