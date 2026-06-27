@@ -20,7 +20,7 @@
 <body>
 
   <!-- Main Navigation -->
-  <nav class="bg-[#00AEEF] border-b border-blue-600 sticky top-0 z-50">
+  <nav class="bg-[0099DD] border-b border-blue-600 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6">
       <div class="flex items-center justify-between h-16">
 
