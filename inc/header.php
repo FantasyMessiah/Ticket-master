@@ -84,8 +84,8 @@
         <form action="/search" class="flex flex-col md:flex-row items-stretch md:items-center">
   
           <!-- LOCATION + DATES ROW (mobile only separated layout) -->
-
-  
+          <div class="flex md:flex-row flex-row w-full md:w-auto">
+            
             <!-- Location -->
             <div class="flex items-center gap-3 px-5 py-2.5 flex-1 border-r border-gray-200">
               <i class="fas fa-map-marker-alt text-[#024DDF] text-xl"></i>
@@ -105,6 +105,8 @@
               </div>
               <i class="fas fa-chevron-down text-gray-400 ml-auto"></i>
             </div>
+
+          </div>
 
   
           <!-- SEARCH ROW (mobile separate row) -->
