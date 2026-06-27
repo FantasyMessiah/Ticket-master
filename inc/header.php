@@ -60,8 +60,8 @@
         <div class="flex items-center">
             <a href="register.php"
                class="flex items-center gap-2 text-white hover:text-[#024DDF] transition-colors duration-200">
-                <i class="fas fa-user text-2xl"></i>
-                <span class="hidden md:inline font-medium text-sm">
+                <i class="fa-regular fa-circle-user text-1xl text-2xl"></i>
+                <span class="hidden md:inline font-bold text-sm">
                     Sign In / Register
                 </span>
             </a>
