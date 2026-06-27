@@ -26,7 +26,7 @@
   
       <!-- Country Selector -->
       <div class="pl-3 lg:pl-0">
-        <a href="countries.php"
+        <a href="inc/countries.php"
            class="flex items-center gap-2 px-4 h-full rounded-lg border border-gray-600 hover:border-gray-500 transition-all hover:bg-gray-800">
           <!-- SVG -->
           <svg width="22" height="22" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
