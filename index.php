@@ -76,10 +76,6 @@ include "inc/header1.php";
        </span>
       </button>
       <button class="sc-574d9268-0 bqynt" data-testid="accountLink" role="link">
-       <div class="LoadingSpinner__Container-sc-1aovhdo-0 kUUzjI">
-        <span class="Spinner__AnimatedSpinner-sc-337kba-0 fWVojV">
-        </span>
-       </div>
        <span>
         Sign In/Register
        </span>
