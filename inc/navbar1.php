@@ -30,7 +30,6 @@
             <!-- SVG omitted for brevity -->
           </svg>
           <span class="font-semibold">US</span>
-          <i class="fas fa-chevron-down text-xs ml-1"></i>
         </a>
       </div>
   
@@ -40,8 +39,10 @@
         <!-- Navigation Links (Desktop Only) -->
         <nav class="hidden md:flex items-center gap-7 font-medium mr-8">
           <a href="#" class="nav-link flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 01-2-2H7a2 2 0 01-2 2v16m14 0h2m-2 0h-5m-4 0H3"/>
+            <svg width="22" height="22" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M503.2 322.8c5.7-21.3 8.8-43.7 8.8-66.8l-8.8-66.8a254.6 254.6 0 0 0-28.8-66.8l-59-66.7A255 255 0 0 0 256 0h-.2A255 255 0 0 0 96.6 55.7l-59 66.7a254.6 254.6 0 0 0-28.8 66.8L0 256v.1c0 23 3 45.4 8.8 66.7l28.8 66.8a257.3 257.3 0 0 0 59 66.7L256 512l159.4-55.7a257.3 257.3 0 0 0 59-66.7z" fill="#FFF"/>
+              <path d="M503.2 189.2c5.7 21.3 8.8 43.7 8.8 66.8H0c0-23.1 3-45.5 8.8-66.8zM415.4 55.7a257.3 257.3 0 0 1 59 66.7H37.6a257.3 257.3 0 0 1 59-66.7zm59 333.9c12.6-20.6 22.4-43 28.8-66.8H8.8a254.6 254.6 0 0 0 28.8 66.8zm-59 66.7H96.6A255 255 0 0 0 255.8 512h.4a255 255 0 0 0 159.2-55.7" fill="#D80027"/>
+              <path d="M0 245.6A256 256 0 0 1 256 0v256H0z" fill="#0052B4"/>
             </svg>
             Hotels
           </a>
@@ -58,10 +59,6 @@
   
         <!-- PayPal -->
         <div class="flex items-center h-full md:pl-6 md:border-l border-gray-700">
-          <span class="hidden md:inline text-xs text-gray-400 whitespace-nowrap mr-3">
-            Preferred Payments Partner
-          </span>
-  
           <a href="#" class="h-full flex items-center">
             <img src="assets/paypal_small.svg"
                  alt="PayPal"
