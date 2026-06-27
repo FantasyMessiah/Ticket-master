@@ -25,7 +25,7 @@
       <div class="flex items-center justify-between h-10 lg:h-[88px]">
   
         <!-- Left: Hamburger + Logo -->
-        <div class="flex items-center gap-2 lg:gap-4">
+        <div class="flex items-center gap-2 lg:gap-2">
           <!-- Hamburger (Mobile Only) -->
           <button class="block lg:hidden hover:bg-[#013ba8] rounded-md transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -43,12 +43,12 @@
           <a href="#" class="flex items-center">
             <img src="assets/images/logo.png"
                  alt="Ticketmaster"
-                 class="h-6 lg:h-[52px] w-auto">
+                 class="h-6 lg:h-[26px] w-auto">
           </a>
         </div>
   
         <!-- Center Categories -->
-        <ul class="hidden md:flex items-center gap-8 lg:gap-12 text-base lg:text-2xl font-bold">
+        <ul class="hidden md:flex items-center gap-8 lg:gap-5 text-base lg:text-1xl font-bold">
           <li><a href="#" class="nav-link">Concerts</a></li>
           <li><a href="#" class="nav-link">Sports</a></li>
           <li><a href="#" class="nav-link">Arts, Theater &amp; Comedy</a></li>
@@ -60,7 +60,7 @@
         <div class="flex items-center">
           <a href="register.php"
              class="flex items-center gap-2 lg:gap-3 text-white hover:text-[#024DDF] transition-colors duration-200">
-            <i class="fa-regular fa-user text-2xl lg:text-5xl"></i>
+            <i class="fa-regular fa-user text-1xl lg:text-2xl"></i>
             <span class="hidden md:inline font-bold text-sm lg:text-xl">
               Sign In / Register
             </span>
