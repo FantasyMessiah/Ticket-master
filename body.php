@@ -209,12 +209,13 @@
         <div class="event-card">
             <div style="position:relative;">
                 <img src="assets/images/bts.jpg" alt="Taylor Swift">
-                <div class="date-badge">JUL<br><strong>15</strong></div>
+                <div class="date-badge">AUG<br><strong>01-02</strong></div>
             </div>
             <div class="event-info">
-                <h3>Taylor Swift - The Eras Tour</h3>
+                <h3>BTS - The ARIRANG WORLD TOUR</h3>
                 <p>MetLife Stadium • East Rutherford, NJ</p>
-                <p>Sat, Jul 15 • 7:00 PM</p>
+                <p>Sat, AUG 01 • 8:00 PM</p>
+                <p>Sun, AUG 02 • 8:00 PM</p>
                 <p class="price">From $89</p>
                 <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
             </div>
