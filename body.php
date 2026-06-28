@@ -13,32 +13,44 @@
     --tm-dark: #121212;
 }
 
-/* SMALLER HERO BANNER */
+/* FULL WIDTH HERO */
 .hero {
-    height: 380px;
-    background: linear-gradient(rgba(18,18,18,0.65), rgba(18,18,18,0.75)), 
-                url('https://picsum.photos/id/1015/2000/1200') center/cover no-repeat;
-    border-radius: 0px;
-    display: flex;
-    align-items: center;
-    color: white;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
     position: relative;
-    margin-bottom: 50px;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: hidden;
 }
+
+.hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
 .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 60px;
+    transform: translateY(-50%);
     max-width: 580px;
-    padding-left: 0px;
+    color: #fff;
+    z-index: 2;
 }
-.hero h1 {
-    font-size: 42px;
-    font-weight: 900;
-    line-height: 1.1;
-    margin-bottom: 12px;
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(18,18,18,.45), rgba(18,18,18,.65));
 }
-.hero p {
-    font-size: 18px;
-    margin-bottom: 25px;
-    opacity: 0.95;
+
+.hero-content {
+    z-index: 3;
 }
 .btn-find {
     background: var(--tm-red);
@@ -193,14 +205,18 @@
 <div class="container">
 
 
-<!-- 1. HERO BANNER - CORRECTED PATH -->
-<div class="hero" style="background: linear-gradient(rgba(18,18,18,0.65), rgba(18,18,18,0.75)), url('assets/images/hero-main.jpg') center/cover no-repeat;">
+<!-- HERO (Outside .container) -->
+<div class="hero">
+    <img src="assets/images/hero-main.jpg" alt="Hero Banner">
+
     <div class="hero-content">
         <h1>Live Music. Live Moments.</h1>
-        <p>Buy verified tickets to the hottest concerts, tours &amp; festivals.</p>
+        <p>Buy verified tickets to the hottest concerts, tours & festivals.</p>
         <a href="#" class="btn-find">Find Tickets</a>
     </div>
 </div>
+
+<div class="container">
 
 
     <!-- 2. UPCOMING EVENTS - 4 Grid -->
