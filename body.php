@@ -210,7 +210,7 @@
 
 <!-- HERO (Outside .container) -->
 <div class="hero">
-    <img src="assets/images/hero-main.jpg" alt="Hero Banner">
+    <img src="assets/images/image.png" alt="Hero Banner">
 
     <div class="hero-content">
         <h1>Live Music. Live Moments.</h1>
