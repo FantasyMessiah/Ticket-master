@@ -33,7 +33,7 @@
 
 .hero-content {
     position: absolute;
-    top: calc(50% + 15px);   /* moves content 15px down */
+    top: calc(50% + 30px);   /* moves content 15px down */
     left: 15px;
     transform: translateY(-50%);
     max-width: 580px;
@@ -82,7 +82,7 @@
     border-radius: 5px;
     text-decoration: none;
     display: inline-block;
-    min-width: 155px;     /* optional fixed width */
+    min-width: 125px;     /* optional fixed width */
     text-align: center;
     transition: all 0.3s;
 }
@@ -240,8 +240,8 @@
     <img src="assets/images/image.png" alt="Hero Banner">
 
     <div class="hero-content">
-        <h1>Live Music. Live Moments.</h1>
-        <p>Buy verified tickets to the hottest concerts, tours & festivals.</p>
+        <h1>WICKED The Musical</h1>
+        <p>Text</p>
         <a href="#" class="btn-find">Find Tickets</a>
     </div>
 </div>
