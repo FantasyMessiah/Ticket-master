@@ -33,7 +33,7 @@
 
 .hero-content {
     position: absolute;
-    top: 50%;
+    top: calc(50% + 15px);   /* moves content 15px down */
     left: 15px;
     transform: translateY(-50%);
     max-width: 580px;
@@ -76,12 +76,14 @@
 .btn-find {
     background: var(--tm-blue);
     color: white;
-    padding: 11px 28px;
+    padding: 11px 20px;   /* reduced horizontal padding */
     font-size: 16px;
     font-weight: 700;
     border-radius: 5px;
     text-decoration: none;
     display: inline-block;
+    min-width: 155px;     /* optional fixed width */
+    text-align: center;
     transition: all 0.3s;
 }
 .btn-find:hover {
