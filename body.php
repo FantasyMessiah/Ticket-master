@@ -13,19 +13,18 @@
     --tm-dark: #121212;
 }
 
-/* FULL WIDTH HERO */
+/* HERO */
 .hero {
     width: 100vw;
     margin: 0;
     padding: 0;
     position: relative;
     left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    transform: translateX(-50%);
     overflow: hidden;
 }
 
+/* Mobile: image decides the height */
 .hero img {
     width: 100%;
     height: auto;
@@ -35,25 +34,43 @@
 .hero-content {
     position: absolute;
     top: 50%;
-    left: 15px; /* Mobile */
+    left: 15px;
     transform: translateY(-50%);
     max-width: 580px;
     color: #fff;
     z-index: 3;
 }
 
-/* Desktop */
-@media (min-width: 992px) {
-    .hero-content {
-        left: 60px;
-    }
-}
-    
 .hero::after {
     content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(rgba(18,18,18,.45), rgba(18,18,18,.65));
+    z-index: 1;
+}
+
+.hero-content {
+    z-index: 2;
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+
+    /* Show only the top 60% of the image */
+    .hero {
+        height: 60vh;      /* adjust if you want a taller/shorter hero */
+    }
+
+    .hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top; /* crop from the bottom, keep the top */
+    }
+
+    .hero-content {
+        left: 60px;
+    }
 }
 
 .btn-find {
@@ -201,10 +218,18 @@
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-    .hero { height: 320px; }
-    .hero h1 { font-size: 34px; }
-    .section-title { font-size: 24px; margin: 35px 0 18px; }
-    .carousel-btn { display: none; }
+    .hero h1 {
+        font-size: 34px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin: 35px 0 18px;
+    }
+
+    .carousel-btn {
+        display: none;
+    }
 }
 </style>
 
