@@ -75,7 +75,7 @@
   </nav>
 
   <!-- Compact Search Bar - Reduced Size -->
-  <div class="bg-[#024DDF] pb-5 pt-2 md:bg-[#024DDF] bg-white">
+  <div class="bg-[#024DDF] pt-2 md:bg-[#024DDF] bg-white">
     <div class="max-w-4xl mx-auto px-0 md:px-6">
   
       <!-- Container -->
