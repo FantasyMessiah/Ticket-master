@@ -222,10 +222,10 @@
         <div style="position:relative;">
             <img src="assets/images/bts.jpg" alt="Taylor Swift">
         </div>
-        <div class="event-info">
-            <p>MetLife Stadium • East Rutherford, NJ</p>
-            <h3>BTS - The ARIRANG WORLD TOUR</h3>
-        </div>
+    <div class="event-info">
+        <p>MetLife Stadium • East Rutherford, NJ</p>
+        <h3>BTS - The ARIRANG WORLD TOUR</h3>
+    </div>
 
 
 
