@@ -1,6 +1,6 @@
 <?php
 // booking.php - Selection & Seat Reservation Pipeline
-require_once 'db.php';
+require_once 'config/db.php';
 
 // Default mock parameters matching your structural tree if database variables aren't initialized yet
 $artist_name = "BTS";
