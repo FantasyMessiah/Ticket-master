@@ -35,12 +35,20 @@
 .hero-content {
     position: absolute;
     top: 50%;
-    left: 60px;
+    left: 15px; /* Mobile */
     transform: translateY(-50%);
     max-width: 580px;
     color: #fff;
     z-index: 3;
 }
+
+/* Desktop */
+@media (min-width: 992px) {
+    .hero-content {
+        left: 60px;
+    }
+}
+    
 .hero::after {
     content: "";
     position: absolute;
