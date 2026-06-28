@@ -1,70 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ticketmaster Style Header</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  
-  <style>
-    .nav-link {
-      transition: all 0.2s ease;
-    }
-    .nav-link:hover {
-      color: #fff;
-      border-bottom: 3px solid #fff;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Main Navigation -->
-  <nav class="bg-[#024DDF] border-b border-blue-800 sticky top-0 z-50">
+<nav class="bg-[#024DDF] border-b border-blue-800 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6">
       <div class="flex items-center justify-between h-16">
-
-        <!-- Left Section: Hamburger + Logo -->
         <div class="flex items-center gap-4">
-          <!-- Hamburger Menu -->
-          <button onclick="alert('Mobile menu would open here')"
-                  class="p-2 hover:bg-[#013ba8] rounded-md transition-colors text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-          </button>
-
-          <!-- Logo -->
-          <a href="#" class="flex items-center">
-            <img src="assets/images/logo.png" 
-                 alt="Ticketmaster" 
-                 class="h-9 w-auto">
+          <a href="index.php" class="flex items-center">
+            <b class="text-white text-xl tracking-wider font-black">TICKETMASTER</b>
           </a>
         </div>
-
-        <!-- Center Navigation Links -->
         <ul class="hidden md:flex items-center gap-8 text-sm font-bold text-white">
-          <li><a href="#" class="nav-link">Concerts</a></li>
+          <li><a href="index.php" class="nav-link">Concerts</a></li>
           <li><a href="#" class="nav-link">Sports</a></li>
-          <li><a href="#" class="nav-link">Arts, Theater &amp; Comedy</a></li>
+          <li><a href="#" class="nav-link">Arts & Comedy</a></li>
           <li><a href="#" class="nav-link">Family</a></li>
-          <li><a href="#" class="nav-link">Cities</a></li>
         </ul>
-
-        <!-- Right Side: Sign In / Register -->
         <div class="flex items-center">
-            <a href="register.php"
-               class="flex items-center gap-2 text-white hover:text-[#024DDF] transition-colors">
-                <i class="fas fa-user text-4xl"></i>
-                <span class="hidden md:inline font-medium text-sm">
-                    Sign In / Register
-                </span>
+            <a href="dashboard.php" class="flex items-center gap-2 text-white hover:text-gray-200 transition-colors">
+                <i class="fas fa-user-circle text-2xl"></i> <span class="text-sm font-semibold">My Account</span>
             </a>
         </div>
-
       </div>
     </div>
-  </nav>
-
-</body>
-</html>
+</nav>
