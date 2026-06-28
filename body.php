@@ -51,6 +51,7 @@
 
 .hero-content {
     z-index: 3;
+    margin-left: -5px;
 }
 .btn-find {
     background: var(--tm-blue);
@@ -98,6 +99,9 @@
 }
 .event-info {
     padding: 16px;
+    margin-left: 0;
+    padding-left: 0;
+
 }
 .event-info h3 {
     font-size: 17.5px;
