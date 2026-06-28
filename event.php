@@ -7,6 +7,7 @@ require_once 'db.php';
 $artist_name = "BTS";
 $event_title_overlay = "WORLD TOUR 'ARIRANG'";
 $event_banner_image = "https://picsum.photos/id/1015/2000/800"; // Fallback presentation banner
+$artist_image = "https://picsum.photos/id/64/400/400"; // Fallback circular artist image profile
 
 // If an ID parameter is appended, load matching database row allocations
 if (isset($_GET['id'])) {
@@ -18,7 +19,9 @@ if (isset($_GET['id'])) {
         if ($event_data) {
             $artist_name = $event_data['artist_name'];
             $event_title_overlay = $event_data['title'];
+            // If database contains an uploaded graphic path, assign them cleanly
             $event_banner_image = "uploads/" . $event_data['artist_image'];
+            $artist_image = "uploads/" . $event_data['artist_image'];
         }
     } catch (Exception $e) {
         // Safe silence mode to preserve page layout continuity
@@ -79,15 +82,23 @@ $total_concerts_count = count($concerts_results);
                  onerror="this.src='https://picsum.photos/id/625/2000/1000';" 
                  alt="Full Event Banner" 
                  class="w-full h-full object-cover opacity-80">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-            <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white max-w-4xl">
-                <p class="text-xs uppercase tracking-widest font-black text-blue-400 mb-1">Live Presentation Spot</p>
-                <h1 class="text-3xl md:text-6xl font-black tracking-tight leading-none drop-shadow-md">
-                    <?php echo htmlspecialchars($artist_name); ?>
-                </h1>
-                <h2 class="text-xl md:text-2xl font-bold mt-2 text-gray-200 opacity-95 drop-shadow-sm">
-                    <?php echo htmlspecialchars($event_title_overlay); ?>
-                </h2>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+            
+            <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white max-w-4xl flex items-center gap-4 md:gap-6">
+                <img src="<?php echo htmlspecialchars($artist_image); ?>" 
+                     onerror="this.src='https://picsum.photos/id/64/400/400';" 
+                     alt="Artist Profile Image" 
+                     class="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover border-2 border-white/40 shadow-lg shrink-0">
+                
+                <div>
+                    <p class="text-xs uppercase tracking-widest font-black text-blue-400 mb-1">Live Presentation Spot</p>
+                    <h1 class="text-3xl md:text-6xl font-black tracking-tight leading-none drop-shadow-md">
+                        <?php echo htmlspecialchars($artist_name); ?>
+                    </h1>
+                    <h2 class="text-xl md:text-2xl font-bold mt-2 text-gray-200 opacity-95 drop-shadow-sm">
+                        <?php echo htmlspecialchars($event_title_overlay); ?>
+                    </h2>
+                </div>
             </div>
         </div>
 
