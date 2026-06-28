@@ -35,7 +35,7 @@
 .hero-content {
     position: absolute;
     top: 50%;
-    left: 15px;
+    left: 50px;
     transform: translateY(-50%);
     max-width: 580px;
     color: #fff;
