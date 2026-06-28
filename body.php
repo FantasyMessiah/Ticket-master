@@ -64,7 +64,7 @@
     transition: all 0.3s;
 }
 .btn-find:hover {
-    background: #c40022;
+    background: #024DDF;
     transform: scale(1.05);
 }
 
@@ -177,7 +177,7 @@
 /* BUTTONS */
 .btn {
     padding: 12px 24px;
-    border-radius: 50px;
+    border-radius: 20px;
     font-weight: 600;
     text-decoration: none;
     display: inline-block;
@@ -191,7 +191,7 @@
     border: 2px solid var(--tm-red);
     color: var(--tm-red);
 }
-.btn-primary:hover { background: #c40022; }
+.btn-primary:hover { background: #024DDF; }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
@@ -205,16 +205,16 @@
 <div class="container">
 
 
-<!-- HERO (Outside .container) -->
-<div class="hero">
-    <img src="assets/images/hero-main.jpg" alt="Hero Banner">
-
-    <div class="hero-content">
-        <h1>Live Music. Live Moments.</h1>
-        <p>Buy verified tickets to the hottest concerts, tours & festivals.</p>
-        <a href="#" class="btn-find">Find Tickets</a>
+    <!-- HERO (Outside .container) -->
+    <div class="hero">
+        <img src="assets/images/hero-main.jpg" alt="Hero Banner">
+    
+        <div class="hero-content">
+            <h1>Live Music. Live Moments.</h1>
+            <p>Buy verified tickets to the hottest concerts, tours & festivals.</p>
+            <a href="#" class="btn-find">Find Tickets</a>
+        </div>
     </div>
-</div>
 
 <div class="container">
 
