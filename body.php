@@ -220,20 +220,14 @@
     <!-- 2. UPCOMING EVENTS - 4 Grid -->
     <h2 class="section-title"><i class="fa-solid fa-calendar icon-red"></i> Upcoming Events</h2>
     <div class="grid-4">
-        <div class="event-card">
-            <div style="position:relative;">
-                <img src="assets/images/bts.jpg" alt="Taylor Swift">
-                <div class="date-badge">AUG<br><strong>01-02</strong></div>
-            </div>
-            <div class="event-info">
-                <h3>BTS - The ARIRANG WORLD TOUR</h3>
-                <p>MetLife Stadium • East Rutherford, NJ</p>
-                <p>Sat, AUG 01 • 8:00 PM</p>
-                <p>Sun, AUG 02 • 8:00 PM</p>
-                <p class="price">From $150</p>
-                <a href="#" class="btn btn-primary" style="margin-top:12px; width:100%; text-align:center;">Get Tickets</a>
-            </div>
+        <div style="position:relative;">
+            <img src="assets/images/bts.jpg" alt="Taylor Swift">
         </div>
+        <div class="event-info">
+            <p>MetLife Stadium • East Rutherford, NJ</p>
+            <h3>BTS - The ARIRANG WORLD TOUR</h3>
+        </div>
+
 
         <div class="event-card">
             <div style="position:relative;">
