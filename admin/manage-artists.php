@@ -11,7 +11,7 @@ $error   = '';
    FETCH ALL ARTISTS
 -------------------------------------------------- */
 try {
-    $stmt = $pdo->query("SELECT * FROM artists ORDER BY id DESC");
+    $stmt = $pdo->query("SELECT * FROM artists ORDER BY artist_id DESC");
     $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $error = "Database error: " . $e->getMessage();
