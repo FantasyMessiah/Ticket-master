@@ -65,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     artist_id,
                     media_title,
                     youtube_media_link,
-                    media_type
                 )
                 VALUES (?, ?, ?, 'youtube')
             ");
