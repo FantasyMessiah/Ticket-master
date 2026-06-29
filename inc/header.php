@@ -36,7 +36,7 @@
             </svg>
           </button>
   
-          <a href="event.php" class="flex items-center">
+          <a href="index.php" class="flex items-center">
             <img src="assets/images/logo.png"
                  alt="Ticketmaster"
                  class="h-6 lg:h-[26px] w-auto">
