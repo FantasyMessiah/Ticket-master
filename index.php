@@ -18,8 +18,6 @@ if (session_status() === PHP_SESSION_NONE) {
 <?php include "inc/footer.php"; ?>
 
 </div>
-    
-<?php include "inc/script.php"; ?>
 
 <div id="modals" data-testid="modals">
 </div>
