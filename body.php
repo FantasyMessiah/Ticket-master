@@ -20,7 +20,9 @@ try {
         $pdo = $db->connect();
     }
 } catch (Exception $e) {
-    die($e->getMessage());
+    if (!$pdo) {
+        die("Database connection failed.");
+    }
 }
 
 function e($value) {
@@ -40,28 +42,6 @@ function image_url($filename, $fallback = 'assets/images/image.png') {
     return 'assets/images/' . ltrim($filename, '/');
 }
 
-function fetch_all_rows(mysqli $pdo, string $sql, string $types = '', array $params = []) {
-    $stmt = $pdo->prepare($sql);
-    if (!$stmt) {
-        return [];
-    }
-
-    if ($types !== '' && $params) {
-        $bindParams = [$types];
-        foreach ($params as $key => $value) {
-            $bindParams[] = &$params[$key];
-        }
-        call_user_func_array([$stmt, 'bind_param'], $bindParams);
-    }
-
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-    $stmt->close();
-
-    return $rows;
-}
-
 function fetch_all_rows(PDO $pdo, string $sql, array $params = [])
 {
     $stmt = $pdo->prepare($sql);
@@ -76,8 +56,20 @@ function fetch_one_row(PDO $pdo, string $sql, array $params = [])
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-    return '<span>' . e(strtoupper(date('M', $time))) . '</span><strong>' . e(date('d', $time)) . '</strong>';
-}
+    function date_badge($date)
+    {
+        $time = strtotime($date);
+    
+        if (!$time) {
+            return '';
+        }
+    
+        return '<span>' .
+            e(strtoupper(date('M', $time))) .
+            '</span><strong>' .
+            e(date('d', $time)) .
+            '</strong>';
+    }
 
 $eventFields = "
     c.concert_id,
@@ -116,11 +108,6 @@ if ($heroEvent) {
 $upcomingSql .= " ORDER BY c.concert_date ASC LIMIT 4";
 
 $upcomingEvents = fetch_all_rows($pdo, $upcomingSql, $params);
-if ($heroEvent) {
-    $upcomingSql .= " AND c.concert_id <> ?";
-    $upcomingTypes = 'i';
-    $upcomingParams = [(int) $heroEvent['concert_id']];
-}
 
 $upcomingSql .= " ORDER BY c.concert_date ASC, c.concert_id ASC LIMIT 4";
 $upcomingEvents = fetch_all_rows($pdo, $upcomingSql, $upcomingTypes, $upcomingParams);
