@@ -71,37 +71,43 @@ try {
     <!-- VIP & EXPERIENCE -->
     <a href="manage-vip-exp.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
-        🎤 Manage VIP & Experience
+        <i class="fas fa-microphone" style="font-size:20px;margin-bottom:8px;display:block;"></i>
+        Manage VIP & Experience
     </a>
 
     <!-- GALLERY -->
     <a href="manage-gallery.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
-        🖼️ Manage Gallery
+        <i class="fas fa-images" style="font-size:20px;margin-bottom:8px;display:block;"></i>
+        Manage Gallery
     </a>
 
     <!-- SETLISTS -->
     <a href="manage-setlists.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
-        🎶 Manage Setlists
+        <i class="fas fa-music" style="font-size:20px;margin-bottom:8px;display:block;"></i>
+        Manage Setlists
     </a>
 
     <!-- FAQS -->
     <a href="manage-faqs.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
-        ❓ Manage FAQs
+        <i class="fas fa-question-circle" style="font-size:20px;margin-bottom:8px;display:block;"></i>
+        Manage FAQs
     </a>
 
     <!-- REVIEWS -->
     <a href="manage-reviews.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
-        ⭐ Manage Reviews
+        <i class="fas fa-star" style="font-size:20px;margin-bottom:8px;display:block;color:#facc15;"></i>
+        Manage Reviews
     </a>
 
     <!-- FANS ALSO VIEWED -->
     <a href="manage-fans-also-viewed.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
-        👥 Fans Also Viewed
+        <i class="fas fa-users" style="font-size:20px;margin-bottom:8px;display:block;"></i>
+        Fans Also Viewed
     </a>
 
 </div>
