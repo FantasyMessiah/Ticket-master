@@ -7,10 +7,21 @@ error_reporting(E_ALL);
 
 /*
  * Drop this page into the same folder as your DB connection file.
- * It expects a mysqli connection in $conn. Adjust the require path if your
+ * It expects a mysqli connection in $pdo. Adjust the require path if your
  * project uses a different filename.
  */
 require_once 'config/db.php';
+
+$pdo = null;
+
+try {
+    if (class_exists('Database')) {
+        $db = new Database();
+        $pdo = $db->connect();
+    }
+} catch (Exception $e) {
+    die($e->getMessage());
+}
 
 function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -29,8 +40,8 @@ function image_url($filename, $fallback = 'assets/images/image.png') {
     return 'assets/images/' . ltrim($filename, '/');
 }
 
-function fetch_all_rows(mysqli $conn, string $sql, string $types = '', array $params = []) {
-    $stmt = $conn->prepare($sql);
+function fetch_all_rows(mysqli $pdo, string $sql, string $types = '', array $params = []) {
+    $stmt = $pdo->prepare($sql);
     if (!$stmt) {
         return [];
     }
@@ -51,16 +62,19 @@ function fetch_all_rows(mysqli $conn, string $sql, string $types = '', array $pa
     return $rows;
 }
 
-function fetch_one_row(mysqli $conn, string $sql, string $types = '', array $params = []) {
-    $rows = fetch_all_rows($conn, $sql, $types, $params);
-    return $rows[0] ?? null;
+function fetch_all_rows(PDO $pdo, string $sql, array $params = [])
+{
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function date_badge($date) {
-    $time = strtotime((string) $date);
-    if (!$time) {
-        return '';
-    }
+function fetch_one_row(PDO $pdo, string $sql, array $params = [])
+{
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
     return '<span>' . e(strtoupper(date('M', $time))) . '</span><strong>' . e(date('d', $time)) . '</strong>';
 }
@@ -79,7 +93,7 @@ $eventFields = "
 ";
 
 $heroEvent = fetch_one_row(
-    $conn,
+    $pdo,
     "SELECT $eventFields
      FROM concerts c
      INNER JOIN artists a ON a.artist_id = c.artist_id
@@ -92,9 +106,16 @@ $upcomingSql = "SELECT $eventFields
                 FROM concerts c
                 INNER JOIN artists a ON a.artist_id = c.artist_id
                 WHERE c.index_type = 'upcoming'";
-$upcomingTypes = '';
-$upcomingParams = [];
+$params = [];
 
+if ($heroEvent) {
+    $upcomingSql .= " AND c.concert_id <> ?";
+    $params[] = $heroEvent['concert_id'];
+}
+
+$upcomingSql .= " ORDER BY c.concert_date ASC LIMIT 4";
+
+$upcomingEvents = fetch_all_rows($pdo, $upcomingSql, $params);
 if ($heroEvent) {
     $upcomingSql .= " AND c.concert_id <> ?";
     $upcomingTypes = 'i';
@@ -102,10 +123,10 @@ if ($heroEvent) {
 }
 
 $upcomingSql .= " ORDER BY c.concert_date ASC, c.concert_id ASC LIMIT 4";
-$upcomingEvents = fetch_all_rows($conn, $upcomingSql, $upcomingTypes, $upcomingParams);
+$upcomingEvents = fetch_all_rows($pdo, $upcomingSql, $upcomingTypes, $upcomingParams);
 
 $trendingEvents = fetch_all_rows(
-    $conn,
+    $pdo,
     "SELECT $eventFields
      FROM concerts c
      INNER JOIN artists a ON a.artist_id = c.artist_id
@@ -115,7 +136,7 @@ $trendingEvents = fetch_all_rows(
 );
 
 $sponsoredEvents = fetch_all_rows(
-    $conn,
+    $pdo,
     "SELECT $eventFields
      FROM concerts c
      INNER JOIN artists a ON a.artist_id = c.artist_id
@@ -125,7 +146,7 @@ $sponsoredEvents = fetch_all_rows(
 );
 
 $popularNearYou = fetch_all_rows(
-    $conn,
+    $pdo,
     "SELECT DISTINCT
         c.artist_id,
         c.concert_date,
@@ -142,21 +163,20 @@ $popularNearYou = fetch_all_rows(
 $recentSearches = [];
 if (isset($_SESSION['user_id'])) {
     $recentSearches = fetch_all_rows(
-        $conn,
+        $pdo,
         "SELECT search, result, searched_at
          FROM user_searches
-         WHERE user_id = ?
+         WHERE user_id=?
          ORDER BY searched_at DESC
          LIMIT 5",
-        'i',
-        [(int) $_SESSION['user_id']]
+        [$_SESSION['user_id']]
     );
 } else {
     $recentSearches = fetch_all_rows(
-        $conn,
+        $pdo,
         "SELECT search, result, searched_at
          FROM user_searches
-         WHERE user_id IS NULL
+         WHERE user_id=0
          ORDER BY searched_at DESC
          LIMIT 5"
     );
