@@ -5,8 +5,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
-
 /*
  * Drop this page into the same folder as your DB connection file.
  * It expects a mysqli connection in $conn. Adjust the require path if your
