@@ -68,6 +68,13 @@ try {
     gap:15px;
 ">
 
+    <!-- CONCERTS -->
+    <a href="manage-concerts.php?artist_id=<?= $artist_id ?>"
+       style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+        <i class="fas fa-microphone-lines" style="font-size:20px;margin-bottom:8px;display:block;"></i>
+        Concerts
+    </a>
+
     <!-- VIP & EXPERIENCE -->
     <a href="manage-vip-exp.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
