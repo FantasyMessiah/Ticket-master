@@ -38,41 +38,48 @@ if (!empty($search_query) && $pdo !== null) {
 
     try {
         // Query 1: Smart Artist Matching (Matches substring or similar phonetic vocal structures)
-        $artist_sql = "SELECT * FROM artists 
-                       WHERE LOWER(name) LIKE ? 
-                          OR SOUNDEX(name) = SOUNDEX(?) 
+        $artist_sql = "SELECT *
+                       FROM artists
+                       WHERE LOWER(artist_name) LIKE ?
+                          OR SOUNDEX(artist_name) = SOUNDEX(?)
+                       ORDER BY artist_name
                        LIMIT 10";
         $artist_stmt = $pdo->prepare($artist_sql);
         $artist_stmt->execute([$wildcard_param, $search_query]);
         $matched_artists = $artist_stmt->fetchAll();
         
         // Query 2: Smart Event Matching across Titles, Venues, Locations, and Dates
-        $event_sql = "SELECT e.*, a.name AS artist_name, a.artist_image AS artist_img 
-                      FROM events e 
-                      JOIN artists a ON e.artist_id = a.id 
-                      WHERE LOWER(e.title) LIKE ? 
-                         OR LOWER(e.venue) LIKE ? 
-                         OR LOWER(e.location) LIKE ? 
-                         OR LOWER(e.date_string) LIKE ? 
-                         OR LOWER(e.time_string) LIKE ? 
-                         OR SOUNDEX(e.title) = SOUNDEX(?)
-                         OR SOUNDEX(e.venue) = SOUNDEX(?)
-                         OR SOUNDEX(e.location) = SOUNDEX(?)
-                      ORDER BY e.id DESC 
-                      LIMIT 20";
-                      
+        $event_sql = "
+        SELECT
+            c.*,
+            a.artist_name,
+            a.artist_image
+        FROM concerts c
+        INNER JOIN artists a
+            ON c.artist_id = a.artist_id
+        WHERE
+              LOWER(a.artist_name) LIKE ?
+           OR LOWER(c.title) LIKE ?
+           OR LOWER(c.venue) LIKE ?
+           OR SOUNDEX(a.artist_name) = SOUNDEX(?)
+           OR SOUNDEX(c.title) = SOUNDEX(?)
+           OR SOUNDEX(c.venue) = SOUNDEX(?)
+        ORDER BY c.concert_date DESC
+        LIMIT 20
+        ";
+                              
         $event_stmt = $pdo->prepare($event_sql);
+        
         $event_stmt->execute([
-            $wildcard_param, 
-            $wildcard_param, 
-            $wildcard_param, 
-            $wildcard_param, 
-            $wildcard_param,
+            $wildcard_param,   // artist_name
+            $wildcard_param,   // title
+            $wildcard_param,   // venue
             $search_query,
             $search_query,
             $search_query
         ]);
-        $matched_events = $event_stmt->fetchAll();
+
+$matched_events = $event_stmt->fetchAll(PDO::FETCH_ASSOC);
         
     } catch (Exception $e) {
         // Query fallback container protection
@@ -80,9 +87,19 @@ if (!empty($search_query) && $pdo !== null) {
 } else if ($pdo !== null) {
     // Default system presentation state on page initialization
     try {
-        $default_stmt = $pdo->prepare("SELECT e.*, a.name AS artist_name, a.artist_image AS artist_img FROM events e JOIN artists a ON e.artist_id = a.id ORDER BY e.id DESC LIMIT 20");
+        $default_stmt = $pdo->prepare("
+        SELECT
+            c.*,
+            a.artist_name,
+            a.artist_image
+        FROM concerts c
+        INNER JOIN artists a
+            ON c.artist_id = a.artist_id
+        ORDER BY c.concert_date DESC
+        LIMIT 20
+        ");
         $default_stmt->execute();
-        $matched_events = $default_stmt->fetchAll();
+        $matched_events = $default_stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {}
 }
 
@@ -142,18 +159,18 @@ $top_searches_list = [
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         <?php foreach ($matched_artists as $artist): 
-                            $artist_pic = !empty($artist['artist_image']) ? "uploads/" . $artist['artist_image'] : "https://picsum.photos/id/64/400/400";
+                            $artist_pic = !empty($artist['artist_image']) ? "uploads/artists/" . $artist['artist_image'] : "https://picsum.photos/id/64/400/400";
                         ?>
                             <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all flex flex-col items-center">
                                 <img src="<?php echo htmlspecialchars($artist_pic); ?>" 
                                      onerror="this.src='https://picsum.photos/id/64/400/400';" 
                                      alt="Profile Visual" 
                                      class="w-20 h-20 rounded-full object-cover border border-gray-100 shadow-sm mb-3">
-                                <h4 class="text-sm font-black text-gray-900 tracking-tight truncate w-full"><?php echo htmlspecialchars($artist['name']); ?></h4>
+                                <h4 class="text-sm font-black text-gray-900 tracking-tight truncate w-full"><?php echo htmlspecialchars($artist['artist_name']); ?></h4>
                                 
-                                <a href="event.php?id=<?php echo $artist['id']; ?>" 
+                                <a href="artist.php?artist_id=<?php echo $artist['artist_id']; ?>" 
                                    class="mt-3 text-[11px] font-bold text-white bg-[#024DDF] hover:bg-blue-800 px-3 py-1.5 rounded-md transition-all uppercase tracking-wider w-full text-center block shadow-sm">
-                                    View Events Layer
+                                    View Artist
                                 </a>
                             </div>
                         <?php endforeach; ?>
@@ -175,10 +192,13 @@ $top_searches_list = [
                     <div class="space-y-4">
                         <?php foreach ($matched_events as $event): 
                             // Pull localized values or reference safe fallback presentations strings
-                            $month_val = !empty($event['month_short']) ? $event['month_short'] : 'AUG';
-                            $day_num_val = !empty($event['day_number']) ? $event['day_number'] : '01';
-                            $day_name_val = !empty($event['day_string']) ? $event['day_string'] : 'SAT';
-                            $time_val = !empty($event['time_string']) ? $event['time_string'] : '8:00 PM';
+                            $timestamp = strtotime($event['concert_date']);
+                            
+                            $month_val = date('M', $timestamp);
+                            $day_num_val = date('d', $timestamp);
+                            $day_name_val = date('D', $timestamp);
+                            
+                            $time_val = $event['day_time'];
                         ?>
                             <div class="bg-white border border-gray-200 rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 
@@ -205,7 +225,7 @@ $top_searches_list = [
                                 </div>
 
                                 <div class="shrink-0 text-right">
-                                    <a href="booking.php?event_id=<?php echo $event['id']; ?>" 
+                                    <a href="booking.php?concert_id=<?php echo $event['concert_id']; ?>">
                                        class="block text-center w-full md:w-auto bg-[#024DDF] hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-wider py-3 px-6 rounded-lg transition-colors shadow focus:outline-none">
                                         Find Tickets
                                     </a>
