@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                 throw new Exception("Invalid artist ID.");
             }
 
-            $stmt = $pdo->prepare("DELETE FROM artists WHERE id = ?");
+            $stmt = $pdo->prepare("DELETE FROM artists WHERE artist_id = ?");
             $stmt->execute([$id]);
 
             $message = "Artist deleted successfully.";
@@ -150,11 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 
     <td style="display:flex;gap:10px;">
 
-        <a href="edit-artist.php?id=<?= $artist['id'] ?>" class="btn green">Edit</a>
+        <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>" class="btn green">Edit</a>
 
         <form method="POST" onsubmit="return confirm('Delete this artist?');">
             <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="id" value="<?= $artist['id'] ?>">
+            <input type="hidden" name="id" value="<?= $artist['artist_id'] ?>">
             <button class="btn red">Delete</button>
         </form>
 
