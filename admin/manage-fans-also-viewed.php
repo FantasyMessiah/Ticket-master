@@ -1,16 +1,14 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 require_once __DIR__ . '/inc/header.php';
 
-/* --------------------------------------------------
-   GET ARTIST
--------------------------------------------------- */
-
+/*--------------------------------------------------
+GET ARTIST
+---------------------------------------------------*/
 $artist_id = (int)($_GET['artist_id'] ?? 0);
 
 if ($artist_id <= 0) {
@@ -18,10 +16,6 @@ if ($artist_id <= 0) {
     header("Location: manage-artists.php");
     exit;
 }
-
-/* --------------------------------------------------
-   FETCH ARTIST
--------------------------------------------------- */
 
 $stmt = $pdo->prepare("SELECT * FROM artists WHERE artist_id=?");
 $stmt->execute([$artist_id]);
@@ -33,25 +27,24 @@ if (!$artist) {
     exit;
 }
 
-/* --------------------------------------------------
-   HANDLE ACTIONS
--------------------------------------------------- */
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+/*--------------------------------------------------
+ADD / DELETE
+---------------------------------------------------*/
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
 
         $action = $_POST['action'] ?? '';
 
-        /* ---------------- ADD ---------------- */
+        /*---------------- ADD ----------------*/
 
         if ($action == 'add') {
 
             $name = trim($_POST['v_artist_name']);
             $link = trim($_POST['v_artist_link']);
 
-            if ($name == '' || $link == '') {
-                throw new Exception("Please complete all required fields.");
+            if ($name == '') {
+                throw new Exception("Artist name is required.");
             }
 
             $imageName = '';
@@ -91,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        /* ---------------- DELETE ---------------- */
+        /*---------------- DELETE ----------------*/
 
         if ($action == 'delete') {
 
@@ -109,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($row && $row['v_artist_image']) {
 
-                $file = __DIR__ . "/../uploads/fans-also-viewed/" . $row['v_artist_image'];
+                $file = __DIR__."/../uploads/fans-also-viewed/".$row['v_artist_image'];
 
                 if (file_exists($file)) {
                     unlink($file);
@@ -123,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt->execute([$fav_id]);
 
-            $_SESSION['success'] = "Artist deleted.";
+            $_SESSION['success']="Artist removed.";
 
             header("Location: manage-fans-also-viewed.php?artist_id=".$artist_id);
             exit;
@@ -131,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch(Exception $e){
 
-        $_SESSION['error'] = $e->getMessage();
+        $_SESSION['error']=$e->getMessage();
 
         header("Location: manage-fans-also-viewed.php?artist_id=".$artist_id);
         exit;
@@ -139,9 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 }
 
-/* --------------------------------------------------
-   FETCH DATA
--------------------------------------------------- */
+/*--------------------------------------------------
+FETCH RECORDS
+---------------------------------------------------*/
 
 $stmt = $pdo->prepare("
 SELECT *
@@ -152,19 +145,22 @@ ORDER BY fav_id DESC
 
 $stmt->execute([$artist_id]);
 
-$items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
 <main style="max-width:1100px;margin:auto;">
 
-<h1 style="margin-bottom:20px;">Manage Fans Also Viewed</h1>
+<h1 style="margin-bottom:25px;">Fans Also Viewed</h1>
 
-<div style="display:flex;align-items:center;gap:15px;background:var(--card);padding:20px;border-radius:10px;margin-bottom:25px;">
+<!-- Artist -->
+
+<div style="display:flex;align-items:center;gap:15px;background:var(--card);padding:20px;border-radius:10px;margin-bottom:30px;">
 
 <?php if($artist['artist_image']){ ?>
 
-<img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
+<img
+src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
 style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 
 <?php } ?>
@@ -175,7 +171,7 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 <?= htmlspecialchars($artist['artist_name']) ?>
 </h2>
 
-<small>Fans Also Viewed</small>
+<small>Manage Related Artists</small>
 
 </div>
 
@@ -225,7 +221,7 @@ Add Artist
 
 <tbody>
 
-<?php if(empty($items)){ ?>
+<?php if(empty($records)){ ?>
 
 <tr>
 <td colspan="4" style="padding:20px;text-align:center;">
@@ -235,7 +231,7 @@ No records found.
 
 <?php } ?>
 
-<?php foreach($items as $row){ ?>
+<?php foreach($records as $row){ ?>
 
 <tr style="border-bottom:1px solid var(--border);">
 
@@ -243,7 +239,8 @@ No records found.
 
 <?php if($row['v_artist_image']){ ?>
 
-<img src="../uploads/fans-also-viewed/<?= htmlspecialchars($row['v_artist_image']) ?>"
+<img
+src="../uploads/fans-also-viewed/<?= htmlspecialchars($row['v_artist_image']) ?>"
 style="width:60px;height:60px;border-radius:8px;object-fit:cover;">
 
 <?php } ?>
@@ -254,29 +251,26 @@ style="width:60px;height:60px;border-radius:8px;object-fit:cover;">
 <?= htmlspecialchars($row['v_artist_name']) ?>
 </td>
 
-<td style="padding:12px;max-width:300px;word-break:break-word;">
-<a href="<?= htmlspecialchars($row['v_artist_link']) ?>"
-target="_blank">
+<td style="padding:12px;max-width:300px;word-break:break-all;">
 <?= htmlspecialchars($row['v_artist_link']) ?>
-</a>
 </td>
 
 <td style="padding:12px;">
 
-<form method="POST"
-onsubmit="return confirm('Delete this artist?');">
+<form method="POST" onsubmit="return confirm('Delete this artist?');">
 
-<input type="hidden"
-name="action"
-value="delete">
+<input type="hidden" name="action" value="delete">
 
 <input type="hidden"
 name="fav_id"
 value="<?= $row['fav_id'] ?>">
 
 <button class="btn red">
+
 <i class="fas fa-trash"></i>
+
 Delete
+
 </button>
 
 </form>
@@ -285,7 +279,7 @@ Delete
 
 </tr>
 
-<?php endforeach; ?>
+<?php } ?>
 
 </tbody>
 
@@ -293,20 +287,18 @@ Delete
 
 </div>
 
-<!-- ADD MODAL -->
+<!-- Modal -->
 
-<div id="addModal"
-style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.75);">
+<div id="modal"
+style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);">
 
-<div style="background:#111827;max-width:600px;margin:4% auto;padding:25px;border-radius:10px;">
+<div style="background:#111827;max-width:550px;margin:4% auto;padding:25px;border-radius:10px;">
 
 <h2>Add Related Artist</h2>
 
 <form method="POST" enctype="multipart/form-data">
 
-<input type="hidden"
-name="action"
-value="add">
+<input type="hidden" name="action" value="add">
 
 <label>Artist Name</label>
 
@@ -321,21 +313,22 @@ style="width:100%;padding:10px;margin:10px 0 20px;">
 <input
 type="file"
 name="v_artist_image"
-accept="image/*"
+required
 style="width:100%;margin:10px 0 20px;">
 
 <label>Artist Link</label>
 
 <input
-type="url"
+type="text"
 name="v_artist_link"
-required
-placeholder="https://example.com"
 style="width:100%;padding:10px;margin:10px 0 20px;">
 
 <button class="btn" style="width:100%;">
+
 <i class="fas fa-save"></i>
+
 Save
+
 </button>
 
 </form>
@@ -358,11 +351,11 @@ Close
 <script>
 
 function openModal(){
-    document.getElementById('addModal').style.display='block';
+    document.getElementById('modal').style.display='block';
 }
 
 function closeModal(){
-    document.getElementById('addModal').style.display='none';
+    document.getElementById('modal').style.display='none';
 }
 
 </script>
