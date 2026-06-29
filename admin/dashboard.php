@@ -41,8 +41,6 @@
     $stmt = $pdo->query("SELECT COUNT(*) FROM concerts");
     $total_concerts = (int)$stmt->fetchColumn();
     
-    $stmt = $pdo->query("SELECT COUNT(*) FROM events");
-    $total_events = (int)$stmt->fetchColumn();
     
     } catch (PDOException $e) {
     
