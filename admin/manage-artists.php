@@ -114,53 +114,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     </button>
 </div>
 
-<!-- TABLE -->
-<div style="max-width:1100px;margin:0 auto;">
-<table style="width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);">
+<!-- TABLE WRAPPER -->
+<div style="max-width:1100px;margin:0 auto;overflow-x:auto;padding:0 10px;">
+
+<table style="
+    width:100%;
+    border-collapse:collapse;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    min-width:800px;
+">
 
 <thead>
-<tr style="text-align:left;">
-    <th>Image</th>
-    <th>Name</th>
-    <th>Genre</th>
-    <th>Rating</th>
-    <th>About</th>
-    <th>Actions</th>
+<tr style="text-align:left;background:#111827;">
+    <th style="padding:12px;">Image</th>
+    <th style="padding:12px;">Name</th>
+    <th style="padding:12px;">Genre</th>
+    <th style="padding:12px;">Rating</th>
+    <th style="padding:12px;">About</th>
+    <th style="padding:12px;">Actions</th>
 </tr>
 </thead>
 
 <tbody>
 
 <?php foreach ($artists as $artist): ?>
-<tr style="border-top:1px solid var(--border);">
 
-    <td>
+<tr style="border-top:1px solid var(--border);transition:.2s;"
+    onmouseover="this.style.background='#0b1220'"
+    onmouseout="this.style.background='transparent'">
+
+    <!-- IMAGE -->
+    <td style="padding:12px;">
         <?php if (!empty($artist['artist_image'])): ?>
             <img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
-                 style="width:60px;height:60px;object-fit:cover;border-radius:6px;">
+                 style="width:55px;height:55px;object-fit:cover;border-radius:8px;">
         <?php else: ?>
-            N/A
+            <span style="color:#888;">N/A</span>
         <?php endif; ?>
     </td>
 
-    <td><?= htmlspecialchars($artist['artist_name']) ?></td>
-    <td><?= htmlspecialchars($artist['genre']) ?></td>
-    <td><?= htmlspecialchars($artist['rating']) ?></td>
-    <td><?= nl2br(htmlspecialchars(substr($artist['about'], 0, 80))) ?>...</td>
+    <!-- NAME -->
+    <td style="padding:12px;font-weight:600;">
+        <?= htmlspecialchars($artist['artist_name']) ?>
+    </td>
 
-    <td style="display:flex;gap:10px;">
+    <!-- GENRE -->
+    <td style="padding:12px;">
+        <?= htmlspecialchars($artist['genre']) ?>
+    </td>
 
-        <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>" class="btn green">Edit</a>
+    <!-- RATING -->
+    <td style="padding:12px;">
+        ⭐ <?= htmlspecialchars($artist['rating']) ?>
+    </td>
 
-        <form method="POST" onsubmit="return confirm('Delete this artist?');">
+    <!-- ABOUT (TRUNCATED) -->
+    <td style="padding:12px;max-width:250px;">
+        <?php
+            $aboutFull = $artist['about'];
+            $aboutShort = mb_strimwidth($aboutFull, 0, 60, "...");
+        ?>
+        <span title="<?= htmlspecialchars($aboutFull) ?>">
+            <?= htmlspecialchars($aboutShort) ?>
+        </span>
+    </td>
+
+    <!-- ACTIONS -->
+    <td style="padding:12px;white-space:nowrap;">
+
+        <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>"
+           class="btn green"
+           style="padding:6px 10px;font-size:13px;">
+            Edit
+        </a>
+
+        <form method="POST"
+              onsubmit="return confirm('Delete this artist?');"
+              style="display:inline-block;margin-left:5px;">
+
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= $artist['artist_id'] ?>">
-            <button class="btn red">Delete</button>
+
+            <button class="btn red"
+                    style="padding:6px 10px;font-size:13px;">
+                Delete
+            </button>
         </form>
 
     </td>
 
 </tr>
+
 <?php endforeach; ?>
 
 </tbody>
