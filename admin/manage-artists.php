@@ -31,35 +31,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
         if ($action === 'add') {
 
             $artist_name = trim($_POST['artist_name'] ?? '');
-            $vip_exp     = trim($_POST['vip_exp'] ?? '');
-            $reviews     = trim($_POST['reviews'] ?? '');
+            $genre       = trim($_POST['genre'] ?? '');
+            $rating      = trim($_POST['rating'] ?? '');
             $about       = trim($_POST['about'] ?? '');
-            $faqs        = trim($_POST['faqs'] ?? '');
 
             if ($artist_name === '') {
                 throw new Exception("Artist name is required.");
             }
 
+            /* IMAGE UPLOAD */
+            $imageName = '';
+            if (!empty($_FILES['artist_image']['name'])) {
+
+                $uploadDir = __DIR__ . "/../uploads/artists/";
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                $imageName = time() . '_' . basename($_FILES['artist_image']['name']);
+                $target = $uploadDir . $imageName;
+
+                move_uploaded_file($_FILES['artist_image']['tmp_name'], $target);
+            }
+
             $stmt = $pdo->prepare("
-                INSERT INTO artists (artist_name, vip_exp, reviews, about, faqs)
+                INSERT INTO artists (artist_name, artist_image, genre, rating, about)
                 VALUES (?, ?, ?, ?, ?)
             ");
 
             $stmt->execute([
                 $artist_name,
-                $vip_exp,
-                $reviews,
-                $about,
-                $faqs
+                $imageName,
+                $genre,
+                $rating,
+                $about
             ]);
 
-            $id = $pdo->lastInsertId();
-
             $message = "Artist added successfully.";
-
-            // Redirect to concerts page for this artist
-            header("Location: manage-concerts.php?artist_id=" . $id);
-            exit;
         }
 
         /* ---------------- DELETE ARTIST ---------------- */
@@ -84,111 +92,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 ?>
 
 <main>
-  <h1 style="text-align:center; margin: 2.5rem 0 2rem;">Manage Artists</h1>
 
-  <?php if ($message): ?>
-    <div style="background:#238636; color:white; padding:1.2rem; border-radius:8px; margin-bottom:2rem; text-align:center; max-width:800px; margin-left:auto; margin-right:auto;">
-      <?= htmlspecialchars($message) ?>
-    </div>
-  <?php endif; ?>
+<h1 style="text-align:center; margin:2rem 0;">Manage Artists</h1>
 
-  <?php if ($error): ?>
-    <div style="background:#f85149; color:white; padding:1.2rem; border-radius:8px; margin-bottom:2rem; text-align:center; max-width:800px; margin-left:auto; margin-right:auto;">
-      <?= htmlspecialchars($error) ?>
-    </div>
-  <?php endif; ?>
+<?php if ($message): ?>
+<div style="background:#238636;color:#fff;padding:1rem;border-radius:8px;text-align:center;max-width:900px;margin:1rem auto;">
+    <?= htmlspecialchars($message) ?>
+</div>
+<?php endif; ?>
 
-  <!-- ADD ARTIST FORM -->
-  <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:2.5rem; max-width:800px; margin:0 auto 4rem;">
+<?php if ($error): ?>
+<div style="background:#f85149;color:#fff;padding:1rem;border-radius:8px;text-align:center;max-width:900px;margin:1rem auto;">
+    <?= htmlspecialchars($error) ?>
+</div>
+<?php endif; ?>
 
-    <h2 style="margin-bottom:1.8rem; text-align:center;">Add New Artist</h2>
+<!-- ADD BUTTON -->
+<div style="text-align:center;margin-bottom:2rem;">
+    <button onclick="openModal()" class="btn">
+        + Add Artist
+    </button>
+</div>
 
-    <form method="POST">
+<!-- TABLE -->
+<div style="max-width:1100px;margin:0 auto;">
+<table style="width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);">
 
-      <input type="hidden" name="action" value="add">
+<thead>
+<tr style="text-align:left;">
+    <th>Image</th>
+    <th>Name</th>
+    <th>Genre</th>
+    <th>Rating</th>
+    <th>About</th>
+    <th>Actions</th>
+</tr>
+</thead>
 
-      <div style="margin-bottom:1.2rem;">
-        <label>Artist Name</label>
-        <input type="text" name="artist_name" required
-          style="width:100%; padding:0.9rem; border:1px solid var(--border); border-radius:6px; background:#0d1117; color:var(--text);">
-      </div>
+<tbody>
 
-      <div style="margin-bottom:1.2rem;">
-        <label>VIP Experience</label>
-        <textarea name="vip_exp" rows="3"
-          style="width:100%; padding:0.9rem; border:1px solid var(--border); border-radius:6px; background:#0d1117; color:var(--text);"></textarea>
-      </div>
+<?php foreach ($artists as $artist): ?>
+<tr style="border-top:1px solid var(--border);">
 
-      <div style="margin-bottom:1.2rem;">
-        <label>Reviews</label>
-        <textarea name="reviews" rows="3"
-          style="width:100%; padding:0.9rem; border:1px solid var(--border); border-radius:6px; background:#0d1117; color:var(--text);"></textarea>
-      </div>
+    <td>
+        <?php if (!empty($artist['artist_image'])): ?>
+            <img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
+                 style="width:60px;height:60px;object-fit:cover;border-radius:6px;">
+        <?php else: ?>
+            N/A
+        <?php endif; ?>
+    </td>
 
-      <div style="margin-bottom:1.2rem;">
-        <label>About</label>
-        <textarea name="about" rows="4"
-          style="width:100%; padding:0.9rem; border:1px solid var(--border); border-radius:6px; background:#0d1117; color:var(--text);"></textarea>
-      </div>
+    <td><?= htmlspecialchars($artist['artist_name']) ?></td>
+    <td><?= htmlspecialchars($artist['genre']) ?></td>
+    <td><?= htmlspecialchars($artist['rating']) ?></td>
+    <td><?= nl2br(htmlspecialchars(substr($artist['about'], 0, 80))) ?>...</td>
 
-      <div style="margin-bottom:1.8rem;">
-        <label>FAQs</label>
-        <textarea name="faqs" rows="4"
-          style="width:100%; padding:0.9rem; border:1px solid var(--border); border-radius:6px; background:#0d1117; color:var(--text);"></textarea>
-      </div>
+    <td style="display:flex;gap:10px;">
 
-      <button type="submit" class="btn" style="width:100%; padding:1rem;">
-        <i class="fas fa-plus"></i> Add Artist
-      </button>
+        <a href="edit-artist.php?id=<?= $artist['id'] ?>" class="btn green">Edit</a>
 
-    </form>
-  </div>
-
-  <!-- ARTISTS LIST -->
-  <div style="max-width:900px; margin:0 auto 4rem;">
-
-    <h2 style="text-align:center; margin-bottom:2rem;">Existing Artists</h2>
-
-    <?php if (empty($artists)): ?>
-      <p style="text-align:center; color:var(--text-muted);">No artists found.</p>
-    <?php endif; ?>
-
-    <?php foreach ($artists as $artist): ?>
-
-      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:2rem; margin-bottom:1.5rem;">
-
-        <h3 style="color:#58a6ff; margin-bottom:1rem;">
-          <?= htmlspecialchars($artist['artist_name']) ?>
-        </h3>
-
-        <p><strong>VIP Experience:</strong><br><?= nl2br(htmlspecialchars($artist['vip_exp'])) ?></p>
-        <p><strong>Reviews:</strong><br><?= nl2br(htmlspecialchars($artist['reviews'])) ?></p>
-        <p><strong>About:</strong><br><?= nl2br(htmlspecialchars($artist['about'])) ?></p>
-        <p><strong>FAQs:</strong><br><?= nl2br(htmlspecialchars($artist['faqs'])) ?></p>
-
-        <div style="margin-top:1.5rem; display:flex; gap:10px; flex-wrap:wrap;">
-
-          <a href="manage-concerts.php?artist_id=<?= $artist['id'] ?>"
-             class="btn green">
-            <i class="fas fa-music"></i> Manage Concerts
-          </a>
-
-          <form method="POST" onsubmit="return confirm('Delete this artist?');" style="display:inline;">
+        <form method="POST" onsubmit="return confirm('Delete this artist?');">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= $artist['id'] ?>">
+            <button class="btn red">Delete</button>
+        </form>
 
-            <button type="submit" class="btn red">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </form>
+    </td>
 
-        </div>
+</tr>
+<?php endforeach; ?>
 
-      </div>
+</tbody>
+</table>
+</div>
 
-    <?php endforeach; ?>
+<!-- MODAL -->
+<div id="artistModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);">
 
-  </div>
+<div style="background:#0d1117;max-width:500px;margin:5% auto;padding:2rem;border-radius:10px;">
+
+<h2>Add Artist</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+<input type="hidden" name="action" value="add">
+
+<label>Name</label>
+<input type="text" name="artist_name" required style="width:100%;padding:.7rem;margin-bottom:1rem;">
+
+<label>Genre</label>
+<input type="text" name="genre" style="width:100%;padding:.7rem;margin-bottom:1rem;">
+
+<label>Rating</label>
+<input type="number" step="0.1" name="rating" style="width:100%;padding:.7rem;margin-bottom:1rem;">
+
+<label>About</label>
+<textarea name="about" style="width:100%;padding:.7rem;margin-bottom:1rem;"></textarea>
+
+<label>Image</label>
+<input type="file" name="artist_image" style="margin-bottom:1rem;">
+
+<button type="submit" class="btn" style="width:100%;">Save</button>
+
+</form>
+
+<br>
+<button onclick="closeModal()" class="btn red" style="width:100%;">Close</button>
+
+</div>
+</div>
+
+<script>
+function openModal(){
+    document.getElementById('artistModal').style.display='block';
+}
+function closeModal(){
+    document.getElementById('artistModal').style.display='none';
+}
+</script>
 
 </main>
 
