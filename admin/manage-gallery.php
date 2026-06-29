@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare("
                 INSERT INTO gallery (artist_id, youtube_media_link, media_title)
-                VALUES (?, ?, ?, 'youtube')
+                VALUES (?, ?, ?)
             ");
 
             $stmt->execute([
