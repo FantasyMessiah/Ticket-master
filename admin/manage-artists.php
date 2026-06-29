@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -67,7 +69,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                 $about
             ]);
 
-            $message = "Artist added successfully.";
+            $_SESSION['success'] = "Artist added successfully.";
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
         }
 
         /* ---------------- DELETE ARTIST ---------------- */
@@ -82,11 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             $stmt = $pdo->prepare("DELETE FROM artists WHERE artist_id = ?");
             $stmt->execute([$id]);
 
-            $message = "Artist deleted successfully.";
+            $_SESSION['success'] = "Artist deleted successfully.";
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
         }
 
     } catch (Exception $e) {
-        $error = $e->getMessage();
+        $_SESSION['error'] = $e->getMessage();
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
     }
 }
 ?>
@@ -95,16 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 
 <h1 style="text-align:center; margin:2rem 0;">Manage Artists</h1>
 
-<?php if ($message): ?>
+<?php if (!empty($_SESSION['success'])): ?>
 <div style="background:#238636;color:#fff;padding:1rem;border-radius:8px;text-align:center;max-width:900px;margin:1rem auto;">
-    <?= htmlspecialchars($message) ?>
+    <?= htmlspecialchars($_SESSION['success']) ?>
 </div>
+<?php unset($_SESSION['success']); ?>
 <?php endif; ?>
 
-<?php if ($error): ?>
+<?php if (!empty($_SESSION['error'])): ?>
 <div style="background:#f85149;color:#fff;padding:1rem;border-radius:8px;text-align:center;max-width:900px;margin:1rem auto;">
-    <?= htmlspecialchars($error) ?>
+    <?= htmlspecialchars($_SESSION['error']) ?>
 </div>
+<?php unset($_SESSION['error']); ?>
 <?php endif; ?>
 
 <!-- ADD BUTTON -->
@@ -183,28 +193,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     </td>
 
     <!-- ACTIONS -->
-    <td style="padding:12px;white-space:nowrap;">
-
-        <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>"
-           class="btn green"
-           style="padding:6px 10px;font-size:13px;">
-            Edit
-        </a>
-
-        <form method="POST"
-              onsubmit="return confirm('Delete this artist?');"
-              style="display:inline-block;margin-left:5px;">
-
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="id" value="<?= $artist['artist_id'] ?>">
-
-            <button class="btn red"
-                    style="padding:6px 10px;font-size:13px;">
-                Delete
-            </button>
-        </form>
-
-    </td>
+<!-- ACTIONS -->
+   <td style="padding:12px;white-space:nowrap;">
+   
+       <!-- EDIT -->
+       <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>"
+          class="btn green"
+          style="padding:6px 10px;font-size:13px;">
+           Edit
+       </a>
+   
+       <!-- EXTRAS -->
+       <a href="extras.php?artist_id=<?= $artist['artist_id'] ?>"
+          class="btn"
+          style="padding:6px 10px;font-size:13px;background:#6f42c1;color:#fff;margin-left:5px;">
+           Extras
+       </a>
+   
+       <!-- DELETE -->
+       <form method="POST"
+             onsubmit="return confirm('Delete this artist?');"
+             style="display:inline-block;margin-left:5px;">
+   
+           <input type="hidden" name="action" value="delete">
+           <input type="hidden" name="id" value="<?= $artist['artist_id'] ?>">
+   
+           <button class="btn red"
+                   style="padding:6px 10px;font-size:13px;">
+               Delete
+           </button>
+       </form>
+   
+   </td>
 
 </tr>
 
