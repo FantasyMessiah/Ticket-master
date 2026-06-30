@@ -25,7 +25,7 @@
     <div class="max-w-7xl mx-auto h-full px-0 lg:px-6 flex items-center justify-between text-sm">
   
       <!-- Country Selector -->
-      <div class="pl-[15px] lg:pl-0">
+      <div class="pl-[30px] lg:pl-0">
         <a href="./countries.php" class="flex items-center gap-2">
       
           <!-- Circular border around flag only -->
