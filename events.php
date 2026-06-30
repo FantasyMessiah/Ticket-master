@@ -214,12 +214,16 @@ $total_concerts_count = count($concerts_results);
 
         <div class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm overflow-x-auto select-none">
             <div class="max-w-7xl mx-auto flex items-center px-4 md:px-8 space-x-1 whitespace-nowrap min-w-max h-14">
-                <a href="#concerts-section" class="px-5 py-2 text-sm font-bold text-[#024DDF] border-b-2 border-[#024DDF] hover:text-blue-800 transition-colors">Concerts</a>
-                <a href="#vip-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">VIP Experience</a>
-                <a href="#about-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">About</a>
-                <a href="#faqs-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">FAQs</a>
-                <a href="#reviews-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">Reviews</a>
-                <a href="#gifts-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">Gifts</a>
+                <a href="#concerts-section" class="px-5 py-2 text-sm font-bold text-[#024DDF] border-b-2 border-[#024DDF] hover:text-blue-800 transition-colors">CONCERTS</a>
+                <a href="#vip-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">VIP EXPERIENCE</a>
+                <a href="#fan-card-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">FAN CARD</a>
+                <a href="#gallery-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">GALLERY</a>
+                <a href="#about-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">ABOUT</a>
+                <a href="#setlists-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">SETLISTS</a>
+                <a href="#news-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">NEWS</a>
+                <a href="#faqs-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">FAQS</a>
+                <a href="#reviews-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">REVIEWS</a>
+                <a href="#fans-also-viewed-section" class="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-blue-600 border-b-2 border-transparent transition-colors">FANS ALSO VIEWED</a>
             </div>
         </div>
 
