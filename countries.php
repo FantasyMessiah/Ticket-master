@@ -68,22 +68,37 @@ function processGlobalTranslation() {
     const selectedLang = select.value;
     if (!selectedLang) return;
 
-    // Build the official native Google Translation cookie format string value
     const cookieValue = "/en/" + selectedLang;
+    
+    // Extract base domains to clear wildcard paths (.domain.com)
+    const host = window.location.hostname;
+    const hostParts = host.split('.');
+    const baseDomain = hostParts.length >= 2 ? "." + hostParts.slice(-2).join('.') : "";
 
-    // Delete any old cookies first to prevent conflicting values
-    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
+    // Array of paths and domains to explicitly purge
+    const paths = ["/", "/html", ""];
+    const domains = [host, baseDomain, "." + host, ""];
 
-    // Save the official translation parameter across all secure pathways
+    // 1. CLEAR LOOP: Wipe every trace of the old language cookie
+    paths.forEach(p => {
+        domains.forEach(d => {
+            let domainStr = d ? "; domain=" + d : "";
+            let pathStr = p ? "; path=" + p : "";
+            document.cookie = "googtrans=" + pathStr + domainStr + "; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        });
+    });
+
+    // 2. WRITE LOOP: Set the new language values cleanly
     document.cookie = "googtrans=" + cookieValue + "; path=/; max-age=" + (365 * 24 * 60 * 60);
-    document.cookie = "googtrans=" + cookieValue + "; path=/; domain=" + window.location.hostname + "; max-age=" + (365 * 24 * 60 * 60);
+    if (baseDomain) {
+        document.cookie = "googtrans=" + cookieValue + "; path=/; domain=" + baseDomain + "; max-age=" + (365 * 24 * 60 * 60);
+    }
 
-    // Bounce the user back to the originating referrer page node instantly
+    // 3. REDIRECT: Go back to previous page
     if (document.referrer && document.referrer !== "" && !document.referrer.includes('countries.php')) {
         window.location.href = document.referrer;
     } else {
-        window.location.href = 'event.php';
+        window.location.href = 'index.php'; // fallback home
     }
 }
 </script>
