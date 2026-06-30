@@ -29,9 +29,13 @@ $rating = "4.9";
 
 // If an ID parameter is appended, load matching database row allocations
 if (isset($_GET['artist_id'])) {
+
     $artist_id = (int)$_GET['artist_id'];
+
     try {
-        if (isset($pdo) && $pdo !== null) {
+
+        if ($pdo) {
+
             $stmt = $pdo->prepare("
                 SELECT
                     id,
@@ -41,25 +45,33 @@ if (isset($_GET['artist_id'])) {
                     rating
                 FROM artists
                 WHERE id = ?
+                LIMIT 1
             ");
+
             $stmt->execute([$artist_id]);
-            $artist_data = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($artist_data) {
-            
-                $artist_name = $artist_data['name'];
-            
-                if (!empty($artist_data['artist_image'])) {
-                    $event_banner_image = "uploads/artists/" . $artist_data['artist_image'];
+
+            $artist = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($artist) {
+
+                $artist_name = $artist['name'];
+
+                if (!empty($artist['artist_image'])) {
+                    $event_banner_image = "uploads/artists/" . $artist['artist_image'];
                 }
-            
-                $genre = $artist_data['genre'] ?? "Pop";
-                $rating = $artist_data['rating'] ?? "0.0";
+
+                $genre = $artist['genre'];
+                $rating = $artist['rating'];
             }
+
         }
+
     } catch (Exception $e) {
-        // Safe silence mode to preserve page layout continuity
+
+        die($e->getMessage());
+
     }
+
 }
 
 // Simulated dynamic loop container populated to output the exact block layout sequence you requested
