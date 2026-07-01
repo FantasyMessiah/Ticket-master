@@ -209,7 +209,7 @@ No FAQs added.
 <td style="padding:15px;white-space:nowrap;">
 
     <!-- EDIT -->
-    <a href="edit-faq.php?id=<?= $faq['faq_id'] ?>&artist_id=<?= $artist_id ?>"
+    <a href="edit-faq.php?faq_id=<?= $faq['faq_id'] ?>&artist_id=<?= $artist_id ?>"
        class="btn green"
        style="padding:6px 10px;font-size:13px;">
         Edit
