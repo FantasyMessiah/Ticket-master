@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               style="width:100%;padding:.7rem;margin-bottom:1rem;height:120px;"><?= htmlspecialchars($setlist['description']) ?></textarea>
 
     <button type="submit" class="btn" style="width:100%;">
-        Save Changes
+        <i class="fas fa-save"></i> Save Changes
     </button>
 
 </form>
