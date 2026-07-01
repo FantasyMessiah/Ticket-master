@@ -302,31 +302,36 @@ No concerts found.
 <tr style="border-bottom:1px solid var(--border);">
 
 <td style="padding:12px;">
-<?= htmlspecialchars($concert['concert_date']) ?>
-</td>
 
-<td style="padding:12px;">
-<?= htmlspecialchars($concert['day_time']) ?>
-</td>
+<div style="display:flex;gap:8px;align-items:center;">
 
-<td style="padding:12px;">
-<?= htmlspecialchars($concert['venue']) ?>
-</td>
+<a
+    href="manage-tickets.php?concert_id=<?= $concert['concert_id'] ?>"
+    class="btn">
+    <i class="fas fa-ticket-alt"></i>
+    Tickets
+</a>
 
-<td style="padding:12px;">
-<?= htmlspecialchars($concert['location']) ?>
-</td>
+<form method="POST" onsubmit="return confirm('Delete concert?');" style="margin:0;">
 
-<td style="padding:12px;">
-<?= htmlspecialchars($concert['title']) ?>
-</td>
+    <input type="hidden" name="action" value="delete">
 
-<td style="padding:12px;">
-    <?=
-        htmlspecialchars(
-            ucfirst($concert['index_type'])
-        )
-    ?>
+    <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+
+    <input type="hidden" name="concert_id" value="<?= $concert['concert_id'] ?>">
+
+    <button class="btn red">
+
+        <i class="fas fa-trash"></i>
+
+        Delete
+
+    </button>
+
+</form>
+
+</div>
+
 </td>
 
 <td style="padding:12px;">
