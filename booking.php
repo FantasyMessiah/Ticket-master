@@ -183,12 +183,14 @@ try {
                                         <span class="text-[10px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded">
                                             <?php echo htmlspecialchars($sec['type']); ?>
                                         </span>
+                                    
                                         <?php if(!empty($sec['view'])): ?>
                                         <button
                                             type="button"
                                             onclick="event.stopPropagation();openImageModal('<?php echo htmlspecialchars($sec['view']); ?>')"
-                                            class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-blue-50 text-[#024DDF] text-xs font-bold border border-gray-300">
-                                            <i class="fas fa-image mr-1"></i> View
+                                            class="text-[10px] font-black uppercase bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors">
+                                            <i class="fas fa-image mr-1"></i>
+                                            Section View
                                         </button>
                                         <?php endif; ?>
                                     </div>
