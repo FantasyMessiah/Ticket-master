@@ -60,7 +60,7 @@ require_once "inc/countries.php";
 
 <!-- HEADER -->
 <div class="p-6 text-center border-b bg-white/80">
-    <img src="assets/logo.png" class="h-10 mx-auto mb-3">
+    <img src="assets/auth-logo.png" class="h-10 mx-auto mb-3">
 
     <h1 class="text-2xl font-black">Welcome</h1>
     <p class="text-sm text-gray-500">Sign in or create account</p>
