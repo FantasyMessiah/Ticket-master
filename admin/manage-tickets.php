@@ -27,17 +27,24 @@ ON concerts.artist_id=artists.artist_id
 WHERE concert_id=?
 ");
 
-$stmt->execute([$concert_id]);
+$concert = null;
 
-$concert = $stmt->fetch(PDO::FETCH_ASSOC);
+if($concert_id){
 
-if(!$concert){
+    $stmt=$pdo->prepare("
+    SELECT
+        concerts.*,
+        artists.artist_name,
+        artists.artist_image
+    FROM concerts
+    JOIN artists
+        ON concerts.artist_id=artists.artist_id
+    WHERE concerts.concert_id=?
+    ");
 
-    $_SESSION['error']="Concert not found.";
+    $stmt->execute([$concert_id]);
 
-    header("Location: manage-concerts.php");
-
-    exit;
+    $concert=$stmt->fetch(PDO::FETCH_ASSOC);
 
 }
 /*----------------------------------------------------
@@ -76,10 +83,6 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             
             throw new Exception("All fields are required.");
             
-            }
-            
-            if(!in_array($index_type, ['upcoming','trending','sponsored'])){
-                throw new Exception("Invalid event type.");
             }
 
             $stmt=$pdo->prepare("
@@ -125,7 +128,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             WHERE ticket_id=?
             ");
 
-            $stmt->execute([$concert_id]);
+            $stmt->execute([$ticket_id]);
 
             $_SESSION['success']="Ticket deleted.";
 
@@ -138,7 +141,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
 
         $_SESSION['error']=$e->getMessage();
 
-        header("Location: manage-concerts.php?artist_id=".$artist_id);
+        header("Location: manage-tickets.php?concert_id=".$concert_id);
         exit;
 
     }
@@ -149,9 +152,25 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
 FETCH CONCERTS
 ----------------------------------------------------*/
 
+$concerts=[];
+
+$stmt=$pdo->query("
+SELECT
+    concerts.concert_id,
+    concerts.title,
+    concerts.concert_date,
+    artists.artist_name
+FROM concerts
+JOIN artists
+ON concerts.artist_id=artists.artist_id
+ORDER BY concerts.concert_date DESC
+");
+
+$concerts=$stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $tickets=[];
 
-if($artist_id){
+if($concert_id){
 
 $stmt=$pdo->prepare("
 SELECT *
@@ -160,7 +179,7 @@ WHERE concert_id=?
 ORDER BY price
 ");
 
-$stmt->execute([$concert_id]);
+$stmt->execute([$ticket_id]);
 
 $tickets=$stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -192,46 +211,43 @@ if(isset($_SESSION['error'])){
 }
 ?>
 
-<?php if(!$artist){ ?>
+<?php if(!$concert_id){ ?>
 
-<div style="background:var(--card);padding:25px;border-radius:10px;max-width:600px;margin:auto;">
+<div style="background:var(--card);padding:25px;border-radius:10px;max-width:700px;margin:auto;">
 
-<h2>Select Artist</h2>
+<h2>Select Concert</h2>
 
 <form method="GET">
 
 <select
-name="artist_id"
+name="concert_id"
 required
-style="width:100%;padding:12px;margin:20px 0;">
+onchange="this.form.submit()"
+style="width:100%;padding:12px;">
 
-<option value="">Choose Artist</option>
+<option value="">Choose Concert</option>
 
-<?php foreach($artists as $a){ ?>
+<?php foreach($concerts as $c){ ?>
 
-<option value="<?= $a['artist_id'] ?>">
+<option value="<?= $c['concert_id'] ?>">
 
-<h2><?= htmlspecialchars($concert['artist_name']) ?></h2>
+<?= htmlspecialchars($c['artist_name']) ?>
 
-<p><?= htmlspecialchars($concert['title']) ?></p>
+-
 
-<p><?= htmlspecialchars($concert['concert_date']) ?></p>
+<?= htmlspecialchars($c['title']) ?>
 
-<p><?= htmlspecialchars($concert['venue']) ?></p>
+(
+
+<?= $c['concert_date'] ?>
+
+)
 
 </option>
 
 <?php } ?>
 
 </select>
-
-<button class="btn" style="width:100%;">
-
-<i class="fas fa-arrow-right"></i>
-
-Continue
-
-</button>
 
 </form>
 
@@ -241,10 +257,10 @@ Continue
 
 <div style="display:flex;align-items:center;gap:15px;background:var(--card);padding:20px;border-radius:10px;margin-bottom:25px;">
 
-<?php if($artist['artist_image']){ ?>
+<?php if($concert['artist_image']){ ?>
 
 <img
-src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
+src="../uploads/artists/<?= htmlspecialchars($concert['artist_name']) ?>"
 style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 
 <?php } ?>
@@ -253,7 +269,13 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 
 <h2><?= htmlspecialchars($artist['artist_name']) ?></h2>
 
-<small><?= htmlspecialchars($artist['genre']) ?></small>
+<small>
+
+<?= htmlspecialchars($concert['title']) ?>
+<br>
+<?= htmlspecialchars($concert['concert_date']) ?>
+
+</small>
 
 </div>
 
@@ -293,7 +315,7 @@ Add Ticket
 
 <tbody>
 
-<?php if(empty($concerts)){ ?>
+<?php if(empty($tickets)){ ?>
 
 <tr>
 
@@ -333,8 +355,9 @@ $<?= number_format($ticket['price'],2) ?>
 
 <td style="padding:12px;">
     <?php if (!empty($ticket['seat_view'])): ?>
-        <img src="../uploads/tickets/<?= htmlspecialchars(($ticket['seat_view']) ?>"
-             style="width:55px;height:55px;object-fit:cover;border-radius:8px;">
+        <img
+        src="../uploads/tickets/<?= htmlspecialchars($ticket['seat_view']) ?>"
+        style="width:55px;height:55px;object-fit:cover;border-radius:8px;">
     <?php else: ?>
         <span style="color:#888;">N/A</span>
     <?php endif; ?>
@@ -379,7 +402,7 @@ Delete
 
 <h2>Add Ticket</h2>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
 
 <input type="hidden" name="action" value="add">
 
