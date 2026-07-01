@@ -302,6 +302,34 @@ No concerts found.
 <tr style="border-bottom:1px solid var(--border);">
 
 <td style="padding:12px;">
+<?= htmlspecialchars($concert['concert_date']) ?>
+</td>
+
+<td style="padding:12px;">
+<?= htmlspecialchars($concert['day_time']) ?>
+</td>
+
+<td style="padding:12px;">
+<?= htmlspecialchars($concert['venue']) ?>
+</td>
+
+<td style="padding:12px;">
+<?= htmlspecialchars($concert['location']) ?>
+</td>
+
+<td style="padding:12px;">
+<?= htmlspecialchars($concert['title']) ?>
+</td>
+
+<td style="padding:12px;">
+    <?=
+        htmlspecialchars(
+            ucfirst($concert['index_type'])
+        )
+    ?>
+</td>
+
+<td style="padding:12px;">
 
 <div style="display:flex;gap:8px;align-items:center;">
 
@@ -333,29 +361,6 @@ No concerts found.
 </div>
 
 </td>
-
-<td style="padding:12px;">
-
-<form method="POST" onsubmit="return confirm('Delete concert?');">
-
-<input type="hidden" name="action" value="delete">
-
-<input type="hidden" name="artist_id" value="<?= $artist_id ?>">
-
-<input type="hidden" name="concert_id" value="<?= $concert['concert_id'] ?>">
-
-<button class="btn red">
-
-<i class="fas fa-trash"></i>
-
-Delete
-
-</button>
-
-</form>
-
-</td>
-
 </tr>
 
 <?php } ?>
