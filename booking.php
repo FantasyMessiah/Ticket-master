@@ -237,6 +237,8 @@ if ($concert_not_found) {
             </div>
         </main>
 
+        <?php endif; ?>
+
         <?php include "inc/footer.php"; ?>
     </div>
 
