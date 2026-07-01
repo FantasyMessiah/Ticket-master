@@ -53,7 +53,7 @@
         </div>
   
         <div class="flex items-center">
-          <a href="register.php"
+          <a href="auth.php"
              class="flex items-center gap-2 lg:gap-3 text-white hover:text-[#024DDF] transition-colors duration-200">
             <i class="fa-regular fa-user text-1xl lg:text-2xl"></i>
             <span class="hidden md:inline font-bold text-sm lg:text-1.5xl">
