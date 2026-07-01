@@ -326,7 +326,7 @@ Add Ticket
 <th>Row</th>
 <th>Seat</th>
 <th>Price</th>
-<th>Seat View</th>
+<th>Section View</th>
 <th>Action</th>
 
 </tr>
