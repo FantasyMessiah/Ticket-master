@@ -323,14 +323,6 @@ try {
                     </div>
                 </div>
         
-                    <img
-                        id="modalImage"
-                        src=""
-                        class="max-w-none transition-transform duration-200 rounded-lg shadow-lg"
-                        style="transform:scale(1);">
-        
-                </div>
-        
                 <!-- Footer Information -->
                 <div class="border-t bg-white px-6 py-4">
         
@@ -353,9 +345,9 @@ try {
         
             </div>
 
-            <?php include "inc/footer.php"; ?>
-        
         </div>
+
+    <?php include "inc/footer.php"; ?>
 
     <script>
         // Track globally selected seat nodes data matrix array
@@ -472,6 +464,17 @@ try {
                 desc.innerText =
                     "Preview the perspective from this seating section before selecting your seats.";
         
+                info.innerHTML = `
+                    <h4 class="font-bold text-blue-800 mb-2">
+                        Before You Book
+                    </h4>
+        
+                    <ul class="text-sm text-gray-600 space-y-1 list-disc pl-5">
+                        <li>This is an approximate view from the selected section.</li>
+                        <li>Your exact experience may vary depending on your row and seat.</li>
+                        <li>Use this preview together with the venue map.</li>
+                    </ul>
+                `;
         
             }else{
         
@@ -479,6 +482,18 @@ try {
         
                 desc.innerText =
                     "Reference map showing the location of each seating section inside the venue.";
+        
+                info.innerHTML = `
+                    <h4 class="font-bold text-blue-800 mb-2">
+                        How to Use This Map
+                    </h4>
+        
+                    <ul class="text-sm text-gray-600 space-y-1 list-disc pl-5">
+                        <li>Locate the section you intend to purchase.</li>
+                        <li>Expand the matching section below to choose available seats.</li>
+                        <li>Click any Section View button to preview the stage angle.</li>
+                    </ul>
+                `;
             }
         
             modal.classList.remove("hidden");
