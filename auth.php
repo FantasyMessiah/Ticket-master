@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once "inc/countries.php";
 ?>
 <!DOCTYPE html>
@@ -11,9 +12,7 @@ require_once "inc/countries.php";
     <title>Authentication</title>
 
     <link rel="icon" href="assets/favicon.png" type="image/png">
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
@@ -48,14 +47,15 @@ require_once "inc/countries.php";
 
 <body class="bg-gray-50">
 
+<!-- ERROR MESSAGE -->
 <?php if (!empty($_SESSION['auth_error'])): ?>
-    <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-lg mb-4">
+    <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-lg mb-4 max-w-md mx-auto">
         <?= $_SESSION['auth_error']; ?>
     </div>
     <?php unset($_SESSION['auth_error']); ?>
 <?php endif; ?>
 
-<!-- background -->
+<!-- BACKGROUND -->
 <div class="fixed inset-0 -z-10">
     <div class="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] bg-blue-100 blur-3xl opacity-40"></div>
     <div class="absolute bottom-[-200px] right-[-200px] w-[500px] h-[500px] bg-blue-200 blur-3xl opacity-30"></div>
@@ -68,7 +68,6 @@ require_once "inc/countries.php";
 <!-- HEADER -->
 <div class="p-6 text-center border-b bg-white/80">
     <img src="assets/auth-logo.png" class="h-10 mx-auto mb-3">
-
     <h1 class="text-2xl font-black">Authentication</h1>
     <p class="text-sm text-gray-500">Sign in or create account</p>
 </div>
@@ -84,47 +83,43 @@ require_once "inc/countries.php";
 </div>
 
 <!-- LOGIN -->
-<form id="loginForm" class="p-6 space-y-4">
+<form id="loginForm" class="p-6 space-y-4" method="POST" action="login.php">
 
-    <input class="w-full border rounded-xl px-4 py-3 text-sm input"
-        type="email" placeholder="Email">
+    <input name="email" class="w-full border rounded-xl px-4 py-3 text-sm input" type="email" placeholder="Email">
 
-    <input class="w-full border rounded-xl px-4 py-3 text-sm input"
-        type="password" placeholder="Password">
+    <input name="password" class="w-full border rounded-xl px-4 py-3 text-sm input" type="password" placeholder="Password">
 
-    <button id="loginBtn"
-        class="w-full bg-brand text-white font-black py-3 rounded-xl hover:bg-blue-800 transition">
+    <button class="w-full bg-brand text-white font-black py-3 rounded-xl hover:bg-blue-800 transition">
         Sign In
     </button>
 
 </form>
 
 <!-- REGISTER -->
-<form id="registerForm" class="p-6 space-y-4 hidden">
+<form id="registerForm" class="p-6 space-y-4 hidden" method="POST" action="register.php">
 
-    <input class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Full Name">
-    <input class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Email">
+    <input name="full_name" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Full Name">
 
-    <select id="countrySelect" class="w-full border rounded-xl px-4 py-3 text-sm input">
+    <input name="email" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Email">
+
+    <select name="country" id="countrySelect" class="w-full border rounded-xl px-4 py-3 text-sm input">
         <option>Select Country</option>
         <?php foreach ($countries as $c): ?>
             <option><?= htmlspecialchars($c) ?></option>
         <?php endforeach; ?>
     </select>
 
-    <select id="codeSelect" class="w-full border rounded-xl px-4 py-3 text-sm input">
+    <select name="country_code" id="codeSelect" class="w-full border rounded-xl px-4 py-3 text-sm input">
         <option>Code</option>
     </select>
 
-    <input class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Phone">
+    <input name="phone" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Phone">
 
-    <!-- PASSWORD -->
-    <input id="password"
+    <input name="password" id="password"
         class="w-full border rounded-xl px-4 py-3 text-sm input"
         type="password" placeholder="Password"
         oninput="checkStrength(this.value)">
 
-    <!-- STRENGTH BAR -->
     <div class="space-y-1">
         <div class="bg-gray-200 bar w-full overflow-hidden">
             <div id="strengthBar" class="bar w-0 bg-red-500"></div>
@@ -132,11 +127,10 @@ require_once "inc/countries.php";
         <p id="strengthText" class="text-xs text-gray-500">Password strength: -</p>
     </div>
 
-    <input class="w-full border rounded-xl px-4 py-3 text-sm input"
+    <input name="confirm_password" class="w-full border rounded-xl px-4 py-3 text-sm input"
         type="password" placeholder="Confirm Password">
 
-    <button id="registerBtn"
-        class="w-full bg-brand text-white font-black py-3 rounded-xl hover:bg-blue-800 transition">
+    <button class="w-full bg-brand text-white font-black py-3 rounded-xl hover:bg-blue-800 transition">
         Create Account
     </button>
 
@@ -148,7 +142,7 @@ require_once "inc/countries.php";
 <script>
 
 /* -----------------------
-   TAB SWITCH + BUTTON TEXT CONTROL
+   TAB SWITCH
 ------------------------*/
 function showLogin() {
     document.getElementById("loginForm").classList.remove("hidden");
@@ -156,9 +150,6 @@ function showLogin() {
 
     document.getElementById("loginTab").classList.add("tab-active");
     document.getElementById("registerTab").classList.remove("tab-active");
-
-    document.getElementById("loginBtn").style.display = "block";
-    document.getElementById("registerBtn").style.display = "none";
 }
 
 function showRegister() {
@@ -167,13 +158,10 @@ function showRegister() {
 
     document.getElementById("registerTab").classList.add("tab-active");
     document.getElementById("loginTab").classList.remove("tab-active");
-
-    document.getElementById("loginBtn").style.display = "none";
-    document.getElementById("registerBtn").style.display = "block";
 }
 
 /* -----------------------
-   PASSWORD STRENGTH ENGINE
+   PASSWORD STRENGTH
 ------------------------*/
 function checkStrength(password) {
 
@@ -188,26 +176,22 @@ function checkStrength(password) {
     const bar = document.getElementById("strengthBar");
     const text = document.getElementById("strengthText");
 
-    let width = score * 20;
-
-    bar.style.width = width + "%";
+    bar.style.width = (score * 20) + "%";
 
     if (score <= 1) {
         bar.className = "bar bg-red-500";
         text.innerText = "Weak password";
-    }
-    else if (score <= 3) {
+    } else if (score <= 3) {
         bar.className = "bar bg-yellow-500";
         text.innerText = "Medium strength";
-    }
-    else {
+    } else {
         bar.className = "bar bg-green-500";
         text.innerText = "Strong password";
     }
 }
 
 /* -----------------------
-   COUNTRY CODES
+   COUNTRY CODE AUTO
 ------------------------*/
 const countryCodes = {
     "Nigeria":"+234",
@@ -224,34 +208,6 @@ document.getElementById("countrySelect").addEventListener("change", function () 
     document.getElementById("codeSelect").innerHTML =
         `<option>${countryCodes[this.value] || ""}</option>`;
 });
-
-/* -----------------------
-   GEO DETECT COUNTRY
-------------------------*/
-function detectCountry() {
-    if (!navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`
-            );
-
-            const data = await res.json();
-
-            if (data?.address?.country) {
-                const c = document.getElementById("countrySelect");
-                c.value = data.address.country;
-                c.dispatchEvent(new Event("change"));
-            }
-        } catch (e) {}
-    });
-}
-
-detectCountry();
-
-/* default UI state */
-showLogin();
 
 </script>
 
