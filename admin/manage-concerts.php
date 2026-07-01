@@ -376,49 +376,35 @@ style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
 
 </td>
 
-<td style="padding:12px;">
+<!-- ACTIONS FIXED -->
+<td style="padding:12px;white-space:nowrap;">
 
-<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <a href="edit-concert.php?concert_id=<?= $concert['concert_id'] ?>"
+       class="btn green"
+       style="padding:6px 10px;font-size:13px;">
+        Edit
+    </a>
 
-<a
-href="edit-concert.php?concert_id=<?= $concert['concert_id'] ?>"
-class="btn">
+    <a href="manage-tickets.php?concert_id=<?= $concert['concert_id'] ?>"
+       class="btn"
+       style="padding:6px 10px;font-size:13px;background:#6f42c1;color:#fff;margin-left:5px;">
+        Tickets
+    </a>
 
-<i class="fas fa-pen"></i>
+    <form method="POST"
+          onsubmit="return confirm('Delete this concert?');"
+          style="display:inline-block;margin-left:5px;">
 
-Edit
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+        <input type="hidden" name="concert_id" value="<?= $concert['concert_id'] ?>">
 
-</a>
+        <button class="btn red"
+                style="padding:6px 10px;font-size:13px;">
+            Delete
+        </button>
 
-<a
-href="manage-tickets.php?concert_id=<?= $concert['concert_id'] ?>"
-class="btn">
-
-<i class="fas fa-ticket-alt"></i>
-
-Tickets
-
-</a>
-
-<form method="POST" onsubmit="return confirm('Delete concert?');" style="margin:0;">
-
-    <input type="hidden" name="action" value="delete">
-
-    <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
-
-    <input type="hidden" name="concert_id" value="<?= $concert['concert_id'] ?>">
-
-    <button class="btn red">
-
-        <i class="fas fa-trash"></i>
-
-        Delete
-
-    </button>
-
-</form>
-
-</div>
+    </form>
 
 </td>
 </tr>
