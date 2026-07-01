@@ -223,8 +223,8 @@ if ($concert_not_found) {
 
                     <?php foreach ($ticket_sections as $sec): ?>
                         <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-blue-200 hover:shadow-md" id="card-<?php echo e($sec['id']); ?>">
-                            <div class="grid gap-0 md:grid-cols-[180px_1fr]">
-                                <div class="relative min-h-[150px] bg-slate-100">
+                            <div class="grid grid-cols-[180px_1fr] gap-0">
+                                <div class="relative h-full min-h-[180px] bg-slate-100">
                                     <?php if (!empty($sec['section_view'])): ?>
                                         <button type="button"
                                                 onclick="event.stopPropagation(); openImageModal(<?php echo js($sec['section_view']); ?>, <?php echo js(($sec['section'] ?: 'Section') . ' ' . ($sec['row'] ?: 'View')); ?>)"
@@ -233,7 +233,7 @@ if ($concert_not_found) {
                                             <img src="<?php echo e($sec['section_view']); ?>"
                                                  onerror="this.closest('.relative').classList.add('image-load-failed'); this.remove();"
                                                  alt="Section <?php echo e($sec['section']); ?> view"
-                                                 class="h-full min-h-[150px] w-full object-cover transition duration-300 group-hover:scale-105">
+                                                 class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
                                             <span class="absolute inset-x-3 bottom-3 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950/75 px-3 py-2 text-xs font-black uppercase tracking-wider text-white backdrop-blur">
                                                 <i class="fas fa-search-plus"></i> Section View
                                             </span>
