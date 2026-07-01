@@ -23,7 +23,9 @@ try {
 // GET CONCERT ID
 // ---------------------------------------------
 if (!isset($_GET['concert_id'])) {
-    die("Concert not found.");
+    $concert_not_found = true;
+} else {
+    $concert_id = (int)$_GET['concert_id'];
 }
 
 $concert_id = (int)$_GET['concert_id'];
@@ -48,7 +50,8 @@ try {
     $concert = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$concert) {
-        die("Concert not found.");
+        $concert_not_found = true;
+    }
     }
 
     // Get artist name
@@ -118,6 +121,14 @@ try {
     die($e->getMessage());
 }
 
+if ($concert_not_found) {
+    $artist_name = "Unavailable";
+    $concert_title = "Concert Not Found";
+    $concert_details = "The selected concert does not exist or has been removed.";
+    $stadium_map_image = "assets/images/stadium-map.jpg";
+    $ticket_sections = [];
+}
+
     
 ?>
 <!DOCTYPE html>
@@ -152,6 +163,14 @@ try {
                 <i class="fas fa-map-marked-alt mr-1.5 text-blue-400"></i> Stadium Map Reference Vector
             </div>
         </div>
+
+        <?php if ($concert_not_found): ?>
+            <div class="max-w-7xl mx-auto px-4 md:px-8 mt-6">
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg font-bold">
+                    ⚠️ Sorry, the concert you are looking for was not found or is no longer available.
+                </div>
+            </div>
+        <?php endif; ?>
 
         <main class="max-w-7xl mx-auto px-4 md:px-8 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
