@@ -464,7 +464,6 @@ box-sizing:border-box;
 <form method="POST" enctype="multipart/form-data">
 
 <input type="hidden" name="action" value="add">
-
 <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
 
 <label>Date</label>
@@ -483,34 +482,19 @@ box-sizing:border-box;
 <input type="text" name="title" required style="width:100%;padding:10px;margin:10px 0 20px;">
 
 <label>Display Section</label>
-
-<select
-name="index_type"
-required
-style="width:100%;padding:10px;margin:10px 0 20px;">
-
+<select name="index_type" required style="width:100%;padding:10px;margin:10px 0 20px;">
     <option value="upcoming">Upcoming</option>
-
     <option value="trending">Trending Searches</option>
-
     <option value="sponsored">Sponsored Presales & Offers</option>
-
 </select>
 
 <label>Venue Map</label>
-
-<input
-type="file"
-name="map_view"
-accept="image/*"
-style="width:100%;padding:10px;margin:10px 0 20px;">
+<input type="file" name="map_view" accept="image/*"
+       style="width:100%;padding:10px;margin:10px 0 20px;">
 
 <button class="btn" style="width:100%;">
-
-<i class="fas fa-save"></i>
-
-Save Concert
-
+    <i class="fas fa-save"></i>
+    Save Concert
 </button>
 
 </form>
@@ -518,42 +502,34 @@ Save Concert
 <br>
 
 <button class="btn red" style="width:100%;" onclick="closeModal()">
-
 Close
-
 </button>
 
 </div>
-
 </div>
-
 <script>
 
 function openModal(){
-
     document.getElementById("modal").style.display="block";
-
     document.body.style.overflow="hidden";
-
 }
 
 function closeModal(){
-
     document.getElementById("modal").style.display="none";
-
     document.body.style.overflow="auto";
-
 }
 
-document.getElementById("modal").addEventListener("click",function(e){
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("modal");
 
-    if(e.target===this){
-
-        closeModal();
-
-    }
-
+    modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
 });
+
+</script>
 
 </main>
 
