@@ -1,5 +1,15 @@
 <?php
-// booking.php - Selection & Seat Reservation Pipeline
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+
+    $_SESSION['auth_error'] = "Please login to continue booking your seats.";
+    $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
+
+    header("Location: auth.php");
+    exit;
+}
+
 // Enable error displaying so we can pinpoint issues if database structural details are missing
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
