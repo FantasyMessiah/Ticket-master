@@ -105,6 +105,9 @@ try {
                 'type'    => $row['ticket_name'],
                 'price'   => $row['price'],
                 'entry'   => 'Mobile Entry',
+                'view'    => !empty($row['section_view'])
+                                ? "uploads/tickets/".$row['section_view']
+                                : "",
                 'seats'   => []
             ];
         }
@@ -143,7 +146,10 @@ try {
         </div>
 
         <div class="w-full bg-black relative h-[260px] md:h-[420px] overflow-hidden select-none shadow-inner">
-            <img src="<?php echo htmlspecialchars($stadium_map_image); ?>" 
+            <img
+                src="<?php echo htmlspecialchars($stadium_map_image); ?>"
+                onclick="openImageModal('<?php echo htmlspecialchars($stadium_map_image); ?>')"
+                class="w-full h-full object-cover opacity-90 object-center cursor-zoom-in"
                  onerror="this.src='https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1600&q=80';" 
                  alt="Stadium Grid Mapping Layout" 
                  class="w-full h-full object-cover opacity-90 object-center">
@@ -183,6 +189,14 @@ try {
                                     </div>
                                 </div>
                                 <div class="text-right flex items-center gap-4">
+                                    <?php if(!empty($sec['view'])): ?>
+                                    <button
+                                        type="button"
+                                        onclick="event.stopPropagation();openImageModal('<?php echo htmlspecialchars($sec['view']); ?>')"
+                                        class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-blue-50 text-[#024DDF] text-xs font-bold border border-gray-300">
+                                        <i class="fas fa-image mr-1"></i> View
+                                    </button>
+                                    <?php endif; ?>
                                     <div>
                                         <span class="block text-xl font-black text-[#024DDF] tracking-tight">
                                             $<?php echo number_format($sec['price'], 2); ?>
@@ -246,6 +260,50 @@ try {
 
             </div>
         </main>
+        <!-- Image Viewer -->
+        <div
+            id="imageModal"
+            class="fixed inset-0 bg-black/90 z-[9999] hidden items-center justify-center">
+        
+            <button
+                onclick="closeImageModal()"
+                class="absolute top-5 right-5 text-white text-4xl">
+                &times;
+            </button>
+        
+            <div class="absolute top-5 left-5 flex gap-3">
+        
+                <button
+                    onclick="zoomIn()"
+                    class="bg-white rounded-lg px-4 py-2 font-bold">
+                    +
+                </button>
+        
+                <button
+                    onclick="zoomOut()"
+                    class="bg-white rounded-lg px-4 py-2 font-bold">
+                    −
+                </button>
+        
+                <button
+                    onclick="resetZoom()"
+                    class="bg-white rounded-lg px-4 py-2 font-bold">
+                    Reset
+                </button>
+        
+            </div>
+        
+            <div class="overflow-auto w-full h-full flex justify-center items-center">
+        
+                <img
+                    id="modalImage"
+                    src=""
+                    class="max-w-none transition-transform duration-200 select-none"
+                    style="transform:scale(1);">
+        
+            </div>
+        
+        </div>
 
         <?php include "inc/footer.php"; ?>
     </div>
@@ -341,6 +399,64 @@ try {
                 hiddenPayloadInput.value = JSON.stringify(pickedSeatsRegister);
             }
         }
+
+        let currentZoom = 1;
+        
+        function openImageModal(image) {
+        
+            currentZoom = 1;
+        
+            const modal = document.getElementById("imageModal");
+            const img = document.getElementById("modalImage");
+        
+            img.src = image;
+            img.style.transform = "scale(1)";
+        
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+        
+        function closeImageModal() {
+        
+            const modal = document.getElementById("imageModal");
+        
+            modal.classList.remove("flex");
+            modal.classList.add("hidden");
+        }
+        
+        function zoomIn() {
+        
+            currentZoom += 0.2;
+        
+            document.getElementById("modalImage").style.transform =
+                `scale(${currentZoom})`;
+        }
+        
+        function zoomOut() {
+        
+            currentZoom = Math.max(0.2, currentZoom - 0.2);
+        
+            document.getElementById("modalImage").style.transform =
+                `scale(${currentZoom})`;
+        }
+        
+        function resetZoom() {
+        
+            currentZoom = 1;
+        
+            document.getElementById("modalImage").style.transform =
+                "scale(1)";
+        }
+        
+        document.getElementById("imageModal").addEventListener("click", function(e){
+        
+            if(e.target === this){
+        
+                closeImageModal();
+        
+            }
+        
+        });
     </script>
 
     <style>
