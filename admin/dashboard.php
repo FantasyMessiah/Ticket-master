@@ -28,7 +28,10 @@ $currentAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $currentWhatsapp = $currentAdmin['whatsapp'] ?? '';
 
-/* STATS */
+/* --------------------------------------------------
+   DASHBOARD STATS
+-------------------------------------------------- */
+
 try {
 
     $stmt = $pdo->query("SELECT COUNT(*) FROM users");
@@ -40,7 +43,9 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) FROM concerts");
     $total_concerts = (int)$stmt->fetchColumn();
 
-    $total_events = 0;
+    /* NEW: tickets count */
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tickets");
+    $total_tickets = (int)$stmt->fetchColumn();
 
 } catch (PDOException $e) {
 
@@ -51,82 +56,82 @@ try {
     $total_users = 0;
     $total_artists = 0;
     $total_concerts = 0;
-    $total_events = 0;
+    $total_tickets = 0;
 }
 ?>
 
-<main style="margin-top:1.5rem;">
+<main style="margin-top: 1.5rem;">
 
-<h1 style="text-align:center;margin-bottom:2.5rem;font-size:2.1rem;">
+<h1 style="text-align:center; margin-bottom:2.5rem; font-size:2.1rem;">
 Dashboard Overview
 </h1>
 
 <!-- WHATSAPP SETTINGS -->
 <div style="
-    max-width:500px;
-    margin:0 auto 2rem auto;
-    background:#161b22;
-    padding:1.5rem;
-    border-radius:12px;
-    border:1px solid #30363d;
+max-width:500px;
+margin:0 auto 2rem auto;
+background:#161b22;
+padding:1.5rem;
+border-radius:12px;
+border:1px solid #30363d;
 ">
 
-    <h2 style="margin-bottom:1rem;text-align:center;">
-        WhatsApp Support Number
-    </h2>
+<h2 style="margin-bottom:1rem; text-align:center;">
+  WhatsApp Support Number
+</h2>
 
-    <?php if(!empty($success)): ?>
-        <div style="
-            background:#238636;
-            color:white;
-            padding:12px;
-            border-radius:8px;
-            margin-bottom:1rem;
-            text-align:center;
-        ">
-            <?= htmlspecialchars($success) ?>
-        </div>
-    <?php endif; ?>
+<?php if(!empty($success)): ?>
+  <div style="
+    background:#238636;
+    color:white;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:1rem;
+    text-align:center;
+  ">
+    <?= htmlspecialchars($success) ?>
+  </div>
+<?php endif; ?>
 
-    <form method="POST">
+<form method="POST">
 
-        <input
-            type="text"
-            name="whatsapp"
-            value="<?= htmlspecialchars($currentWhatsapp) ?>"
-            placeholder="Enter WhatsApp Number"
-            required
-            style="
-                width:100%;
-                padding:14px;
-                border-radius:8px;
-                border:1px solid #30363d;
-                background:#0d1117;
-                color:white;
-                margin-bottom:1rem;
-                font-size:15px;
-            "
-        >
+  <input
+    type="text"
+    name="whatsapp"
+    value="<?= htmlspecialchars($currentWhatsapp) ?>"
+    placeholder="Enter WhatsApp Number"
+    required
+    style="
+      width:100%;
+      padding:14px;
+      border-radius:8px;
+      border:1px solid #30363d;
+      background:#0d1117;
+      color:white;
+      margin-bottom:1rem;
+      font-size:15px;
+    "
+  >
 
-        <button
-            type="submit"
-            name="update_whatsapp"
-            style="
-                width:100%;
-                padding:14px;
-                border:none;
-                border-radius:8px;
-                background:#25D366;
-                color:white;
-                font-size:15px;
-                cursor:pointer;
-                font-weight:bold;
-            "
-        >
-            Update WhatsApp
-        </button>
+  <button
+    type="submit"
+    name="update_whatsapp"
+    style="
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:8px;
+      background:#25D366;
+      color:white;
+      font-size:15px;
+      cursor:pointer;
+      font-weight:bold;
+    "
+  >
+    Update WhatsApp
+  </button>
 
-    </form>
+</form>
 
 </div>
 
@@ -157,18 +162,20 @@ Dashboard Overview
         <div class="card-label">Concerts</div>
     </div>
 
+    <!-- NEW TICKETS CARD -->
     <div class="card">
         <div class="card-icon" style="color:#d29922;">
-            <i class="fas fa-calendar-alt"></i>
+            <i class="fas fa-ticket"></i>
         </div>
-        <div class="card-label">Events</div>
+        <div class="card-value"><?= number_format($total_tickets) ?></div>
+        <div class="card-label">Tickets</div>
     </div>
 
 </div>
 
 <!-- MANAGEMENT -->
-<h2 style="text-align:center;margin:3rem 0 1.8rem;font-size:1.7rem;">
-    Management Sections
+<h2 style="text-align:center; margin:3rem 0 1.8rem; font-size:1.7rem;">
+Management Sections
 </h2>
 
 <div class="actions-grid">
