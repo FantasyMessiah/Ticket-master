@@ -48,6 +48,13 @@ require_once "inc/countries.php";
 
 <body class="bg-gray-50">
 
+<?php if (!empty($_SESSION['auth_error'])): ?>
+    <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-lg mb-4">
+        <?= $_SESSION['auth_error']; ?>
+    </div>
+    <?php unset($_SESSION['auth_error']); ?>
+<?php endif; ?>
+
 <!-- background -->
 <div class="fixed inset-0 -z-10">
     <div class="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] bg-blue-100 blur-3xl opacity-40"></div>
