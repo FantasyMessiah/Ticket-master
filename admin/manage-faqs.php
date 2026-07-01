@@ -150,19 +150,15 @@ $faqs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <?php if(isset($_SESSION['success'])){ ?>
-
 <div style="background:#238636;color:#fff;padding:15px;border-radius:8px;margin-bottom:20px;">
 <?= $_SESSION['success']; unset($_SESSION['success']); ?>
 </div>
-
 <?php } ?>
 
 <?php if(isset($_SESSION['error'])){ ?>
-
 <div style="background:#f85149;color:#fff;padding:15px;border-radius:8px;margin-bottom:20px;">
 <?= $_SESSION['error']; unset($_SESSION['error']); ?>
 </div>
-
 <?php } ?>
 
 <div style="text-align:right;margin-bottom:20px;">
@@ -181,7 +177,7 @@ $faqs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <th style="padding:12px;">Question</th>
 <th style="padding:12px;">Answer</th>
-<th style="padding:12px;width:150px;">Action</th>
+<th style="padding:12px;width:160px;">Action</th>
 
 </tr>
 
@@ -190,13 +186,11 @@ $faqs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <tbody>
 
 <?php if(empty($faqs)){ ?>
-
 <tr>
 <td colspan="3" style="padding:20px;text-align:center;">
 No FAQs added.
 </td>
 </tr>
-
 <?php } ?>
 
 <?php foreach($faqs as $faq){ ?>
@@ -211,23 +205,33 @@ No FAQs added.
 <?= htmlspecialchars(mb_strimwidth($faq['answer'],0,120,'...')) ?>
 </td>
 
-<td style="padding:15px;">
+<!-- ACTIONS FIXED -->
+<td style="padding:15px;white-space:nowrap;">
 
-<form method="POST"
-      onsubmit="return confirm('Delete this FAQ?');">
+    <!-- EDIT -->
+    <a href="edit-faq.php?id=<?= $faq['faq_id'] ?>&artist_id=<?= $artist_id ?>"
+       class="btn green"
+       style="padding:6px 10px;font-size:13px;">
+        Edit
+    </a>
 
-<input type="hidden" name="action" value="delete">
+    <!-- DELETE -->
+    <form method="POST"
+          onsubmit="return confirm('Delete this FAQ?');"
+          style="display:inline-block;margin-left:5px;">
 
-<input type="hidden"
-       name="faq_id"
-       value="<?= $faq['faq_id'] ?>">
+        <input type="hidden" name="action" value="delete">
 
-<button class="btn red">
-<i class="fas fa-trash"></i>
-Delete
-</button>
+        <input type="hidden"
+               name="faq_id"
+               value="<?= $faq['faq_id'] ?>">
 
-</form>
+        <button class="btn red"
+                style="padding:6px 10px;font-size:13px;">
+            Delete
+        </button>
+
+    </form>
 
 </td>
 
@@ -241,30 +245,46 @@ Delete
 
 </div>
 
-<!-- MODAL -->
-
+<!-- MODAL (SCROLL SAFE) -->
 <div id="faqModal"
-style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);">
+style="
+display:none;
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.7);
+overflow-y:auto;
+padding:20px;
+box-sizing:border-box;
+z-index:9999;
+">
 
-<div style="background:#111827;max-width:600px;margin:5% auto;padding:25px;border-radius:10px;">
+<div style="
+background:#111827;
+max-width:600px;
+margin:40px auto;
+padding:25px;
+border-radius:10px;
+max-height:calc(100vh - 80px);
+overflow-y:auto;
+box-sizing:border-box;
+">
 
 <h2>Add FAQ</h2>
 
 <form method="POST">
 
-<input type="hidden"
-name="action"
-value="add">
+<input type="hidden" name="action" value="add">
 
 <label>Question</label>
-
 <input type="text"
 name="question"
 required
 style="width:100%;padding:10px;margin:10px 0 20px;">
 
 <label>Answer</label>
-
 <textarea
 name="answer"
 required
@@ -280,13 +300,8 @@ Save FAQ
 
 <br>
 
-<button
-class="btn red"
-style="width:100%;"
-onclick="closeModal()">
-
+<button class="btn red" style="width:100%;" onclick="closeModal()">
 Close
-
 </button>
 
 </div>
@@ -297,11 +312,19 @@ Close
 
 function openModal(){
     document.getElementById('faqModal').style.display='block';
+    document.body.style.overflow='hidden';
 }
 
 function closeModal(){
     document.getElementById('faqModal').style.display='none';
+    document.body.style.overflow='auto';
 }
+
+document.getElementById('faqModal').addEventListener('click', function(e){
+    if(e.target === this){
+        closeModal();
+    }
+});
 
 </script>
 
