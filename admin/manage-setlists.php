@@ -178,15 +178,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?= nl2br(htmlspecialchars($set['description'])) ?>
     </p>
 
-    <form method="POST"
-          onsubmit="return confirm('Delete this setlist?');"
-          style="margin-top:10px;">
+    <!-- ACTIONS FIXED -->
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;">
 
-        <input type="hidden" name="action" value="delete">
-        <input type="hidden" name="id" value="<?= $set['setlist_id'] ?>">
+        <!-- EDIT -->
+        <a href="edit-setlist.php?id=<?= $set['setlist_id'] ?>&artist_id=<?= $artist_id ?>"
+           class="btn green"
+           style="padding:6px 10px;font-size:13px;">
+            Edit
+        </a>
 
-        <button class="btn red" style="width:100%;">Delete</button>
-    </form>
+        <!-- DELETE -->
+        <form method="POST"
+              onsubmit="return confirm('Delete this setlist?');"
+              style="margin:0;">
+
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="id" value="<?= $set['setlist_id'] ?>">
+
+            <button class="btn red"
+                    style="padding:6px 10px;font-size:13px;">
+                Delete
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 
