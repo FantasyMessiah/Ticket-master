@@ -431,9 +431,33 @@ Tickets
 
 </div>
 
-<div id="modal" style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);">
+<div
+id="modal"
+style="
+display:none;
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.7);
+overflow-y:auto;
+padding:20px;
+box-sizing:border-box;
+z-index:9999;
+">
 
-<div style="background:#111827;max-width:600px;margin:5% auto;padding:25px;border-radius:10px;">
+<div
+style="
+background:#111827;
+max-width:650px;
+margin:40px auto;
+padding:25px;
+border-radius:10px;
+max-height:calc(100vh - 80px);
+overflow-y:auto;
+box-sizing:border-box;
+">
 
 <h2>Add Concert</h2>
 
@@ -506,14 +530,30 @@ Close
 <script>
 
 function openModal(){
-document.getElementById("modal").style.display="block";
+
+    document.getElementById("modal").style.display="block";
+
+    document.body.style.overflow="hidden";
+
 }
 
 function closeModal(){
-document.getElementById("modal").style.display="none";
+
+    document.getElementById("modal").style.display="none";
+
+    document.body.style.overflow="auto";
+
 }
 
-</script>
+document.getElementById("modal").addEventListener("click",function(e){
+
+    if(e.target===this){
+
+        closeModal();
+
+    }
+
+});
 
 </main>
 
