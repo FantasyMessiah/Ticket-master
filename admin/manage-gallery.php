@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $action = $_POST['action'] ?? '';
 
-        /* ---------------- ADD YOUTUBE ---------------- */
+        /* ---------------- ADD ---------------- */
         if ($action === 'upload') {
 
             $link  = trim($_POST['youtube_media_link'] ?? '');
@@ -128,13 +128,11 @@ function getYoutubeId($url) {
     <label style="display:block;margin-bottom:10px;">Video Title</label>
     <input type="text"
            name="media_title"
-           placeholder="e.g. Live Concert 2026"
            style="width:100%;padding:.7rem;margin-bottom:10px;">
 
     <label style="display:block;margin-bottom:10px;">YouTube Link</label>
     <input type="text"
            name="youtube_media_link"
-           placeholder="https://www.youtube.com/watch?v=XXXX"
            style="width:100%;padding:.7rem;margin-bottom:10px;">
 
     <button class="btn" style="width:100%;">Add Video</button>
@@ -160,7 +158,6 @@ function getYoutubeId($url) {
 
 <div style="background:#111827;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
 
-    <!-- THUMBNAIL -->
     <?php if ($ytId): ?>
         <img src="https://img.youtube.com/vi/<?= $ytId ?>/hqdefault.jpg"
              style="width:100%;height:160px;object-fit:cover;">
@@ -168,30 +165,43 @@ function getYoutubeId($url) {
 
     <div style="padding:10px;">
 
-        <!-- TITLE -->
         <h4 style="margin:0 0 6px;font-size:14px;color:#fff;">
             <?= htmlspecialchars($media['media_title'] ?: 'Untitled Video') ?>
         </h4>
 
-        <!-- LINK -->
         <a href="<?= htmlspecialchars($media['youtube_media_link']) ?>" target="_blank"
            style="color:#58a6ff;font-size:13px;word-break:break-all;">
             Watch Video
         </a>
 
-        <!-- DELETE -->
-        <form method="POST"
-              onsubmit="return confirm('Delete this video?');"
-              style="margin-top:10px;">
+        <!-- ACTIONS FIXED -->
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;">
 
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="id" value="<?= $media['gallery_id'] ?>">
+            <!-- EDIT -->
+            <a href="edit-gallery.php?id=<?= $media['gallery_id'] ?>&artist_id=<?= $artist_id ?>"
+               class="btn green"
+               style="padding:6px 10px;font-size:13px;">
+                Edit
+            </a>
 
-            <button class="btn red" style="width:100%;">Delete</button>
-        </form>
+            <!-- DELETE -->
+            <form method="POST"
+                  onsubmit="return confirm('Delete this video?');"
+                  style="margin:0;">
+
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="id" value="<?= $media['gallery_id'] ?>">
+
+                <button class="btn red"
+                        style="padding:6px 10px;font-size:13px;">
+                    Delete
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
-
 </div>
 
 <?php endforeach; ?>
