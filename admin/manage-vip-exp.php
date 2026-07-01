@@ -175,11 +175,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?= nl2br(htmlspecialchars($vip['description'])) ?>
     </p>
 
-    <form method="POST" onsubmit="return confirm('Delete this VIP experience?');">
-        <input type="hidden" name="action" value="delete">
-        <input type="hidden" name="id" value="<?= $vip['vip_exp_id'] ?>">
-        <button class="btn red" style="margin-top:10px;width:100%;">Delete</button>
-    </form>
+    <!-- ACTIONS FIXED -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+
+        <a href="edit-vip-exp.php?id=<?= $vip['vip_exp_id'] ?>"
+           class="btn green"
+            .btn-sm {
+                padding:6px 10px;
+                font-size:13px;
+            }>
+            Edit
+        </a>
+
+        <form method="POST"
+              onsubmit="return confirm('Delete this VIP experience?');"
+              style="display:inline-block;margin:0;">
+
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="id" value="<?= $vip['vip_exp_id'] ?>">
+
+            <button class="btn red"
+               .btn-sm {
+                   padding:6px 10px;
+                   font-size:13px;
+               }>
+                Delete
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 
