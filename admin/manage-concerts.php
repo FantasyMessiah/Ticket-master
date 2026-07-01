@@ -378,13 +378,26 @@ style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
 
 <td style="padding:12px;">
 
-<div style="display:flex;gap:8px;align-items:center;">
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
 
 <a
-    href="manage-tickets.php?concert_id=<?= $concert['concert_id'] ?>"
-    class="btn">
-    <i class="fas fa-ticket-alt"></i>
-    Tickets
+href="edit-concert.php?concert_id=<?= $concert['concert_id'] ?>"
+class="btn">
+
+<i class="fas fa-pen"></i>
+
+Edit
+
+</a>
+
+<a
+href="manage-tickets.php?concert_id=<?= $concert['concert_id'] ?>"
+class="btn">
+
+<i class="fas fa-ticket-alt"></i>
+
+Tickets
+
 </a>
 
 <form method="POST" onsubmit="return confirm('Delete concert?');" style="margin:0;">
