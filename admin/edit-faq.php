@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div style="display:flex;gap:10px;">
 
         <button type="submit" class="btn" style="flex:1;">
-            Save Changes
+            <i class="fas fa-save"></i> Save Changes
         </button>
 
         <a href="manage-faqs.php?artist_id=<?= $faq['artist_id'] ?>"
