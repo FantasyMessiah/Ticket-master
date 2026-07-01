@@ -180,6 +180,9 @@ try {
                                         Total available seats: <span class="text-gray-700 font-extrabold"><?php echo count($sec['seats']); ?> entries</span>
                                     </p>
                                     <div class="flex items-center gap-2 mt-2">
+                                        <span class="text-[10px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded">
+                                            <?php echo htmlspecialchars($sec['type']); ?>
+                                        </span>
                                         <?php if(!empty($sec['view'])): ?>
                                         <button
                                             type="button"
@@ -187,11 +190,11 @@ try {
                                             class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-blue-50 text-[#024DDF] text-xs font-bold border border-gray-300">
                                             <i class="fas fa-image mr-1"></i> View
                                         </button>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="text-right flex items-center gap-4">
-                                    
+
                                     <div>
                                         <span class="block text-xl font-black text-[#024DDF] tracking-tight">
                                             $<?php echo number_format($sec['price'], 2); ?>
