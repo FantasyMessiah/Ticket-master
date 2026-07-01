@@ -230,7 +230,6 @@ style="width:55px;height:55px;object-fit:cover;border-radius:8px;">
     href="edit-tickets.php?ticket_id=<?= $ticket['ticket_id'] ?>"
     class="btn"
     style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;">
-    <i class="fas fa-edit"></i>
     Edit
 </a>
 <!-- DELETE -->
@@ -238,7 +237,7 @@ style="width:55px;height:55px;object-fit:cover;border-radius:8px;">
 <input type="hidden" name="action" value="delete">
 <input type="hidden" name="concert_id" value="<?= $concert_id ?>">
 <input type="hidden" name="ticket_id" value="<?= $ticket['ticket_id'] ?>">
-<button class="btn red"><i class="fas fa-trash"></i></button>
+<button class="btn red">Delete</i></button>
 </form>
 
 </td>
