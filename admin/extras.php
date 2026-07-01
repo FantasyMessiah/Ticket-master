@@ -38,7 +38,7 @@ try {
 }
 ?>
 
-<main style="max-width:1000px;margin:2rem auto;">
+<main style="max-width:1000px;margin:2rem auto;padding:0 15px;">
 
 <h1 style="text-align:center;margin-bottom:2rem;">Artist Extras</h1>
 
@@ -49,14 +49,16 @@ try {
         <img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
              style="width:80px;height:80px;object-fit:cover;border-radius:10px;">
     <?php else: ?>
-        <div style="width:80px;height:80px;background:#222;border-radius:10px;"></div>
+        <div style="width:80px;height:80px;background:#111827;border-radius:10px;border:1px solid var(--border);"></div>
     <?php endif; ?>
 
     <div>
         <h2 style="margin:0;">
             <?= htmlspecialchars($artist['artist_name']) ?>
         </h2>
-        <p style="color:#888;margin:5px 0 0;">Manage artist modules below</p>
+        <p style="color:#888;margin:5px 0 0;font-size:14px;">
+            Manage artist modules below
+        </p>
     </div>
 
 </div>
@@ -71,6 +73,7 @@ try {
     <!-- CONCERTS -->
     <a href="manage-concerts.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-microphone-lines" style="font-size:20px;margin-bottom:8px;display:block;"></i>
         Concerts
     </a>
@@ -78,41 +81,47 @@ try {
     <!-- VIP & EXPERIENCE -->
     <a href="manage-vip-exp.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-microphone" style="font-size:20px;margin-bottom:8px;display:block;"></i>
-        Manage VIP & Experience
+        VIP & Experience
     </a>
 
     <!-- GALLERY -->
     <a href="manage-gallery.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-images" style="font-size:20px;margin-bottom:8px;display:block;"></i>
-        Manage Gallery
+        Gallery
     </a>
 
     <!-- SETLISTS -->
     <a href="manage-setlists.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-music" style="font-size:20px;margin-bottom:8px;display:block;"></i>
-        Manage Setlists
+        Setlists
     </a>
 
     <!-- FAQS -->
     <a href="manage-faqs.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-question-circle" style="font-size:20px;margin-bottom:8px;display:block;"></i>
-        Manage FAQs
+        FAQs
     </a>
 
     <!-- REVIEWS -->
     <a href="manage-reviews.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-star" style="font-size:20px;margin-bottom:8px;display:block;color:#facc15;"></i>
-        Manage Reviews
+        Reviews
     </a>
 
     <!-- FANS ALSO VIEWED -->
     <a href="manage-fans-also-viewed.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-users" style="font-size:20px;margin-bottom:8px;display:block;"></i>
         Fans Also Viewed
     </a>
@@ -120,6 +129,7 @@ try {
     <!-- NEWS -->
     <a href="manage-news.php?artist_id=<?= $artist_id ?>"
        style="background:#111827;padding:20px;border-radius:10px;text-align:center;text-decoration:none;color:#fff;border:1px solid var(--border);">
+
         <i class="fas fa-newspaper" style="font-size:20px;margin-bottom:8px;display:block;"></i>
         News
     </a>
