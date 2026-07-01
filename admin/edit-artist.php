@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Artist name is required.");
         }
 
-        $imageName = $artist['artist_image']; // keep old image by default
+        $imageName = $artist['artist_image'];
 
-        /* IMAGE UPLOAD (OPTIONAL) */
+        /* IMAGE UPLOAD */
         if (!empty($_FILES['artist_image']['name'])) {
 
             $uploadDir = __DIR__ . "/../uploads/artists/";
@@ -100,14 +100,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<main style="max-width:700px;margin:2rem auto;">
+<main style="max-width:700px;margin:2rem auto;padding:0 15px;">
 
 <h1 style="text-align:center;margin-bottom:2rem;">Edit Artist</h1>
 
-<form method="POST" enctype="multipart/form-data"
+<?php if (!empty($_SESSION['error'])): ?>
+<div style="background:#f85149;color:#fff;padding:1rem;border-radius:8px;margin-bottom:1rem;">
+    <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($_SESSION['success'])): ?>
+<div style="background:#238636;color:#fff;padding:1rem;border-radius:8px;margin-bottom:1rem;">
+    <?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+</div>
+<?php endif; ?>
+
+<form method="POST"
+      enctype="multipart/form-data"
       style="background:var(--card);padding:2rem;border-radius:10px;border:1px solid var(--border);">
 
-    <!-- NAME -->
     <label>Artist Name</label>
     <input type="text"
            name="artist_name"
@@ -115,14 +127,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            required
            style="width:100%;padding:.7rem;margin-bottom:1rem;">
 
-    <!-- GENRE -->
     <label>Genre</label>
     <input type="text"
            name="genre"
            value="<?= htmlspecialchars($artist['genre']) ?>"
            style="width:100%;padding:.7rem;margin-bottom:1rem;">
 
-    <!-- RATING -->
     <label>Rating</label>
     <input type="number"
            step="0.1"
@@ -130,30 +140,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            value="<?= htmlspecialchars($artist['rating']) ?>"
            style="width:100%;padding:.7rem;margin-bottom:1rem;">
 
-    <!-- ABOUT -->
     <label>About</label>
     <textarea name="about"
-              style="width:100%;padding:.7rem;margin-bottom:1rem;height:120px;">
-        <?= htmlspecialchars($artist['about']) ?>
-    </textarea>
+              style="width:100%;padding:.7rem;margin-bottom:1rem;height:140px;resize:vertical;"><?= 
+        htmlspecialchars($artist['about']) 
+    ?></textarea>
 
-    <!-- CURRENT IMAGE -->
-    <label>Current Image</label><br>
+    <label>Current Image</label>
+    <div style="margin:10px 0 15px;">
+        <?php if (!empty($artist['artist_image'])): ?>
+            <img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
+                 style="width:120px;height:120px;object-fit:cover;border-radius:8px;">
+        <?php else: ?>
+            <span style="color:#888;">No image</span>
+        <?php endif; ?>
+    </div>
 
-    <?php if (!empty($artist['artist_image'])): ?>
-        <img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
-             style="width:120px;height:120px;object-fit:cover;border-radius:8px;margin-bottom:1rem;">
-    <?php else: ?>
-        <p>No image</p>
-    <?php endif; ?>
-
-    <!-- NEW IMAGE -->
     <label>Change Image (optional)</label>
     <input type="file"
            name="artist_image"
            style="width:100%;margin-bottom:1.5rem;">
 
-    <!-- BUTTON -->
     <button type="submit" class="btn" style="width:100%;">
         Save Changes
     </button>
