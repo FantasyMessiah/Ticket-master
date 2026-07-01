@@ -39,5 +39,11 @@ if (!password_verify($password, $user["password_hash"])) {
 $_SESSION["user_id"] = $user["id"];
 $_SESSION["email"] = $user["email"];
 
-header("Location: booking.php");
+/* -------------------------
+   REDIRECT LOGIC (RETURN TO PREVIOUS PAGE)
+--------------------------*/
+$redirect = $_SESSION["redirect_after_auth"] ?? "booking.php";
+unset($_SESSION["redirect_after_auth"]);
+
+header("Location: $redirect");
 exit;
