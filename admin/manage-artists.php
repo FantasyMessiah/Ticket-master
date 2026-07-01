@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                 throw new Exception("Artist name is required.");
             }
 
-            /* IMAGE UPLOAD */
             $imageName = '';
             if (!empty($_FILES['artist_image']['name'])) {
 
@@ -123,18 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     </button>
 </div>
 
-<!-- TABLE WRAPPER -->
+<!-- TABLE -->
 <div style="max-width:1100px;margin:0 auto;overflow-x:auto;padding:0 10px;">
 
-<table style="
-    width:100%;
-    border-collapse:collapse;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:10px;
-    overflow:hidden;
-    min-width:800px;
-">
+<table style="width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:10px;min-width:800px;">
 
 <thead>
 <tr style="text-align:left;background:#111827;">
@@ -150,12 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 <tbody>
 
 <?php foreach ($artists as $artist): ?>
+<tr style="border-top:1px solid var(--border);">
 
-<tr style="border-top:1px solid var(--border);transition:.2s;"
-    onmouseover="this.style.background='#0b1220'"
-    onmouseout="this.style.background='transparent'">
-
-    <!-- IMAGE -->
     <td style="padding:12px;">
         <?php if (!empty($artist['artist_image'])): ?>
             <img src="../uploads/artists/<?= htmlspecialchars($artist['artist_image']) ?>"
@@ -165,79 +152,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
         <?php endif; ?>
     </td>
 
-    <!-- NAME -->
     <td style="padding:12px;font-weight:600;">
         <?= htmlspecialchars($artist['artist_name']) ?>
     </td>
 
-    <!-- GENRE -->
     <td style="padding:12px;">
         <?= htmlspecialchars($artist['genre']) ?>
     </td>
 
-    <!-- RATING -->
-   <td style="padding:12px;">
-       <i class="fas fa-star" style="color:#facc15;"></i>
-       <strong><?= htmlspecialchars($artist['rating']) ?></strong>
-   </td>
+    <td style="padding:12px;">
+        <i class="fas fa-star" style="color:#facc15;"></i>
+        <?= htmlspecialchars($artist['rating']) ?>
+    </td>
 
-    <!-- ABOUT (TRUNCATED) -->
     <td style="padding:12px;max-width:250px;">
         <?php
-            $aboutFull = $artist['about'];
-            $aboutShort = mb_strimwidth($aboutFull, 0, 60, "...");
+            $about = mb_strimwidth($artist['about'], 0, 60, "...");
         ?>
-        <span title="<?= htmlspecialchars($aboutFull) ?>">
-            <?= htmlspecialchars($aboutShort) ?>
+        <span title="<?= htmlspecialchars($artist['about']) ?>">
+            <?= htmlspecialchars($about) ?>
         </span>
     </td>
 
-    <!-- ACTIONS -->
-<!-- ACTIONS -->
-   <td style="padding:12px;white-space:nowrap;">
-   
-       <!-- EDIT -->
-       <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>"
-          class="btn green"
-          style="padding:6px 10px;font-size:13px;">
-           Edit
-       </a>
-   
-       <!-- EXTRAS -->
-       <a href="extras.php?artist_id=<?= $artist['artist_id'] ?>"
-          class="btn"
-          style="padding:6px 10px;font-size:13px;background:#6f42c1;color:#fff;margin-left:5px;">
-           Extras
-       </a>
-   
-       <!-- DELETE -->
-       <form method="POST"
-             onsubmit="return confirm('Delete this artist?');"
-             style="display:inline-block;margin-left:5px;">
-   
-           <input type="hidden" name="action" value="delete">
-           <input type="hidden" name="id" value="<?= $artist['artist_id'] ?>">
-   
-           <button class="btn red"
-                   style="padding:6px 10px;font-size:13px;">
-               Delete
-           </button>
-       </form>
-   
-   </td>
+    <!-- ACTIONS FIXED -->
+    <td style="padding:12px;white-space:nowrap;">
+
+        <a href="edit-artist.php?id=<?= $artist['artist_id'] ?>"
+           class="btn green"
+           style="padding:6px 10px;font-size:13px;">
+            Edit
+        </a>
+
+        <a href="extras.php?artist_id=<?= $artist['artist_id'] ?>"
+           class="btn"
+           style="padding:6px 10px;font-size:13px;background:#6f42c1;color:#fff;margin-left:5px;">
+            Extras
+        </a>
+
+        <form method="POST"
+              onsubmit="return confirm('Delete this artist?');"
+              style="display:inline-block;margin-left:5px;">
+
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="id" value="<?= $artist['artist_id'] ?>">
+
+            <button class="btn red"
+                    style="padding:6px 10px;font-size:13px;">
+                Delete
+            </button>
+
+        </form>
+
+    </td>
 
 </tr>
-
 <?php endforeach; ?>
 
 </tbody>
 </table>
 </div>
 
-<!-- MODAL -->
-<div id="artistModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);">
+<!-- SCROLLABLE MODAL FIX -->
+<div id="artistModal"
+     style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+     background:rgba(0,0,0,.7);overflow-y:auto;padding:20px;">
 
-<div style="background:#0d1117;max-width:500px;margin:5% auto;padding:2rem;border-radius:10px;">
+<div style="
+    background:#0d1117;
+    max-width:500px;
+    margin:40px auto;
+    padding:2rem;
+    border-radius:10px;
+    max-height:90vh;
+    overflow-y:auto;
+">
 
 <h2>Add Artist</h2>
 
@@ -265,6 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 </form>
 
 <br>
+
 <button onclick="closeModal()" class="btn red" style="width:100%;">Close</button>
 
 </div>
