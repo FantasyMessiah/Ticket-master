@@ -155,7 +155,7 @@ try {
                  class="w-full h-full object-cover opacity-90 object-center">
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
             <div
-                onclick="openImageModal('<?php echo htmlspecialchars($stadium_map_image, ENT_QUOTES); ?>')"
+                onclick="openImageModal('<?php echo htmlspecialchars($stadium_map_image, ENT_QUOTES); ?>','map')"
                 class="absolute bottom-4 left-4 md:left-8 bg-black/70 backdrop-blur-md border border-gray-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-black/80 transition">
                 <i class="fas fa-map-marked-alt mr-1.5 text-blue-400"></i>
                 Map Reference Vector
@@ -313,7 +313,15 @@ try {
                 </div>
         
                 <!-- Image -->
-                <div class="flex-1 overflow-auto bg-gray-100 flex justify-center items-center p-6">
+                <div class="flex-1 overflow-auto bg-gray-900 p-6">
+                    <div class="min-w-max min-h-full flex items-center justify-center">
+                        <img
+                            id="modalImage"
+                            src=""
+                            class="rounded-xl shadow-2xl transition-transform duration-200 origin-center"
+                            style="transform:scale(1);">
+                    </div>
+                </div>
         
                     <img
                         id="modalImage"
@@ -344,6 +352,8 @@ try {
                 </div>
         
             </div>
+
+            <?php include "inc/footer.php"; ?>
         
         </div>
 
@@ -497,6 +507,48 @@ try {
             modal.classList.remove("hidden");
             modal.classList.add("flex");
         }
+
+        function closeImageModal() {
+        
+            const modal = document.getElementById("imageModal");
+        
+            modal.classList.remove("flex");
+            modal.classList.add("hidden");
+        }
+        
+        function zoomIn() {
+        
+            currentZoom += 0.2;
+        
+            document.getElementById("modalImage").style.transform =
+                `scale(${currentZoom})`;
+        }
+        
+        function zoomOut() {
+        
+            currentZoom = Math.max(0.2, currentZoom - 0.2);
+        
+            document.getElementById("modalImage").style.transform =
+                `scale(${currentZoom})`;
+        }
+        
+        function resetZoom() {
+        
+            currentZoom = 1;
+        
+            document.getElementById("modalImage").style.transform =
+                "scale(1)";
+        }
+        
+        document.getElementById("imageModal").addEventListener("click", function(e){
+        
+            if(e.target === this){
+        
+                closeImageModal();
+        
+            }
+        
+        });
     </script>
 
     <style>
