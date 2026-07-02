@@ -454,8 +454,6 @@ try {
             refreshSidebarStateView();
         }
 
-            refreshSidebarStateView();
-        }
 
         // Synchronization routine updating calculations and conditional sidebar checkout visibility 
         function refreshSidebarStateView() {
@@ -640,20 +638,13 @@ try {
         
                 }
         
-                const orderIds=response.orders
-                    .map(o=>o.order_id)
+                const orderIds = response.orders
+                    .map(o => o.order_id)
                     .join(",");
-        
-                const userId=response.orders[0].user_id;
-        
-                const ticketIds=response.orders
-                    .map(o=>o.ticket_id)
-                    .join(",");
-        
-                window.location=
-                    "checkout.php?orders="+encodeURIComponent(orderIds)+
-                    "&user_id="+encodeURIComponent(userId)+
-                    "&tickets="+encodeURIComponent(ticketIds);
+                
+                window.location =
+                    "checkout.php?orders=" +
+                    encodeURIComponent(orderIds);
         
             })
             .catch(err=>{
