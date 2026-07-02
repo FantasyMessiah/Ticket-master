@@ -48,38 +48,35 @@ try {
         )
     ");
 
-    $orders = [];
+    $orderIds = [];
 
     foreach ($data['seats'] as $seat) {
 
-        // Use whatever uniquely identifies a seat
-        $ticket_id = $seat['ticket_id'];
+        $ticket_id = (int)$seat['ticket_id'];
 
         $insert->execute([
             $user_id,
             $ticket_id
         ]);
 
-        $orders[] = [
-            'order_id' => $pdo->lastInsertId(),
-            'user_id'  => $user_id,
-            'ticket_id'=> $ticket_id
-        ];
+        $orderIds[] = $pdo->lastInsertId();
     }
 
     $pdo->commit();
 
     echo json_encode([
-        'success'=>true,
-        'orders'=>$orders
+        'success' => true,
+        'orders'  => $orderIds
     ]);
 
-} catch(Exception $e){
+} catch (Exception $e) {
 
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
 
     echo json_encode([
-        'success'=>false,
-        'message'=>$e->getMessage()
+        'success' => false,
+        'message' => $e->getMessage()
     ]);
 }
