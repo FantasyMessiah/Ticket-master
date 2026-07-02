@@ -77,6 +77,82 @@ foreach ($all_orders as $order) {
     }
 }
 
+// ---------------------------------------------
+// USER COUNTRY
+// ---------------------------------------------
+$stmt = $pdo->prepare("
+    SELECT country
+    FROM users
+    WHERE user_id = ?
+    LIMIT 1
+");
+
+$stmt->execute([$user_id]);
+
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$user_country = $user['country'] ?? '';
+
+// ---------------------------------------------
+// REGION SETTINGS
+// ---------------------------------------------
+$stmt = $pdo->prepare("
+    SELECT currency, exchange_rates
+    FROM region_settings
+    WHERE country = ?
+    LIMIT 1
+");
+
+$stmt->execute([$user_country]);
+
+$region = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$currency = $region['currency'] ?? 'USD';
+
+$exchange_rate = (float)($region['exchange_rates'] ?? 1);
+
+$symbols = [
+    'USD' => '$',
+    'EUR' => '€',
+    'GBP' => '£',
+    'NGN' => '₦',
+    'CAD' => 'C$',
+    'AUD' => 'A$'
+];
+
+$curr_meta = [
+    'symbol' => $symbols[$currency] ?? '$',
+    'rate'   => $exchange_rate
+];
+
+$exchange_rates = [
+    $currency => $curr_meta
+];
+
+// ---------------------------------------------
+// SUPPORT CONTACTS
+// ---------------------------------------------
+$support = [
+    'email' => '',
+    'telegram' => '',
+    'whatsapp' => ''
+];
+
+$stmt = $pdo->query("
+    SELECT
+        email,
+        telegram,
+        whatsapp
+    FROM admins
+    LIMIT 1
+");
+
+$admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($admin) {
+    $support = $admin;
+}
+
 // Now safe to continue using filtered orders
 $order_items = $all_orders;
 
@@ -137,11 +213,12 @@ foreach ($order_items as $item) {
 <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
 
     <div class="flex flex-col sm:flex-row justify-between items-center bg-white border border-gray-200 p-6 rounded-2xl shadow-sm mb-8 gap-4">
+    
         <div>
             <h1 class="text-xl font-black tracking-tight text-gray-900 uppercase">
                 Secure Transaction Gateway
             </h1>
-
+    
             <p class="text-xs text-gray-400 font-semibold mt-0.5">
                 Order Batch Reference:
                 <span class="font-mono text-gray-600">
@@ -149,6 +226,44 @@ foreach ($order_items as $item) {
                 </span>
             </p>
         </div>
+    
+        <div class="relative inline-block text-left group">
+    
+            <button class="px-4 py-2.5 bg-slate-900 hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-sm inline-flex items-center gap-2">
+                <i class="fas fa-headset text-amber-400"></i>
+                Contact Live Support
+                <i class="fas fa-chevron-down text-[10px]"></i>
+            </button>
+    
+            <div class="absolute right-0 w-52 bg-white border border-gray-200 rounded-xl shadow-xl py-1 mt-1 hidden group-hover:block z-50">
+    
+                <a href="https://wa.me/<?php echo urlencode($support['whatsapp']); ?>"
+                   target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 text-xs font-bold hover:bg-green-50">
+    
+                    <i class="fab fa-whatsapp"></i>
+                    WhatsApp
+                </a>
+    
+                <a href="https://t.me/<?php echo urlencode($support['telegram']); ?>"
+                   target="_blank"
+                   class="flex items-center gap-2 px-4 py-2 text-xs font-bold hover:bg-sky-50">
+    
+                    <i class="fab fa-telegram-plane"></i>
+                    Telegram
+                </a>
+    
+                <a href="mailto:<?php echo htmlspecialchars($support['email']); ?>"
+                   class="flex items-center gap-2 px-4 py-2 text-xs font-bold hover:bg-blue-50">
+    
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </a>
+    
+            </div>
+    
+        </div>
+    
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
