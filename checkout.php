@@ -173,31 +173,6 @@ foreach ($order_items as $item) {
 <?php include "inc/header.php"; ?>
 
 <?php
-// ---------------------------------------------------------------------
-// FIX: MULTI ORDER SUPPORT (from save_order.php redirect)
-// ---------------------------------------------------------------------
-
-// Load DB
-$pdo = (new Database())->connect();
-
-// Fetch ALL orders
-$placeholders = implode(',', array_fill(0, count($order_ids), '?'));
-
-$stmt = $pdo->prepare("
-    SELECT o.*, t.ticket_name, t.price, c.title
-    FROM orders o
-    JOIN tickets t ON o.ticket_id = t.ticket_id
-    JOIN concerts c ON t.concert_id = c.concert_id
-    WHERE o.order_id IN ($placeholders)
-    AND o.user_id = ?
-");
-
-$stmt->execute(array_merge($order_ids, [$user_id]));
-$order_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-if (!$order_items) {
-    die("Order not found.");
-}
 
 // ---------------------------------------------------------------------
 // AGGREGATE TOTAL (NEW FIX)
@@ -279,9 +254,12 @@ foreach ($order_items as $item) {
 
                 <div class="grid grid-cols-3 gap-2">
                     <?php foreach ($exchange_rates as $key => $rates): ?>
-                        <a href="checkout.php?currency=<?php echo urlencode($key); ?>">
-                           class="px-4 py-3 border text-center rounded-xl font-black text-xs uppercase
-                           <?php echo $currency === $key ? 'border-[#024DDF] bg-blue-50 text-[#024DDF]' : 'border-gray-200 text-gray-600'; ?>">
+                        <a
+                            href="checkout.php?currency=<?php echo urlencode($key); ?>"
+                            class="px-4 py-3 border text-center rounded-xl font-black text-xs uppercase
+                            <?php echo $currency === $key
+                                ? 'border-[#024DDF] bg-blue-50 text-[#024DDF]'
+                                : 'border-gray-200 text-gray-600'; ?>">
                             <?php echo $key; ?>
                         </a>
                     <?php endforeach; ?>
