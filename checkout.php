@@ -1,228 +1,96 @@
 <?php
+session_start();
 
+require_once 'config/db.php';
+
+// ---------------------------------------------
+// AUTH CHECK (MATCHING YOUR SYSTEM)
+// ---------------------------------------------
+if (!isset($_SESSION['user_id'])) {
+
+    $_SESSION['auth_error'] = "Please login to continue checkout.";
+    $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
+
+    header("Location: auth.php");
+    exit;
+}
+
+$user_id = (int) $_SESSION['user_id'];
+
+// Enable error reporting (dev only)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once 'config/db.php';
-
-// Mock active session user identifier if auth context isn't fully initialized
-$user_id = 1;
-
-/**
- * -----------------------------------------
- * HANDLE MULTIPLE ORDER IDS FROM save_order.php
- * -----------------------------------------
- */
-$orders_param = isset($_GET['orders']) ? $_GET['orders'] : '';
+// ---------------------------------------------
+// GET ORDER IDS FROM URL
+// ---------------------------------------------
+$orders_param = $_GET['orders'] ?? '';
 
 if (empty($orders_param)) {
     die("Invalid order reference.");
 }
 
-$order_ids = array_filter(array_map('intval', explode(',', $orders_param)));
+$order_ids = array_values(array_filter(array_map('intval', explode(',', $orders_param))));
 
 if (empty($order_ids)) {
     die("Invalid order reference.");
 }
 
-// DB connection
+// ---------------------------------------------
+// DB CONNECTION
+// ---------------------------------------------
 $pdo = null;
+
 try {
     if (class_exists('Database')) {
-        $dbInstance = new Database();
-        $pdo = $dbInstance->connect();
+        $pdo = (new Database())->connect();
     }
-} catch (Exception $e) {}
+} catch (Exception $e) {
+    die("Database connection failed.");
+}
 
-/**
- * -----------------------------------------
- * DEFAULTS
- * -----------------------------------------
- */
-$support = [
-    'whatsapp' => '+1555000000',
-    'telegram' => 'PlatformSupportTextBot',
-    'email' => 'support@ticketmaster.xo.je'
-];
+// ---------------------------------------------
+// FETCH ORDERS (SECURED)
+// ---------------------------------------------
+$placeholders = implode(',', array_fill(0, count($order_ids), '?'));
 
-$cryptos = [];
-$giftcards = [];
-$order_items = [];
+$stmt = $pdo->prepare("
+    SELECT o.*, t.ticket_name, t.price, c.title
+    FROM orders o
+    JOIN tickets t ON o.ticket_id = t.ticket_id
+    JOIN concerts c ON t.concert_id = c.concert_id
+    WHERE o.order_id IN ($placeholders)
+");
 
-/**
- * -----------------------------------------
- * FETCH ORDER ITEMS (MULTIPLE)
- * -----------------------------------------
- */
+$stmt->execute($order_ids);
+$all_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (!$all_orders) {
+    die("Order not found.");
+}
+
+// ---------------------------------------------
+// SECURITY CHECK: ENSURE OWNERSHIP
+// ---------------------------------------------
+foreach ($all_orders as $order) {
+    if ((int)$order['user_id'] !== $user_id) {
+        die("Unauthorized access: order does not belong to this user.");
+    }
+}
+
+// Now safe to continue using filtered orders
+$order_items = $all_orders;
+
+// ---------------------------------------------
+// TOTAL CALCULATION
+// ---------------------------------------------
 $total_amount = 0;
-$concert_title = '';
-$qty = 0;
+$order_title = $order_items[0]['title'] ?? 'Order';
 
-if ($pdo) {
-
-    $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
-
-    $stmt = $pdo->prepare("
-        SELECT o.*, t.ticket_name, t.price, c.title
-        FROM orders o
-        JOIN tickets t ON o.ticket_id = t.ticket_id
-        JOIN concerts c ON t.concert_id = c.concert_id
-        WHERE o.order_id IN ($placeholders)
-        AND o.user_id = ?
-    ");
-
-    $params = array_merge($order_ids, [$user_id]);
-    $stmt->execute($params);
-
-    $order_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!$order_items) {
-        die("Order not found.");
-    }
-
-    $qty = count($order_items);
-
-    foreach ($order_items as $item) {
-        $total_amount += (float)$item['price'];
-        $concert_title = $item['title'];
-    }
+foreach ($order_items as $item) {
+    $total_amount += (float)$item['price'];
 }
-
-/**
- * -----------------------------------------
- * SUPPORT + PAYMENT DATA
- * -----------------------------------------
- */
-if ($pdo !== null) {
-    try {
-
-        $stmt = $pdo->query("SELECT email, telegram, whatsapp FROM admins LIMIT 1");
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($admin) {
-            $support['email'] = $admin['email'];
-            $support['telegram'] = $admin['telegram'];
-            $support['whatsapp'] = $admin['whatsapp'];
-        }
-
-        $cryptos = $pdo->query("SELECT * FROM payment_crypto WHERE is_active = 1 ORDER BY id DESC")->fetchAll();
-        $giftcards = $pdo->query("SELECT * FROM payment_giftcards WHERE is_active = 1 ORDER BY id DESC")->fetchAll();
-
-    } catch (Exception $e) {
-
-        if (empty($cryptos)) {
-            $cryptos = [
-                ['crypto_name' => 'Bitcoin', 'network' => 'BTC', 'address' => 'demo'],
-                ['crypto_name' => 'Ethereum', 'network' => 'ERC-20', 'address' => 'demo']
-            ];
-        }
-
-        if (empty($giftcards)) {
-            $giftcards = [
-                ['card_name' => 'Apple Store Card', 'face_value' => 100.00],
-                ['card_name' => 'Razer Gold Pass', 'face_value' => 50.00]
-            ];
-        }
-    }
-}
-
-/**
- * -----------------------------------------
- * CURRENCY
- * -----------------------------------------
- */
-$currency = isset($_GET['currency']) ? $_GET['currency'] : 'USD';
-
-$exchange_rates = [
-    'USD' => ['symbol' => '$', 'rate' => 1.0],
-    'EUR' => ['symbol' => '€', 'rate' => 0.92],
-    'GBP' => ['symbol' => '£', 'rate' => 0.78]
-];
-
-$curr_meta = $exchange_rates[$currency] ?? $exchange_rates['USD'];
-
-$converted_total = $total_amount * $curr_meta['rate'];
-
-/**
- * -----------------------------------------
- * FORM SUBMISSION (DEPOSIT PROOF)
- * -----------------------------------------
- */
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo !== null) {
-
-    try {
-
-        $payment_method = $_POST['payment_method'];
-        $meta_description = trim($_POST['user_description'] ?? '');
-        $uploaded_images_urls = [];
-
-        if (!empty($_FILES['receipt_images']['name'][0])) {
-
-            $files = $_FILES['receipt_images'];
-
-            for ($i = 0; $i < count($files['name']); $i++) {
-
-                if ($files['error'][$i] === UPLOAD_ERR_OK) {
-
-                    $tmp_name = $files['tmp_name'][$i];
-                    $name = time() . "_" . basename($files['name'][$i]);
-                    $destination = "uploads/receipts/" . $name;
-
-                    if (!is_dir('uploads/receipts/')) {
-                        mkdir('uploads/receipts/', 0777, true);
-                    }
-
-                    if (move_uploaded_file($tmp_name, $destination)) {
-                        $uploaded_images_urls[] = $destination;
-                    }
-                }
-            }
-        }
-
-        $images_json = json_encode($uploaded_images_urls);
-
-        /**
-         * IMPORTANT FIX:
-         * Now inserts ONE deposit record referencing MULTIPLE orders
-         */
-        $stmt = $pdo->prepare("
-            INSERT INTO deposits
-            (
-                order_ids,
-                user_id,
-                payment_method,
-                proof_images,
-                description,
-                status,
-                created_at,
-                updated_at
-            )
-            VALUES
-            (
-                ?, ?, ?, ?, ?, 'processing', NOW(), NOW()
-            )
-        ");
-
-        $stmt->execute([
-            json_encode($order_ids),
-            $user_id,
-            $payment_method,
-            $images_json,
-            $meta_description
-        ]);
-
-        echo "<script>
-            alert('Receipt submitted! Payment is now processing.');
-            window.location.href='dashboard.php';
-        </script>";
-        exit;
-
-    } catch (Exception $e) {
-        die($e->getMessage());
-    }
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
