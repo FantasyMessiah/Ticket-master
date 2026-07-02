@@ -111,22 +111,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo !== null) {
         $images_json = json_encode($uploaded_images_urls);
 
         $stmt = $pdo->prepare("
-        $stmt = $pdo->prepare("
-        INSERT INTO deposits
-        (
-            order_id,
-            user_id,
-            payment_method,
-            proof_images,
-            description,
-            status,
-            created_at,
-            updated_at
-        )
-        VALUES
-        (
-            ?, ?, ?, ?, ?, 'processing', NOW(), NOW()
-        )
+            INSERT INTO deposits
+            (
+                order_id,
+                user_id,
+                payment_method,
+                proof_images,
+                description,
+                status,
+                created_at,
+                updated_at
+            )
+            VALUES
+            (
+                ?, ?, ?, ?, ?, 'processing', NOW(), NOW()
+            )
         ");
         
         $stmt->execute([
@@ -137,12 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo !== null) {
             $meta_description
         ]);
 
-        $update = $pdo->prepare("
-        UPDATE deposits
-        SET status='processing', updated_at=NOW()
-        WHERE order_id = ?
-        ");
-        $update->execute([$order_id]);
                 
         echo "<script>alert('Receipt submitted! Your order is now processing pending administrator confirmation.'); window.location.href='dashboard.php';</script>";
         exit;
