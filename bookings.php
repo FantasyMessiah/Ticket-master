@@ -122,7 +122,10 @@ try {
             ];
         }
 
-        $ticket_sections[$key]['seats'][] = $row['seat_name'];
+        $ticket_sections[$key]['seats'][] = [
+            'ticket_id' => $row['ticket_id'],
+            'seat_name' => $row['seat_name']
+        ];
     }
 
     $ticket_sections = array_values($ticket_sections);
@@ -227,11 +230,19 @@ try {
                                 </p>
                                 <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                                     <?php foreach ($sec['seats'] as $seat): ?>
-                                        <button type="button"
-                                                onclick="toggleSeatSelection(this, '<?php echo $sec['id']; ?>', '<?php echo htmlspecialchars($seat); ?>', <?php echo $sec['price']; ?>)"
-                                                class="seat-btn bg-white border border-gray-300 rounded-lg py-2.5 px-2 text-xs font-bold text-gray-700 hover:border-[#024DDF] hover:bg-blue-50/50 transition-all text-center focus:outline-none select-none">
+                                        <button
+                                            type="button"
+                                            data-ticket-id="<?= htmlspecialchars($seat['ticket_id']) ?>"
+                                            onclick="toggleSeatSelection(
+                                                this,
+                                                '<?= htmlspecialchars($sec['id'], ENT_QUOTES) ?>',
+                                                '<?= htmlspecialchars($seat['seat_name'], ENT_QUOTES) ?>',
+                                                <?= $sec['price'] ?>
+                                            )"
+                                            class="seat-btn bg-white border border-gray-300 rounded-lg py-2.5 px-2 text-xs font-bold text-gray-700 hover:border-[#024DDF] hover:bg-blue-50/50 transition-all text-center focus:outline-none select-none">
+                                    
                                             <i class="fas fa-chair text-[10px] opacity-40 mr-1"></i>
-                                            <?php echo htmlspecialchars($seat); ?>
+                                            <?= htmlspecialchars($seat['seat_name']) ?>
                                         </button>
                                     <?php endforeach; ?>
                                 </div>
@@ -262,7 +273,7 @@ try {
                             </div>
                         </div>
 
-                        <form action="checkout.php" method="POST" class="mt-6">
+                        <form id="checkoutForm" class="mt-6">
                         
                             <input type="hidden" name="serialized_seat_payload" id="serialized-seat-payload" value="">
                             <input type="hidden" name="concert_id" value="<?= $concert_id ?>">
@@ -388,25 +399,60 @@ try {
 
         // Handles multi-seat picking state management logic loop
         function toggleSeatSelection(buttonElement, sectionId, seatName, priceMetric) {
-            const compositeKeyId = `${sectionId}_${seatName}`;
-            const searchIndex = pickedSeatsRegister.findIndex(item => item.id === compositeKeyId);
-
+        
+            const ticketId = buttonElement.dataset.ticketId;
+        
+            const searchIndex = pickedSeatsRegister.findIndex(
+                item => item.ticket_id == ticketId
+            );
+        
             if (searchIndex > -1) {
-                // If already selected, delete the registration lock structure (unhighlight state)
+        
                 pickedSeatsRegister.splice(searchIndex, 1);
-                buttonElement.classList.remove('bg-[#024DDF]', 'text-white', 'border-[#024DDF]', 'shadow-inner');
-                buttonElement.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+        
+                buttonElement.classList.remove(
+                    'bg-[#024DDF]',
+                    'text-white',
+                    'border-[#024DDF]',
+                    'shadow-inner'
+                );
+        
+                buttonElement.classList.add(
+                    'bg-white',
+                    'text-gray-700',
+                    'border-gray-300'
+                );
+        
             } else {
-                // If completely new allocation, append and inject to tracking ledger array (highlight state)
+        
                 pickedSeatsRegister.push({
-                    id: compositeKeyId,
-                    section: sectionId.replace('_r20', '').replace('sec_', 'Section ').toUpperCase(),
+        
+                    ticket_id: ticketId,
+        
+                    section: sectionId,
+        
                     seat: seatName,
+        
                     price: parseFloat(priceMetric)
+        
                 });
-                buttonElement.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
-                buttonElement.classList.add('bg-[#024DDF]', 'text-white', 'border-[#024DDF]', 'shadow-inner');
+        
+                buttonElement.classList.remove(
+                    'bg-white',
+                    'text-gray-700',
+                    'border-gray-300'
+                );
+        
+                buttonElement.classList.add(
+                    'bg-[#024DDF]',
+                    'text-white',
+                    'border-[#024DDF]',
+                    'shadow-inner'
+                );
             }
+        
+            refreshSidebarStateView();
+        }
 
             refreshSidebarStateView();
         }
@@ -553,6 +599,70 @@ try {
                 closeImageModal();
         
             }
+        
+        });
+
+
+        document
+        .getElementById("checkoutForm")
+        .addEventListener("submit", function(e){
+        
+            e.preventDefault();
+        
+            if(pickedSeatsRegister.length === 0){
+                alert("Please select at least one seat.");
+                return;
+            }
+        
+            fetch("save_order.php",{
+        
+                method:"POST",
+        
+                headers:{
+                    "Content-Type":"application/json"
+                },
+        
+                body:JSON.stringify({
+        
+                    seats:pickedSeatsRegister
+        
+                })
+        
+            })
+            .then(res=>res.json())
+            .then(response=>{
+        
+                if(!response.success){
+        
+                    alert(response.message);
+        
+                    return;
+        
+                }
+        
+                const orderIds=response.orders
+                    .map(o=>o.order_id)
+                    .join(",");
+        
+                const userId=response.orders[0].user_id;
+        
+                const ticketIds=response.orders
+                    .map(o=>o.ticket_id)
+                    .join(",");
+        
+                window.location=
+                    "checkout.php?orders="+encodeURIComponent(orderIds)+
+                    "&user_id="+encodeURIComponent(userId)+
+                    "&tickets="+encodeURIComponent(ticketIds);
+        
+            })
+            .catch(err=>{
+        
+                console.log(err);
+        
+                alert("Unable to create order.");
+        
+            });
         
         });
     </script>
