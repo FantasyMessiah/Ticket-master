@@ -249,7 +249,7 @@ foreach ($order_items as $item) {
             <!-- Currency Switch -->
             <div class="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
                 <h3 class="text-xs font-black uppercase text-gray-400 mb-3">
-                    Select Currency
+                    Want to pay with local currency ($currency) ? Click here.
                 </h3>
 
                 <div class="grid grid-cols-3 gap-2">
@@ -267,7 +267,7 @@ foreach ($order_items as $item) {
             </div>
 
             <!-- Payment Form -->
-            <form action="checkout.php?currency=<?php echo urlencode($currency); ?>"
+            <form action="secure-payment-gateway.php?currency=<?php echo urlencode($currency); ?>"
                   method="POST"
                   enctype="multipart/form-data">
 
@@ -292,7 +292,7 @@ foreach ($order_items as $item) {
                 <div class="bg-white border border-gray-200 rounded-2xl p-6 mt-6">
                     <button type="submit"
                             class="w-full bg-slate-900 hover:bg-black text-white font-black text-xs uppercase py-4 rounded-xl">
-                        Finalize Batch Payment
+                        Proceed to Payments
                     </button>
                 </div>
 
