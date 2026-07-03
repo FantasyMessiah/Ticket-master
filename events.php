@@ -171,20 +171,17 @@ if (!empty($artist_id) && $pdo) {
         $gallery_items[] = $row;
     }
 }
-
-// CRITICAL FIX: Session initializer runs out of view here so session_start() never complains
-include "inc/header.php"; 
     
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <?php include "inc/head.php"; ?>
+<?php include "inc/navbar.php"; ?> 
  
 <body class="bg-white text-gray-900 font-sans antialiased">
     
-    <!-- 1. NAVBAR PLACED AT THE VERY TOP OF THE BODY LAYOUT -->
-    <?php include "inc/navbar.php"; ?> 
+    <?php include "inc/header.php"; ?> 
 
     <div id="__next">
         <div class="sc-d727d306-0 llCpYZ">
