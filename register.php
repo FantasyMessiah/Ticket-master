@@ -4,31 +4,63 @@ require_once "config/db.php";
 
 $pdo = (new Database())->connect();
 
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    die("Invalid request");
+// Catch the simulated 'YES' login path from auth.php if clicked
+if (isset($_GET['action']) && $_GET['action'] === 'login_sim') {
+    $sim_email = trim($_GET['email'] ?? '');
+    
+    // Look up the simulated user to get their actual ID
+    $stmt = $pdo->prepare("SELECT id, email FROM users WHERE email = ?");
+    $stmt->execute([$sim_email]);
+    $user = $stmt->fetch();
+    
+    if ($user) {
+        $_SESSION["user_id"] = $user['id'];
+        $_SESSION["email"] = $user['email'];
+        
+        $redirect = !empty($_POST['redirect']) ? $_POST['redirect'] : ($_SESSION["redirect_after_auth"] ?? "dashboard.php");
+        unset($_SESSION["redirect_after_auth"]);
+        header("Location: $redirect");
+        exit;
+    } else {
+        $_SESSION['auth_error'] = "No existing profile found for that email address.";
+        header("Location: auth.php");
+        exit;
+    }
 }
 
-$full_name = trim($_POST["full_name"]);
-$email = trim($_POST["email"]);
-$country = trim($_POST["country"]);
-$country_code = trim($_POST["country_code"]);
-$phone = trim($_POST["phone"]);
-$password = $_POST["password"];
-$confirm = $_POST["confirm_password"];
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    $_SESSION['auth_error'] = "Invalid request method.";
+    header("Location: auth.php");
+    exit;
+}
+
+$full_name = trim($_POST["full_name"] ?? '');
+$email = trim($_POST["email"] ?? '');
+$country = trim($_POST["country"] ?? '');
+$country_code = trim($_POST["country_code"] ?? '');
+$phone = trim($_POST["phone"] ?? '');
+$password = $_POST["password"] ?? '';
+$confirm = $_POST["confirm_password"] ?? '';
 
 /* -------------------------
-   VALIDATION
+   VALIDATION (Redirects instead of crashing with die)
 --------------------------*/
 if (!$full_name || !$email || !$country || !$phone || !$password) {
-    die("All fields are required");
+    $_SESSION['auth_error'] = "All profile fields are required.";
+    header("Location: auth.php");
+    exit;
 }
 
 if ($password !== $confirm) {
-    die("Passwords do not match");
+    $_SESSION['auth_error'] = "Your chosen passwords do not match.";
+    header("Location: auth.php");
+    exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    die("Invalid email");
+    $_SESSION['auth_error'] = "Please enter a valid email address.";
+    header("Location: auth.php");
+    exit;
 }
 
 /* -------------------------
@@ -38,7 +70,9 @@ $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->execute([$email]);
 
 if ($stmt->fetch()) {
-    die("Email already exists");
+    $_SESSION['auth_error'] = "This email address is already registered.";
+    header("Location: auth.php");
+    exit;
 }
 
 /* -------------------------
@@ -73,9 +107,17 @@ $_SESSION["user_id"] = $user_id;
 $_SESSION["email"] = $email;
 
 /* -------------------------
-   REDIRECT LOGIC (RETURN TO PREVIOUS PAGE)
+   REDIRECT LOGIC (Hierarchical Safeguard)
 --------------------------*/
-$redirect = $_SESSION["redirect_after_auth"] ?? "booking.php";
+// 1. Check the form hidden post first, 2. Check general session fallback, 3. Hard fallback to index/dashboard
+if (!empty($_POST['redirect'])) {
+    $redirect = $_POST['redirect'];
+} else if (!empty($_SESSION["redirect_after_auth"])) {
+    $redirect = $_SESSION["redirect_after_auth"];
+} else {
+    $redirect = "index.php"; // Changed from booking.php to prevent 404s
+}
+
 unset($_SESSION["redirect_after_auth"]);
 
 header("Location: $redirect");
