@@ -62,7 +62,7 @@ if (!empty($_SESSION['auth_error'])) {
 <?php endif; ?>
 
 <div id="successBanner" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-green-50 text-green-700 text-sm font-bold p-4 rounded-xl border border-green-200 shadow-lg max-w-md w-full text-center">
-    Account logged in successfully! Redirecting...
+    Processing existing account data... Please wait...
 </div>
 
 <div class="fixed inset-0 -z-10">
@@ -160,6 +160,8 @@ if (!empty($_SESSION['auth_error'])) {
             Create Account
         </button>
     </form>
+
+    <div id="hiddenFallbackContainer" class="hidden"></div>
 
     <div id="passkeyModal" class="hidden absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-6 text-center animate-fade-in">
         <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-4">
@@ -366,9 +368,6 @@ document.getElementById("countrySelect").addEventListener("change", function () 
         `<option value="${countryCodes[this.value] || ''}">${countryCodes[this.value] || 'Code'}</option>`;
 });
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
