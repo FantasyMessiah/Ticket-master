@@ -1,78 +1,123 @@
 <?php
-// login.php - Handles structural credential matching and the 'YES' modal selection flow
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 require_once "config/db.php";
 
 $pdo = (new Database())->connect();
 
-/* -------------------------------------------------------------------------
-   1. MODAL ROUTING LINK FORK (Catching the 'YES' Response Click from auth.php)
-   ------------------------------------------------------------------------- */
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['action']) && $_GET['action'] === 'login_sim') {
-    $email = trim($_GET['email'] ?? '');
+// Catch the simulated 'YES' login path from auth.php if clicked
+if (isset($_GET['action']) && $_GET['action'] === 'login_sim') {
+    $sim_email = trim($_GET['email'] ?? '');
     
-    if (empty($email)) {
-        $_SESSION['auth_error'] = "Authentication failed. No email context provided.";
-        header("Location: auth.php");
-        exit;
-    }
-
-    // Lookup structural registration existence
+    // Look up the simulated user to get their actual ID
     $stmt = $pdo->prepare("SELECT id, email FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    $stmt->execute([$sim_email]);
+    $user = $stmt->fetch();
+    
     if ($user) {
-        // Hydrate session targets to trigger header update states
         $_SESSION["user_id"] = $user['id'];
         $_SESSION["email"] = $user['email'];
-
-        // Choose fallback pathing securely
-        $redirect = !empty($_GET['redirect']) ? htmlspecialchars_decode($_GET['redirect']) : "auth/dashboard.php";
+        
+        $redirect = !empty($_POST['redirect']) ? $_POST['redirect'] : ($_SESSION["redirect_after_auth"] ?? "auth/dashboard.php");
+        unset($_SESSION["redirect_after_auth"]);
         header("Location: " . $redirect);
         exit;
     } else {
-        // If they said YES but do not exist in your DB, send back with alert notice
-        $_SESSION['auth_error'] = "No account found matching '$email'. Please choose 'NO' to register.";
+        $_SESSION['auth_error'] = "No existing profile found for that email address.";
         header("Location: auth.php");
         exit;
     }
 }
 
-/* -------------------------------------------------------------------------
-   2. STANDARD POST FALLBACK HANDLING (If processing explicit field inputs)
-   ------------------------------------------------------------------------- */
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     $_SESSION['auth_error'] = "Invalid request method.";
     header("Location: auth.php");
     exit;
 }
 
+$full_name = trim($_POST["full_name"] ?? '');
 $email = trim($_POST["email"] ?? '');
+$country = trim($_POST["country"] ?? '');
+$country_code = trim($_POST["country_code"] ?? '');
+$phone = trim($_POST["phone"] ?? '');
 $password = $_POST["password"] ?? '';
+$confirm = $_POST["confirm_password"] ?? '';
 
-if (!$email || !$password) {
-    $_SESSION['auth_error'] = "Email and password are required fields.";
+/* -------------------------
+   VALIDATION
+--------------------------*/
+if (!$full_name || !$email || !$country || !$phone || !$password) {
+    $_SESSION['auth_error'] = "All profile fields are required.";
     header("Location: auth.php");
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+if ($password !== $confirm) {
+    $_SESSION['auth_error'] = "Your chosen passwords do not match.";
+    header("Location: auth.php");
+    exit;
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['auth_error'] = "Please enter a valid email address.";
+    header("Location: auth.php");
+    exit;
+}
+
+/* -------------------------
+   CHECK EXISTING USER
+--------------------------*/
+$stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->execute([$email]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$user || !password_verify($password, $user["password_hash"])) {
-    $_SESSION['auth_error'] = "The credentials you entered do not match our records.";
+if ($stmt->fetch()) {
+    $_SESSION['auth_error'] = "This email address is already registered.";
     header("Location: auth.php");
     exit;
 }
 
-// Successful Verification Login Hydration
-$_SESSION["user_id"] = $user["id"];
-$_SESSION["email"] = $user["email"];
+/* -------------------------
+   HASH PASSWORD
+--------------------------*/
+$hash = password_hash($password, PASSWORD_BCRYPT);
 
-$redirect = !empty($_POST['redirect']) ? $_POST['redirect'] : "auth/dashboard.php";
+/* -------------------------
+   INSERT USER
+--------------------------*/
+$stmt = $pdo->prepare("
+    INSERT INTO users 
+    (full_name, email, country, country_code, phone, password_hash)
+    VALUES (?, ?, ?, ?, ?, ?)
+");
+
+$stmt->execute([
+    $full_name,
+    $email,
+    $country,
+    $country_code,
+    $phone,
+    $hash
+]);
+
+$user_id = $pdo->lastInsertId();
+
+/* -------------------------
+   AUTO LOGIN
+--------------------------*/
+$_SESSION["user_id"] = $user_id;
+$_SESSION["email"] = $email;
+
+/* -------------------------
+   REDIRECT LOGIC (Hierarchical Safeguard)
+--------------------------*/
+if (!empty($_POST['redirect'])) {
+    $redirect = $_POST['redirect'];
+} else if (!empty($_SESSION["redirect_after_auth"])) {
+    $redirect = $_SESSION["redirect_after_auth"];
+} else {
+    $redirect = "auth/dashboard.php"; // Fixed path to match subdirectory configuration
+}
+
+unset($_SESSION["redirect_after_auth"]);
+
 header("Location: " . $redirect);
 exit;
