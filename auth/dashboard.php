@@ -137,12 +137,12 @@ if (empty($admin_messages)) {
 <!DOCTYPE html>
 <html lang="en">
 
-<?php include "../inc/head.php"; ?>
-<?php include "../inc/navbar.php"; ?>
+<?php include "inc/head.php"; ?>
+<?php include "inc/navbar.php"; ?>
 
 <body class="bg-gray-100 text-gray-900 font-sans antialiased">
 
-    <?php include "../inc/header.php"; ?>
+    <?php include "inc/header.php"; ?>
 
     <div id="__next" class="min-h-screen flex flex-col justify-between">
 
@@ -349,7 +349,7 @@ if (empty($admin_messages)) {
             
         </main>
 
-        <?php include "../inc/footer.php"; ?>
+        <?php include "inc/footer.php"; ?>
     </div>
 
     <style>
