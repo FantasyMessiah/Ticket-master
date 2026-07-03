@@ -1,12 +1,13 @@
 <?php
-// search.php - Intelligent Error-Tolerant Discovery Portal
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+session_start();
 
-require_once 'config/db.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+if (!isset($_SESSION['user_id'])) {
+
+    $_SESSION['auth_error'] = "Please login to continue booking your seats.";
+    $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
+
+    header("Location: auth.php");
+    exit;
 }
 
 $pdo = null;
@@ -143,10 +144,11 @@ $top_searches_list = [
 <html lang="en">
 
 <?php include "inc/head.php"; ?>
-<?php include "inc/header.php"; ?>
+<?php include "inc/navbar.php"; ?> 
  
 <body class="bg-white text-gray-900 font-sans antialiased">
     <div id="__next">
+        <?php include "inc/header.php"; ?>
 
         <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white py-10 px-4 md:px-8 shadow-md">
             <div class="max-w-7xl mx-auto">
