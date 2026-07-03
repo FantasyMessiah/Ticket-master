@@ -1,12 +1,9 @@
 <?php
 
-// inc/header.php - Global Navigation Component with Session-Safe Initialization
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if a user is actively authenticated to toggle view state layouts
-$is_logged_in = isset($_SESSION['user_id']);
 
 // Enable error displaying so we can pinpoint issues if database structural details are missing
 ini_set('display_errors', 1);
@@ -373,10 +370,6 @@ try {
     <?php include "inc/footer.php"; ?>
 
     <script>
-    const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
-    </script>
-
-    <script>
         // Track globally selected seat nodes data matrix array
         let pickedSeatsRegister = [];
 
@@ -614,36 +607,35 @@ try {
                 return;
             }
         
-            if (!isLoggedIn) {
-                window.location =
-                    "auth/auth.php?redirect=" +
-                    encodeURIComponent("auth/checkout.php");
-                return;
-            }
-            
-            fetch("save_order.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
+            fetch("save_order.php",{
+        
+                method:"POST",
+        
+                headers:{
+                    "Content-Type":"application/json"
                 },
-                body: JSON.stringify({
-                    seats: pickedSeatsRegister
+        
+                body:JSON.stringify({
+        
+                    seats:pickedSeatsRegister
+        
                 })
+        
             })
-            .then(res => res.json())
-            .then(response => {
-            
-                if (!response.success) {
+            .then(res=>res.json())
+            .then(response=>{
+        
+                if(!response.success){
+        
                     alert(response.message);
+        
                     return;
+        
                 }
-            
+        
                 window.location = "auth/checkout.php";
+        
             })
-            .catch(err => {
-                console.log(err);
-                alert("Unable to create order.");
-            });
             .catch(err=>{
         
                 console.log(err);
