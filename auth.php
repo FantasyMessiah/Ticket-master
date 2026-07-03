@@ -200,7 +200,7 @@ if (!empty($_SESSION['auth_error'])) {
 let currentEmailAttempt = "";
 
 /* -----------------------
-    FLOW SWITCH LOGIC
+   FLOW SWITCH LOGIC
 ------------------------*/
 function triggerPasskeyMissing() {
     document.getElementById("passkeyModal").classList.remove("hidden");
@@ -232,15 +232,15 @@ function selectForkResponse(choice) {
         // Update targets
         document.getElementById("hiddenRegisterEmail").value = currentEmailAttempt;
     } else if (choice === 'YES') {
-        // Simulated Account verification flow execution path:
-        // System validates or provisions background profile instantly as instructed
+        // Core framework execution path:
+        // Render success notification feedback context banner
         const successBanner = document.getElementById("successBanner");
         successBanner.classList.remove("hidden");
         
-        // Emulate target routing window trigger sequence
+        // Pass validation requirements directly over to login.php securely
         setTimeout(() => {
-            const onwardRedirect = "<?= !empty($redirect_url) ? $redirect_url : 'auth/dashboard.php' ?>";
-            window.location.href = onwardRedirect;
+            const redirectParam = encodeURIComponent("<?= !empty($redirect_url) ? $redirect_url : 'auth/dashboard.php' ?>");
+            window.location.href = "login.php?action=login_sim&email=" + encodeURIComponent(currentEmailAttempt) + "&redirect=" + redirectParam;
         }, 2200);
     }
 }
@@ -251,7 +251,7 @@ function resetToMain() {
 }
 
 /* -----------------------
-    PASSWORD STRENGTH
+   PASSWORD STRENGTH
 ------------------------*/
 function checkStrength(password) {
     let score = 0;
@@ -279,7 +279,7 @@ function checkStrength(password) {
 }
 
 /* -----------------------
-    COUNTRY CODE AUTO
+   COUNTRY CODE AUTO
 ------------------------*/
 const countryCodes = {
   "Afghanistan": "+93", "Albania": "+355", "Algeria": "+213", "Andorra": "+376", "Angola": "+244",
