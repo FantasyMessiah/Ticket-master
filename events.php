@@ -176,9 +176,9 @@ include "inc/header.php";
 <!DOCTYPE html>
 <html lang="en">
 
-<?php include "inc/head.php"; ?>
 <?php include "inc/navbar.php"; ?> 
- 
+<?php include "inc/head.php"; ?>
+
 <body class="bg-white text-gray-900 font-sans antialiased">
     <div id="__next">
         <div class="sc-d727d306-0 llCpYZ">
