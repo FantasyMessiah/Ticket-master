@@ -14,9 +14,9 @@ $redirect_url = !empty($_GET['redirect']) ? htmlspecialchars($_GET['redirect']) 
 
     <title>Authentication</title>
 
-    <link rel="icon" href="assets/favicon.png" type="image/png">
+    <link class="icon" href="assets/favicon.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: Inter, sans-serif; }
@@ -106,18 +106,24 @@ if (!empty($_SESSION['auth_error'])) {
         </div>
 
         <p class="text-[11px] leading-relaxed text-gray-400 text-justify border-t pt-4">
-            By continuing past this page, I acknowledge that I have read and agree to the current <strong>Terms of Use</strong>, including the arbitration agreement and class action waiver, updated in August 2025, and understand that information will be used as described in our <strong>Privacy Policy</strong>.
+            By continuing past this page, I acknowledge that I have read and agree to the current <a href="terms.php" class="text-blue-600 font-bold hover:underline">Terms of Use</a>, including the arbitration agreement and class action waiver, updated in August 2025, and understand that information will be used as described in our <strong>Privacy Policy</strong>.
             <br><br>
             As set forth in our Privacy Policy, we may use your information for email marketing, including promotions and updates on our own or third-party products. You can opt out of our marketing emails anytime.
         </p>
     </div>
 
     <form id="registerForm" class="p-6 space-y-4 hidden" method="POST" action="register.php">
-        <div class="flex items-center gap-2 mb-2">
-            <button type="button" onclick="resetToMain()" class="text-gray-400 hover:text-gray-600 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0id l7-7m-7 7h18"></path></svg>
-            </button>
-            <h2 class="text-xl font-black text-gray-900">Create Your Profile</h2>
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="resetToMain()" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <h2 class="text-xl font-black text-gray-900">Create Your Profile</h2>
+            </div>
+            <a href="terms.php" target="_blank" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">
+                Terms
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
         </div>
 
         <input type="hidden" name="redirect" value="<?= $redirect_url ?>">
@@ -176,7 +182,7 @@ if (!empty($_SESSION['auth_error'])) {
         </div>
         <h3 class="text-lg font-black text-gray-900 mb-1 tracking-tight uppercase">Already Have An Account?</h3>
         <p class="text-sm text-gray-500 mb-6 max-w-xs">Confirm if you have registered this current email profile previously with us.</p>
-        
+         
         <div class="flex w-full gap-3 px-4">
             <button type="button" onclick="selectForkResponse('NO')" class="w-1/2 py-3 border border-gray-300 text-gray-700 font-black rounded-xl hover:bg-gray-50 transition">
                 NO
@@ -194,7 +200,7 @@ if (!empty($_SESSION['auth_error'])) {
 let currentEmailAttempt = "";
 
 /* -----------------------
-   FLOW SWITCH LOGIC
+    FLOW SWITCH LOGIC
 ------------------------*/
 function triggerPasskeyMissing() {
     document.getElementById("passkeyModal").classList.remove("hidden");
@@ -245,7 +251,7 @@ function resetToMain() {
 }
 
 /* -----------------------
-   PASSWORD STRENGTH
+    PASSWORD STRENGTH
 ------------------------*/
 function checkStrength(password) {
     let score = 0;
@@ -273,7 +279,7 @@ function checkStrength(password) {
 }
 
 /* -----------------------
-   COUNTRY CODE AUTO
+    COUNTRY CODE AUTO
 ------------------------*/
 const countryCodes = {
   "Afghanistan": "+93", "Albania": "+355", "Algeria": "+213", "Andorra": "+376", "Angola": "+244",
