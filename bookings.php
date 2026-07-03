@@ -373,6 +373,10 @@ try {
     <?php include "inc/footer.php"; ?>
 
     <script>
+    const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
+    </script>
+
+    <script>
         // Track globally selected seat nodes data matrix array
         let pickedSeatsRegister = [];
 
@@ -636,6 +640,13 @@ try {
         
                 }
         
+                if (!isLoggedIn) {
+                    window.location =
+                        "auth/auth.php?redirect=" +
+                        encodeURIComponent("auth/checkout.php");
+                    return;
+                }
+                
                 window.location = "auth/checkout.php";
         
             })
