@@ -1,3 +1,12 @@
+<?php
+// inc/header.php - Global Navigation Component with Session-Safe Initialization
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if a user is actively authenticated to toggle view state layouts
+$is_logged_in = isset($_SESSION['user_id']);
+?>
 <nav class="bg-[#024DDF] text-white border-b border-blue-800 relative z-40 w-full">
   <div class="max-w-7xl mx-auto px-6">
     <div class="flex items-center justify-between h-14 lg:h-[88px]">
