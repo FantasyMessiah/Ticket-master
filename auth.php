@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once "inc/countries.php";
+
+// Capture the redirect URL parameter if it exists, to pass through the forms
+$redirect_url = !empty($_GET['redirect']) ? htmlspecialchars($_GET['redirect']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,15 +50,26 @@ require_once "inc/countries.php";
 
 <body class="bg-gray-50">
 
-<!-- ERROR MESSAGE -->
-<?php if (!empty($_SESSION['auth_error'])): ?>
-    <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-lg mb-4 max-w-md mx-auto">
-        <?= $_SESSION['auth_error']; ?>
+<?php 
+$error_msg = "";
+
+// 1. Check if a standard login/register session error exists
+if (!empty($_SESSION['auth_error'])) {
+    $error_msg = $_SESSION['auth_error'];
+    unset($_SESSION['auth_error']);
+    
+// 2. Fallback: Check if redirected from the ticket layout engine
+} elseif (!empty($_GET['error']) && $_GET['error'] === 'auth_required') {
+    $error_msg = "Please sign in or create an account to secure your tickets.";
+}
+?>
+
+<?php if (!empty($error_msg)): ?>
+    <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-lg mb-4 max-w-md mx-auto mt-6 border border-red-200 shadow-sm">
+        <?= htmlspecialchars($error_msg); ?>
     </div>
-    <?php unset($_SESSION['auth_error']); ?>
 <?php endif; ?>
 
-<!-- BACKGROUND -->
 <div class="fixed inset-0 -z-10">
     <div class="absolute top-[-200px] left-[-200px] w-[500px] h-[500px] bg-blue-100 blur-3xl opacity-40"></div>
     <div class="absolute bottom-[-200px] right-[-200px] w-[500px] h-[500px] bg-blue-200 blur-3xl opacity-30"></div>
@@ -65,14 +79,12 @@ require_once "inc/countries.php";
 
 <div class="w-full max-w-md glass border border-gray-200 rounded-3xl shadow-2xl overflow-hidden">
 
-<!-- HEADER -->
 <div class="p-6 text-center border-b bg-white/80">
     <img src="assets/auth-logo.png" class="h-10 mx-auto mb-3">
     <h1 class="text-2xl font-black">Authentication</h1>
     <p class="text-sm text-gray-500">Sign in or create account</p>
 </div>
 
-<!-- TABS -->
 <div class="flex border-b bg-white">
     <button id="loginTab" onclick="showLogin()" class="w-1/2 py-3 font-bold tab-active">
         Sign In
@@ -82,12 +94,13 @@ require_once "inc/countries.php";
     </button>
 </div>
 
-<!-- LOGIN -->
 <form id="loginForm" class="p-6 space-y-4" method="POST" action="login.php">
+    
+    <input type="hidden" name="redirect" value="<?= $redirect_url ?>">
 
-    <input name="email" class="w-full border rounded-xl px-4 py-3 text-sm input" type="email" placeholder="Email">
+    <input name="email" class="w-full border rounded-xl px-4 py-3 text-sm input" type="email" placeholder="Email" required>
 
-    <input name="password" class="w-full border rounded-xl px-4 py-3 text-sm input" type="password" placeholder="Password">
+    <input name="password" class="w-full border rounded-xl px-4 py-3 text-sm input" type="password" placeholder="Password" required>
 
     <button class="w-full bg-brand text-white font-black py-3 rounded-xl hover:bg-blue-800 transition">
         Sign In
@@ -95,30 +108,31 @@ require_once "inc/countries.php";
 
 </form>
 
-<!-- REGISTER -->
 <form id="registerForm" class="p-6 space-y-4 hidden" method="POST" action="register.php">
 
-    <input name="full_name" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Full Name">
+    <input type="hidden" name="redirect" value="<?= $redirect_url ?>">
 
-    <input name="email" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Email">
+    <input name="full_name" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Full Name" required>
 
-    <select name="country" id="countrySelect" class="w-full border rounded-xl px-4 py-3 text-sm input">
-        <option>Select Country</option>
+    <input name="email" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Email" type="email" required>
+
+    <select name="country" id="countrySelect" class="w-full border rounded-xl px-4 py-3 text-sm input" required>
+        <option value="">Select Country</option>
         <?php foreach ($countries as $c): ?>
             <option><?= htmlspecialchars($c) ?></option>
         <?php endforeach; ?>
     </select>
 
-    <select name="country_code" id="codeSelect" class="w-full border rounded-xl px-4 py-3 text-sm input">
-        <option>Code</option>
+    <select name="country_code" id="codeSelect" class="w-full border rounded-xl px-4 py-3 text-sm input" required>
+        <option value="">Code</option>
     </select>
 
-    <input name="phone" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Phone">
+    <input name="phone" class="w-full border rounded-xl px-4 py-3 text-sm input" placeholder="Phone" required>
 
     <input name="password" id="password"
         class="w-full border rounded-xl px-4 py-3 text-sm input"
         type="password" placeholder="Password"
-        oninput="checkStrength(this.value)">
+        oninput="checkStrength(this.value)" required>
 
     <div class="space-y-1">
         <div class="bg-gray-200 bar w-full overflow-hidden">
@@ -128,7 +142,7 @@ require_once "inc/countries.php";
     </div>
 
     <input name="confirm_password" class="w-full border rounded-xl px-4 py-3 text-sm input"
-        type="password" placeholder="Confirm Password">
+        type="password" placeholder="Confirm Password" required>
 
     <button class="w-full bg-brand text-white font-black py-3 rounded-xl hover:bg-blue-800 transition">
         Create Account
@@ -394,7 +408,7 @@ const countryCodes = {
 
 document.getElementById("countrySelect").addEventListener("change", function () {
     document.getElementById("codeSelect").innerHTML =
-        `<option>${countryCodes[this.value] || ""}</option>`;
+        `<option value="${countryCodes[this.value] || ''}">${countryCodes[this.value] || 'Code'}</option>`;
 });
 
 </script>
