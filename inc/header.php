@@ -18,30 +18,30 @@ $is_logged_in = isset($_SESSION['user_id']);
           </svg>
         </button>
 
-        <a href="index.php" class="flex items-center">
-          <img src="assets/images/logo.png" alt="Ticketmaster" class="h-6 lg:h-[26px] w-auto" onerror="this.src='https://uk.tmconst.com/rc-b3c71b5a/images/logo/ticketmaster_black.svg';">
+        <a href="/index.php" class="flex items-center">
+          <img src="/assets/images/logo.png" alt="Ticketmaster" class="h-6 lg:h-[26px] w-auto" onerror="this.src='https://uk.tmconst.com/rc-b3c71b5a/images/logo/ticketmaster_black.svg';">
         </a>
 
         <ul class="hidden lg:flex items-center gap-6 text-base font-bold">
-          <li><a href="search.php?q=Concerts" class="nav-link">Concerts</a></li>
-          <li><a href="search.php?q=Sports" class="nav-link">Sports</a></li>
-          <li><a href="search.php?q=Art" class="nav-link">Arts, Theater &amp; Comedy</a></li>
-          <li><a href="search.php?q=Family" class="nav-link">Family</a></li>
-          <li><a href="search.php?q=Cities" class="nav-link">Cities</a></li>
+          <li><a href="/search.php?q=Concerts" class="nav-link">Concerts</a></li>
+          <li><a href="/search.php?q=Sports" class="nav-link">Sports</a></li>
+          <li><a href="/search.php?q=Art" class="nav-link">Arts, Theater &amp; Comedy</a></li>
+          <li><a href="/search.php?q=Family" class="nav-link">Family</a></li>
+          <li><a href="/search.php?q=Cities" class="nav-link">Cities</a></li>
         </ul>
       </div>
 
       <div class="flex items-center gap-4">
         <?php if ($is_logged_in): ?>
-          <a href="dashboard.php" class="flex items-center gap-2 lg:gap-3 text-white hover:text-gray-200 transition-colors duration-200" title="Access Dashboard Portfolio">
+          <a href="/auth/dashboard.php" class="flex items-center gap-2 lg:gap-3 text-white hover:text-gray-200 transition-colors duration-200" title="Access Dashboard Portfolio">
             <i class="fa-regular fa-user text-xl"></i>
             <span class="hidden md:inline font-bold text-sm lg:text-base">Dashboard</span>
           </a>
-          <a href="logout.php" class="hidden md:inline-block border border-blue-400 hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded transition">
+          <a href="/logout.php" class="hidden md:inline-block border border-blue-400 hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded transition">
             Sign Out
           </a>
         <?php else: ?>
-          <a href="auth.php" class="flex items-center gap-2 lg:gap-3 text-white hover:text-gray-200 transition-colors duration-200">
+          <a href="/auth.php" class="flex items-center gap-2 lg:gap-3 text-white hover:text-gray-200 transition-colors duration-200">
             <i class="fa-regular fa-user text-xl"></i>
             <span class="hidden md:inline font-bold text-sm lg:text-base">Sign In / Register</span>
           </a>
@@ -62,17 +62,17 @@ $is_logged_in = isset($_SESSION['user_id']);
       </button>
     </div>
     <ul class="flex-1 overflow-y-auto font-bold text-sm divide-y divide-slate-800/60 uppercase tracking-tight">
-      <li><a href="search.php?q=Concerts" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-music text-base w-5 text-center text-slate-400"></i> Concerts</a></li>
-      <li><a href="search.php?q=Sports" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-football-ball w-5 text-center text-slate-400"></i> Sports</a></li>
-      <li><a href="search.php?q=Art" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-theater-masks w-5 text-center text-slate-400"></i> Arts &amp; Theater</a></li>
-      <li><a href="search.php?q=Family" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-child w-5 text-center text-slate-400"></i> Family</a></li>
-      <li><a href="search.php?q=Cities" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-city w-5 text-center text-slate-400"></i> Cities</a></li>
-      
+      <li><a href="/search.php?q=Concerts" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-music text-base w-5 text-center text-slate-400"></i> Concerts</a></li>
+      <li><a href="/search.php?q=Sports" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-football-ball w-5 text-center text-slate-400"></i> Sports</a></li>
+      <li><a href="/search.php?q=Art" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-theater-masks w-5 text-center text-slate-400"></i> Arts &amp; Theater</a></li>
+      <li><a href="/search.php?q=Family" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-child w-5 text-center text-slate-400"></i> Family</a></li>
+      <li><a href="/search.php?q=Cities" class="flex items-center gap-3 px-5 py-4 hover:bg-slate-800/50 text-slate-200 transition-colors"><i class="fas fa-city w-5 text-center text-slate-400"></i> Cities</a></li>
+       
       <?php if ($is_logged_in): ?>
-        <li class="border-t border-slate-700/50"><a href="dashboard.php" class="flex items-center gap-3 px-5 py-4 bg-slate-950 text-blue-400 hover:bg-slate-800 transition-colors"><i class="fas fa-columns text-base w-5 text-center"></i> User Dashboard</a></li>
-        <li><a href="logout.php" class="flex items-center gap-3 px-5 py-4 bg-red-950/40 text-red-400 hover:bg-red-900/30 transition-colors"><i class="fas fa-sign-out-alt text-base w-5 text-center"></i> Sign Out</a></li>
+        <li class="border-t border-slate-700/50"><a href="/auth/dashboard.php" class="flex items-center gap-3 px-5 py-4 bg-slate-950 text-blue-400 hover:bg-slate-800 transition-colors"><i class="fas fa-columns text-base w-5 text-center"></i> User Dashboard</a></li>
+        <li><a href="/logout.php" class="flex items-center gap-3 px-5 py-4 bg-red-950/40 text-red-400 hover:bg-red-900/30 transition-colors"><i class="fas fa-sign-out-alt text-base w-5 text-center"></i> Sign Out</a></li>
       <?php else: ?>
-        <li class="border-t border-slate-700/50"><a href="auth.php" class="flex items-center gap-3 px-5 py-4 bg-slate-950 text-emerald-400 hover:bg-slate-800 transition-colors"><i class="fas fa-sign-in-alt text-base w-5 text-center"></i> Sign In / Register</a></li>
+        <li class="border-t border-slate-700/50"><a href="/auth.php" class="flex items-center gap-3 px-5 py-4 bg-slate-950 text-emerald-400 hover:bg-slate-800 transition-colors"><i class="fas fa-sign-in-alt text-base w-5 text-center"></i> Sign In / Register</a></li>
       <?php endif; ?>
     </ul>
   </div>
@@ -81,7 +81,7 @@ $is_logged_in = isset($_SESSION['user_id']);
 <div class="bg-[#024DDF] py-6 md:py-11 w-full">
   <div class="max-w-5xl mx-auto px-4 md:px-6">
     <div class="bg-white text-gray-900 rounded shadow-md p-1.5 max-w-full mx-auto relative">
-      <form action="search.php" method="GET" class="flex flex-col md:flex-row items-stretch md:items-center">
+      <form action="/search.php" method="GET" class="flex flex-col md:flex-row items-stretch md:items-center">
         <div class="flex flex-col md:flex-row w-full flex-1 divide-y md:divide-y-0 md:divide-x divide-gray-200">
           <div class="flex items-center gap-3.5 px-4 py-2 flex-1">
             <i class="fa-solid fa-location-dot text-[#024DDF] text-lg"></i>
