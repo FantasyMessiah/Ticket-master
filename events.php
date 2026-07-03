@@ -169,17 +169,20 @@ if (!empty($artist_id) && $pdo) {
     }
 }
 
-// FIX: Run the header file here before ANY HTML output so session_start() works flawlessly
+// CRITICAL FIX: Session initializer runs out of view here so session_start() never complains
 include "inc/header.php"; 
     
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
-<?php include "inc/navbar.php"; ?> 
 <?php include "inc/head.php"; ?>
-
+ 
 <body class="bg-white text-gray-900 font-sans antialiased">
+    
+    <!-- 1. NAVBAR PLACED AT THE VERY TOP OF THE BODY LAYOUT -->
+    <?php include "inc/navbar.php"; ?> 
+
     <div id="__next">
         <div class="sc-d727d306-0 llCpYZ">
          Your browser is not supported. For the best experience, use any of these supported browsers:
@@ -194,8 +197,10 @@ include "inc/header.php";
          </a>
         </section>    
         
+        <!-- 2. HERO HEADER BANNER RENDERS DIRECTLY UNDERNEATH NAVBAR -->
         <div class="relative w-full h-[420px] md:h-[500px] overflow-hidden bg-black">
         
+            <!-- Banner -->
             <img
                 src="<?= htmlspecialchars($event_banner_image); ?>"
                 onerror="this.src='https://picsum.photos/2000/900';"
@@ -203,10 +208,13 @@ include "inc/header.php";
                 alt="<?= htmlspecialchars($artist_name); ?>"
             >
         
+            <!-- Dark Overlay -->
             <div class="absolute inset-0 bg-black/45"></div>
         
+            <!-- Bottom Gradient -->
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
         
+            <!-- Breadcrumb -->
             <div class="absolute top-8 left-8 md:left-12 text-white text-sm">
         
                 <span class="text-white/80">Home</span>
@@ -229,16 +237,20 @@ include "inc/header.php";
         
             </div>
         
+            <!-- Content -->
             <div class="absolute bottom-12 left-8 md:left-12 text-white">
         
+                <!-- Genre -->
                 <p class="text-xl font-semibold mb-2">
                     <?= htmlspecialchars($genre); ?>
                 </p>
         
+                <!-- Artist -->
                 <h1 class="text-4xl md:text-4xl font-black leading-none">
                     <?= htmlspecialchars($artist_name); ?> Tickets
                 </h1>
         
+                <!-- Rating -->
                 <div class="flex items-center gap-3 mt-6">
         
                     <div class="w-11 h-11 rounded-full border border-white flex items-center justify-center cursor-pointer hover:bg-white/10 transition">
@@ -354,6 +366,7 @@ include "inc/header.php";
                         </h2>
                     </div>
             
+                    <!-- Left Arrow -->
                     <button
                         id="vipPrev"
                         class="absolute left-5 top-1/2 -translate-y-1/2 z-20 bg-white text-gray-700 w-10 h-10 rounded flex items-center justify-center shadow hover:bg-gray-200">
@@ -362,6 +375,7 @@ include "inc/header.php";
             
                     </button>
             
+                    <!-- Right Arrow -->
                     <button
                         id="vipNext"
                         class="absolute right-5 top-1/2 -translate-y-1/2 z-20 bg-[#0256ff] text-white w-10 h-10 rounded flex items-center justify-center shadow hover:bg-blue-700">
@@ -431,6 +445,7 @@ include "inc/header.php";
             
                 <div class="relative">
             
+                    <!-- Left -->
                     <button id="galleryPrev"
                         class="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white shadow w-10 h-10 rounded flex items-center justify-center">
             
@@ -438,6 +453,7 @@ include "inc/header.php";
             
                     </button>
             
+                    <!-- Right -->
                     <button id="galleryNext"
                         class="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-[#0256ff] text-white shadow w-10 h-10 rounded flex items-center justify-center">
             
@@ -462,6 +478,7 @@ include "inc/header.php";
             
                                 <div class="absolute inset-0 bg-black/40"></div>
             
+                                <!-- Play Icon -->
                                 <div class="absolute inset-0 flex items-center justify-center">
             
                                     <div class="w-14 h-14 rounded-full border-2 border-white flex items-center justify-center">
@@ -472,6 +489,7 @@ include "inc/header.php";
             
                                 </div>
             
+                                <!-- Title -->
                                 <div class="absolute bottom-4 left-4 right-4">
             
                                     <p class="text-white font-bold leading-6 text-lg drop-shadow">
