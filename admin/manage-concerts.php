@@ -142,6 +142,81 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
 
         }
 
+        if($action=="bulk_add_concerts"){
+        
+            $bulk = trim($_POST['bulk_data']);
+        
+            if(empty($bulk)){
+                throw new Exception("No data provided.");
+            }
+        
+            $blocks = preg_split("/\R\s*\R/", $bulk);
+        
+            $stmt = $pdo->prepare("
+                INSERT INTO concerts
+                (
+                    artist_id,
+                    concert_date,
+                    day_time,
+                    venue,
+                    location,
+                    title,
+                    index_type,
+                    map_view
+                )
+                VALUES (?,?,?,?,?,?,?,NULL)
+            ");
+        
+            $count = 0;
+        
+            foreach($blocks as $block){
+        
+                $lines = array_values(array_filter(array_map('trim', preg_split("/\R/", trim($block)))));
+        
+                if(count($lines) < 6){
+                    continue;
+                }
+        
+                $date = $lines[0];
+                $day_time = $lines[1];
+                $venue = $lines[2];
+                $location = $lines[3];
+                $title = $lines[4];
+                $index_type = $lines[5];
+        
+                if(!in_array($index_type, ['upcoming','trending','sponsored'])){
+                    $index_type = 'upcoming';
+                }
+        
+                $stmt->execute([
+                    $artist_id,
+                    $date,
+                    $day_time,
+                    $venue,
+                    $location,
+                    $title,
+                    $index_type
+                ]);
+        
+                $count++;
+            }
+        
+            $_SESSION['success'] = "$count concerts uploaded successfully.";
+        }
+
+        if($action=="bulk_delete_concerts"){
+        
+            $stmt = $pdo->prepare("
+                DELETE FROM concerts
+                WHERE artist_id=?
+            ");
+        
+            $stmt->execute([$artist_id]);
+        
+            $_SESSION['success'] =
+                $stmt->rowCount() . " concerts deleted for this artist.";
+        }
+
         if($action=="delete"){
 
             $concert_id=(int)$_POST['concert_id'];
@@ -279,14 +354,21 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 
 </div>
 
-<div style="text-align:right;margin-bottom:20px;">
+<div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+
+<button class="btn" onclick="openBulkConcertUpload()">
+    <i class="fas fa-upload"></i>
+    Bulk Upload
+</button>
+
+<button class="btn red" onclick="openBulkConcertDelete()">
+    <i class="fas fa-trash"></i>
+    Bulk Delete
+</button>
 
 <button class="btn" onclick="openModal()">
-
-<i class="fas fa-plus"></i>
-
-Add Concert
-
+    <i class="fas fa-plus"></i>
+    Add Concert
 </button>
 
 </div>
@@ -493,6 +575,91 @@ Close
 
 </div>
 </div>
+
+<div id="bulkUploadModal"
+style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;
+background:rgba(0,0,0,.7);overflow-y:auto;padding:20px;z-index:9999;">
+
+<div style="background:#111827;max-width:700px;margin:40px auto;padding:25px;border-radius:10px;">
+
+<h2>Bulk Upload Concerts</h2>
+
+<p>Format (one concert per block):</p>
+
+<pre style="background:#000;padding:15px;color:#0f0;border-radius:6px;">
+2026-12-01
+Saturday 8:00 PM
+Eko Convention Centre
+Lagos, Nigeria
+New Year Tour
+trending
+
+2026-12-10
+Friday 7:00 PM
+National Stadium
+Abuja, Nigeria
+Live Experience
+upcoming
+</pre>
+
+<form method="POST">
+
+<input type="hidden" name="action" value="bulk_add_concerts">
+<input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+
+<textarea name="bulk_data"
+required
+style="width:100%;height:300px;padding:12px;"></textarea>
+
+<br><br>
+
+<button class="btn" style="width:100%;">
+Upload Concerts
+</button>
+
+</form>
+
+<br>
+
+<button class="btn red" onclick="closeBulkConcertUpload()" style="width:100%;">
+Close
+</button>
+
+</div>
+</div>
+
+<div id="bulkDeleteModal"
+style="display:none;position:fixed;left:0;top:0;width:100%;height:100%;
+background:rgba(0,0,0,.7);overflow-y:auto;padding:20px;z-index:9999;">
+
+<div style="background:#111827;max-width:600px;margin:40px auto;padding:25px;border-radius:10px;">
+
+<h2>Bulk Delete Concerts</h2>
+
+<p style="color:#fca5a5;">
+This will delete ALL concerts for this artist.
+</p>
+
+<form method="POST">
+
+<input type="hidden" name="action" value="bulk_delete_concerts">
+<input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+
+<button class="btn red" style="width:100%;">
+Delete All Concerts
+</button>
+
+</form>
+
+<br>
+
+<button class="btn" onclick="closeBulkConcertDelete()" style="width:100%;">
+Cancel
+</button>
+
+</div>
+</div>
+    
 <script>
 
 function openModal(){
@@ -514,6 +681,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+function openBulkConcertUpload(){
+    document.getElementById("bulkUploadModal").style.display="block";
+    document.body.style.overflow="hidden";
+}
+
+function closeBulkConcertUpload(){
+    document.getElementById("bulkUploadModal").style.display="none";
+    document.body.style.overflow="auto";
+}
+
+function openBulkConcertDelete(){
+    document.getElementById("bulkDeleteModal").style.display="block";
+    document.body.style.overflow="hidden";
+}
+
+function closeBulkConcertDelete(){
+    document.getElementById("bulkDeleteModal").style.display="none";
+    document.body.style.overflow="auto";
+}
 
 </script>
 
