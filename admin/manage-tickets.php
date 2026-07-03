@@ -30,6 +30,19 @@ if($concert_id){
     $concert=$stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+$sections = [];
+
+if($concert_id){
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT section_name
+        FROM tickets
+        WHERE concert_id=?
+        ORDER BY section_name
+    ");
+    $stmt->execute([$concert_id]);
+    $sections = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
 /*----------------------------------------------------
 HANDLE POST
 ----------------------------------------------------*/
@@ -151,6 +164,55 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
         
             $_SESSION['success'] = $count . " tickets uploaded successfully.";
         }
+
+
+        /*---------------- BULK SECTION VIEW ----------------*/
+        if($action=="bulk_section_view"){
+        
+            $section_name = trim($_POST['section_name']);
+        
+            if(empty($section_name)){
+                throw new Exception("Please select a section.");
+            }
+        
+            if(
+                !isset($_FILES['section_view']) ||
+                $_FILES['section_view']['error'] != UPLOAD_ERR_OK
+            ){
+                throw new Exception("Please choose an image.");
+            }
+        
+            $uploadDir = "../uploads/tickets/";
+        
+            if(!is_dir($uploadDir)){
+                mkdir($uploadDir,0755,true);
+            }
+        
+            $ext = strtolower(pathinfo($_FILES['section_view']['name'],PATHINFO_EXTENSION));
+        
+            $filename = uniqid("section_").".".$ext;
+        
+            move_uploaded_file(
+                $_FILES['section_view']['tmp_name'],
+                $uploadDir.$filename
+            );
+        
+            $stmt = $pdo->prepare("
+                UPDATE tickets
+                SET section_view=?
+                WHERE concert_id=?
+                AND section_name=?
+            ");
+        
+            $stmt->execute([
+                $filename,
+                $concert_id,
+                $section_name
+            ]);
+        
+            $_SESSION['success'] =
+                "Section image applied to ".$stmt->rowCount()." tickets.";
+        }
         
 
 
@@ -250,7 +312,24 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 
 </div>
 
-<div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:20px;">
+<div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+
+<button class="btn" onclick="openSectionModal()">
+    <i class="fas fa-image"></i>
+    Bulk Section View
+</button>
+
+<button class="btn" onclick="openBulkModal()">
+    <i class="fas fa-upload"></i>
+    Bulk Upload
+</button>
+
+<button class="btn" onclick="openAddModal()">
+    <i class="fas fa-plus"></i>
+    Add Ticket
+</button>
+
+</div>
 
     <button class="btn" onclick="openBulkModal()">
         <i class="fas fa-upload"></i> Bulk Upload
@@ -412,6 +491,85 @@ Close
 </div>
 </div>
 
+<div id="sectionModal"
+style="
+display:none;
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.7);
+overflow-y:auto;
+padding:40px 20px;
+z-index:9999;
+">
+
+<div
+style="
+background:#111827;
+max-width:600px;
+margin:auto;
+padding:25px;
+border-radius:10px;
+max-height:90vh;
+overflow-y:auto;
+">
+
+<h2>Bulk Section View Upload</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+<input type="hidden" name="action" value="bulk_section_view">
+<input type="hidden" name="concert_id" value="<?= $concert_id ?>">
+
+<label>Select Section</label>
+
+<select
+name="section_name"
+required
+style="width:100%;padding:12px;margin:10px 0;">
+
+<option value="">Choose Section</option>
+
+<?php foreach($sections as $section){ ?>
+
+<option value="<?= htmlspecialchars($section) ?>">
+<?= htmlspecialchars($section) ?>
+</option>
+
+<?php } ?>
+
+</select>
+
+<label>Section Image</label>
+
+<input
+type="file"
+name="section_view"
+accept="image/*"
+required
+style="width:100%;padding:10px;margin:10px 0;">
+
+<button class="btn" style="width:100%;">
+Upload & Apply
+</button>
+
+</form>
+
+<br>
+
+<button
+class="btn red"
+onclick="closeSectionModal()"
+style="width:100%;">
+Close
+</button>
+
+</div>
+
+</div>
+
 
 <script>
 
@@ -429,6 +587,14 @@ function openBulkModal(){
 
 function closeBulkModal(){
     document.getElementById("bulkModal").style.display = "none";
+}
+
+function openSectionModal(){
+    document.getElementById("sectionModal").style.display="block";
+}
+
+function closeSectionModal(){
+    document.getElementById("sectionModal").style.display="none";
 }
 
 </script>
