@@ -239,7 +239,7 @@ function selectForkResponse(choice) {
         
         // Emulate target routing window trigger sequence
         setTimeout(() => {
-            const onwardRedirect = "<?= !empty($redirect_url) ? $redirect_url : 'dashboard.php' ?>";
+            const onwardRedirect = "<?= !empty($redirect_url) ? $redirect_url : 'auth/dashboard.php' ?>";
             window.location.href = onwardRedirect;
         }, 2200);
     }
