@@ -132,14 +132,19 @@ if (empty($admin_messages)) {
         ['title' => 'Important Venue Clearance Protocol Alert', 'content' => 'Please arrive 2 hours before the printed event time for security scanning routines. Digital mobile entry ticket vectors must be loaded inside your account dashboard browser view directly upon main perimeter gateway terminal approach.', 'created_at' => '2026-06-28 14:22:00']
     ];
 }
+
+// CRITICAL DATA LAYER INJECTION: Run include down here out of view so session_start() never complains
+include "inc/header.php"; 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <?php include "inc/head.php"; ?>
-<?php include "inc/header.php"; ?>
 
 <body class="bg-gray-100 text-gray-900 font-sans antialiased">
+
+    <?php include "inc/navbar.php"; ?>
+
     <div id="__next" class="min-h-screen flex flex-col justify-between">
 
         <main class="max-w-7xl mx-auto w-full px-4 md:px-8 py-10 flex-1">
