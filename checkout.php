@@ -441,7 +441,7 @@ function showPaymentError(message){
                                class="group rounded-2xl border border-slate-200 bg-white hover:border-blue-600 hover:shadow-xl transition p-6">
 
                                 <img
-                                    src="<?php echo htmlspecialchars($method['image_path']); ?>"
+                                    src="../uploads/payment-methods/<?php echo htmlspecialchars($method['image_path']); ?>"
                                     class="mx-auto h-20 object-contain group-hover:scale-105 transition">
 
                             </a>
@@ -454,7 +454,7 @@ function showPaymentError(message){
                                 class="rounded-2xl border bg-gray-50 opacity-60 cursor-not-allowed p-6">
 
                                 <img
-                                    src="<?php echo htmlspecialchars($method['image_path']); ?>"
+                                    src="../uploads/payment-methods/<?php echo htmlspecialchars($method['image_path']); ?>"
                                     class="mx-auto h-20 object-contain grayscale">
 
                             </button>
