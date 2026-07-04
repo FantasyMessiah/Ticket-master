@@ -100,18 +100,19 @@ if ($pdo !== null) {
             ];
         }
 
-        // 3. UPDATE: Secured Production Orders & Gate Passes Card Resource Loader
-        // Changed o.id to o.order_id to resolve the 1054 Column Not Found exception
+        // 3. FIX: Secured Production Orders & Gate Passes Card Resource Loader
+        // Corrected columns based on exact schema mappings
         $order_stmt = $pdo->prepare("
             SELECT 
-                o.order_id AS order_id, 
+                o.order_id, 
                 o.status AS order_status, 
                 o.created_at AS purchase_date,
-                c.artist_name AS show_title,
-                c.genre AS venue_tag
+                a.artist_name AS show_title,
+                a.genre AS venue_tag
             FROM orders o
-            INNER JOIN tickets t ON o.ticket_id = t.id
-            INNER JOIN concerts c ON t.concert_id = c.id
+            INNER JOIN tickets t ON o.ticket_id = t.ticket_id
+            INNER JOIN concerts c ON t.concert_id = c.concert_id
+            INNER JOIN artists a ON c.artist_id = a.artist_id
             WHERE o.user_id = ?
             ORDER BY o.order_id DESC LIMIT 10
         ");
