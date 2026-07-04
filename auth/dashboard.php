@@ -8,13 +8,13 @@ error_reporting(E_ALL);
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['auth_error'] = "Please login to access dashboard.";
+    $_SESSION['auth_error'] = "Please log in to access your dashboard.";
     $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
     header("Location: ../auth.php");
     exit;
 }
 
-// Extract authenticated profile reference parameter context
+// Get the authenticated user ID
 $user_id = (int) $_SESSION['user_id'];
 
 $pdo = null;
@@ -24,14 +24,14 @@ try {
         $pdo = $dbInstance->connect(); 
     }
 } catch (Exception $e) {
-    // Silence error to preserve UI initialization framework layers
+    // Silence error to preserve UI layout
 }
 
-// Profile Update Message Status Holders
+// Status messages
 $success_message = "";
 $error_message = "";
 
-// Handle User Profile Context Updates
+// Handle profile updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $full_name = trim($_POST['full_name']);
     $email_address = trim($_POST['email']);
@@ -40,20 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (!empty($full_name) && !empty($email_address)) {
         try {
             if ($pdo !== null) {
-                // Modified target column mapping explicitly to 'full_name' per specifications
                 $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?");
                 $update_stmt->execute([$full_name, $email_address, $phone_number, $user_id]);
             }
-            $success_message = "Account information configurations updated successfully.";
+            $success_message = "Your profile changes have been saved successfully.";
         } catch (Exception $e) {
-            $error_message = "Database synchronization error: " . $e->getMessage();
+            $error_message = "Database error: " . $e->getMessage();
         }
     } else {
-        $error_message = "Required verification entry fields cannot be saved blank.";
+        $error_message = "Required fields cannot be left blank.";
     }
 }
 
-// Initializing Dynamic UI Arrays
+// Initialize default template arrays
 $user_profile = [
     'name' => 'Jane Doe',
     'email' => 'janedoe@infinityfreeapp.com',
@@ -64,19 +63,19 @@ $admin_messages = [];
 $recent_orders = [];
 $transaction_history = [];
 
-// Static Presentation Layer Fallback
+// Fallback data if database records are empty
 $recently_viewed_shows = [
-    ['id' => 3, 'artist' => 'Taylor Swift', 'title' => 'The Eras Tour Presentation', 'location' => 'Los Angeles, CA'],
+    ['id' => 3, 'artist' => 'Taylor Swift', 'title' => 'The Eras Tour', 'location' => 'Los Angeles, CA'],
     ['id' => 7, 'artist' => 'Blackpink', 'title' => 'Born Pink Finale Concert', 'location' => 'Seoul, South Korea']
 ];
 $admin_tickets = [
-    ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass Package Allocation File Vector. Valid across all standard stadium layout properties. Please save to phone pass wallet storage.']
+    ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass. Valid for standard stadium layouts. Please save this pass to your phone\'s wallet app.']
 ];
 
-// Execute Live Resource Retrieval
+// Fetch database records
 if ($pdo !== null) {
     try {
-        // 1. UPDATE: Account Portfolio Member Card Resource Loader
+        // 1. Load user profile information
         $user_stmt = $pdo->prepare("SELECT full_name, email, phone FROM users WHERE id = ? LIMIT 1");
         $user_stmt->execute([$user_id]);
         $fetched_user = $user_stmt->fetch();
@@ -88,20 +87,19 @@ if ($pdo !== null) {
             ];
         }
 
-        // 2. UPDATE: Administrative Alerts Message Terminal Card Resource Loader
+        // 2. Load system notices and announcements
         $msg_stmt = $pdo->prepare("SELECT message, created_at FROM users WHERE id = ? AND message IS NOT NULL AND message != '' ORDER BY id DESC");
         $msg_stmt->execute([$user_id]);
         $raw_messages = $msg_stmt->fetchAll();
         foreach ($raw_messages as $m_row) {
             $admin_messages[] = [
-                'title'      => 'Personal Security Update Notice',
+                'title'      => 'Security Notice',
                 'content'    => $m_row['message'],
                 'created_at' => $m_row['created_at'] ?? date('Y-m-d H:i:s')
             ];
         }
 
-        // 3. FIX: Secured Production Orders & Gate Passes Card Resource Loader
-        // Updated to select concert title and comprehensive ticket positioning records
+        // 3. Load user ticket orders
         $order_stmt = $pdo->prepare("
             SELECT 
                 o.order_id, 
@@ -123,7 +121,7 @@ if ($pdo !== null) {
         $order_stmt->execute([$user_id]);
         $raw_orders = $order_stmt->fetchAll();
         foreach ($raw_orders as $or) {
-            // Formulate clean seats metrics string matching requested layout rules
+            // Build a clean, clear seat assignment layout
             $seat_details = trim(sprintf(
                 "%s (Sec %s, Row %s, Seat %s)", 
                 $or['ticket_name'], 
@@ -136,13 +134,13 @@ if ($pdo !== null) {
                 'id'     => 'TM-' . $or['order_id'],
                 'title'  => $or['show_title'],
                 'venue'  => $or['concert_title'],
-                'seats'  => !empty($seat_details) ? $seat_details : 'General Allocation Entry',
+                'seats'  => !empty($seat_details) ? $seat_details : 'General Admission',
                 'status' => $or['order_status'], 
                 'date'   => date('M d, Y', strtotime($or['purchase_date']))
             ];
         }
         
-        // 4. UPDATE: Financial Statements & Transactions History Card Resource Loader
+        // 4. Load billing and deposit logs
         $tx_stmt = $pdo->prepare("
             SELECT 
                 d.deposit_id, 
@@ -161,7 +159,7 @@ if ($pdo !== null) {
             $transaction_history[] = [
                 'ref'      => 'DEP-' . $tx['deposit_id'],
                 'date'     => date('Y-m-d', strtotime($tx['created_at'])),
-                'method'   => !empty($tx['image_path']) ? '../uploads/payment-methods/' . $tx['image_path'] : 'Standard Gateway Channel',
+                'method'   => !empty($tx['image_path']) ? '../uploads/payment-methods/' . $tx['image_path'] : 'Standard Gateway',
                 'amount'   => $tx['amount'],
                 'currency' => 'USD',
                 'status'   => ($tx['status'] === 'confirmed' || $tx['status'] === 'completed' || $tx['status'] === 'Successful') ? 'Successful' : 'Processing'
@@ -169,11 +167,11 @@ if ($pdo !== null) {
         }
 
     } catch (Exception $e) {
-        $error_message = "Data population runtime failure exception triggered: " . $e->getMessage();
+        $error_message = "Failed to load dashboard data: " . $e->getMessage();
     }
 }
 
-// Secure UI Fallback Hydrators (Executes if relational schema sets are empty)
+// Apply fallback values if data arrays remain empty
 if (empty($recent_orders)) {
     $recent_orders = [
         ['id' => 'TM-441029', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'Old Trafford Stadium', 'seats' => 'VIP Ticket (Sec 62, Row 3, Seat 19)', 'status' => 'processing', 'date' => 'Sep 25, 2026'],
@@ -182,13 +180,13 @@ if (empty($recent_orders)) {
 }
 if (empty($transaction_history)) {
     $transaction_history = [
-        ['ref' => 'TXN-8829102', 'date' => date('Y-m-d'), 'method' => 'GIFT CARD Wire', 'amount' => 150.00, 'currency' => 'USD', 'status' => 'Processing'],
-        ['ref' => 'TXN-1102983', 'date' => '2026-05-11', 'method' => 'Crypto Wallet Node', 'amount' => 232.32, 'currency' => 'USD', 'status' => 'Successful']
+        ['ref' => 'TXN-8829102', 'date' => date('Y-m-d'), 'method' => 'Gift Card', 'amount' => 150.00, 'currency' => 'USD', 'status' => 'Processing'],
+        ['ref' => 'TXN-1102983', 'date' => '2026-05-11', 'method' => 'Crypto Wallet', 'amount' => 232.32, 'currency' => 'USD', 'status' => 'Successful']
     ];
 }
 if (empty($admin_messages)) {
     $admin_messages = [
-        ['title' => 'Important Venue Clearance Protocol Alert', 'content' => 'Please arrive 2 hours before the printed event time for security scanning routines.', 'created_at' => date('Y-m-d H:i:s')]
+        ['title' => 'Important Venue Entry Information', 'content' => 'Please arrive 2 hours before the scheduled event time to allow smooth security scanning procedures.', 'created_at' => date('Y-m-d H:i:s')]
     ];
 }
 ?>
@@ -217,7 +215,7 @@ if (empty($admin_messages)) {
                             </div>
                             <div>
                                 <h3 class="text-base font-black text-gray-900 tracking-tight"><?php echo htmlspecialchars($user_profile['name']); ?></h3>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Account Portfolio Member</p>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Verified Member</p>
                             </div>
                         </div>
 
@@ -236,29 +234,29 @@ if (empty($admin_messages)) {
                             <input type="hidden" name="update_profile" value="1">
                             
                             <div>
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Full Name Identity String</label>
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Full Name</label>
                                 <input type="text" name="full_name" value="<?php echo htmlspecialchars($user_profile['name']); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Primary Email Endpoint Address</label>
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Email Address</label>
                                 <input type="email" name="email" value="<?php echo htmlspecialchars($user_profile['email']); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Phone Communications Ledger Channel</label>
+                                <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Phone Number</label>
                                 <input type="text" name="phone" value="<?php echo htmlspecialchars($user_profile['phone']); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
                             </div>
 
                             <button type="submit" class="w-full bg-[#024DDF] hover:bg-blue-800 text-white font-black text-xs uppercase tracking-widest py-3 rounded-xl transition-all shadow-sm">
-                                Save Account Settings Updates
+                                Save Profile Changes
                             </button>
                         </form>
                     </div>
 
                     <div class="bg-slate-900 text-white border border-slate-800 rounded-2xl p-6 shadow-md space-y-4">
                         <h4 class="text-xs font-black uppercase tracking-widest text-blue-400 flex items-center gap-2 border-b border-slate-800 pb-3">
-                            <i class="fas fa-satellite-dish animate-pulse"></i> Administrative Alerts Message Terminal
+                            <i class="fas fa-satellite-dish animate-pulse"></i> Announcements & Notices
                         </h4>
                         <div class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                             <?php foreach ($admin_messages as $msg): ?>
@@ -276,15 +274,15 @@ if (empty($admin_messages)) {
                     
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-ticket-alt text-[#024DDF]"></i> Admin-Uploaded Ticket Allocation Manifests
+                            <i class="fas fa-ticket-alt text-[#024DDF]"></i> Your Available Tickets
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <?php foreach ($admin_tickets as $ticket): ?>
                                 <div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col">
                                     <div class="w-full h-40 bg-black overflow-hidden relative">
-                                        <img src="<?php echo htmlspecialchars($ticket['file_path']); ?>" onerror="this.src='https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80';" alt="Admin Ticket Output Graphic" class="w-full h-full object-cover">
+                                        <img src="<?php echo htmlspecialchars($ticket['file_path']); ?>" onerror="this.src='https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80';" alt="Ticket Image" class="w-full h-full object-cover">
                                         <div class="absolute top-2 right-2 bg-[#024DDF] text-white font-mono text-[10px] font-black px-2 py-0.5 rounded shadow">
-                                            PASS VECTOR
+                                            DIGITAL PASS
                                         </div>
                                     </div>
                                     <div class="p-4 flex-1 flex flex-col justify-between items-start space-y-2">
@@ -292,7 +290,7 @@ if (empty($admin_messages)) {
                                             <?php echo htmlspecialchars($ticket['description']); ?>
                                         </p>
                                         <a href="<?php echo htmlspecialchars($ticket['file_path']); ?>" target="_blank" class="text-[10px] font-black bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-100 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                                            <i class="fas fa-download text-blue-600"></i> Download Clean Resource File
+                                            <i class="fas fa-download text-blue-600"></i> Download Pass File
                                         </a>
                                     </div>
                                 </div>
@@ -302,7 +300,7 @@ if (empty($admin_messages)) {
 
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-shopping-bag text-[#024DDF]"></i> Secured Production Orders & Gate Passes
+                            <i class="fas fa-shopping-bag text-[#024DDF]"></i> Recent Orders
                         </h3>
                         <div class="space-y-3">
                             <?php foreach ($recent_orders as $order): ?>
@@ -332,7 +330,7 @@ if (empty($admin_messages)) {
                                     </div>
                                     <div class="text-left sm:text-right w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-gray-100 pt-2 sm:pt-0">
                                         <span class="text-xs font-black text-gray-800 block"><?php echo htmlspecialchars($order['date']); ?></span>
-                                        <span class="text-[10px] text-gray-400 block font-medium">Platform Transaction Tracking Node</span>
+                                        <span class="text-[10px] text-gray-400 block font-medium">Order Reference Record</span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -341,17 +339,17 @@ if (empty($admin_messages)) {
 
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-receipt text-[#024DDF]"></i> Financial Statements & Transactions History
+                            <i class="fas fa-receipt text-[#024DDF]"></i> Transaction History
                         </h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs font-medium text-gray-600">
                                 <thead class="bg-gray-50 text-gray-400 uppercase tracking-wider text-[10px] font-black border border-gray-200 rounded-lg">
                                     <tr>
-                                        <th class="p-3">Reference Block</th>
-                                        <th class="p-3">Execution Date</th>
-                                        <th class="p-3">Channel Method</th>
-                                        <th class="p-3 text-right">Cumulative Total</th>
-                                        <th class="p-3 text-center">Settlement</th>
+                                        <th class="p-3">Reference ID</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Payment Method</th>
+                                        <th class="p-3 text-right">Total Amount</th>
+                                        <th class="p-3 text-center">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
@@ -361,7 +359,7 @@ if (empty($admin_messages)) {
                                             <td class="p-3 text-gray-500 font-bold"><?php echo htmlspecialchars($txn['date']); ?></td>
                                             <td class="p-3 text-gray-500 font-bold flex items-center gap-2">
                                                 <?php if (strpos($txn['method'], '../uploads/') === 0): ?>
-                                                    <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Method Icon" class="h-4 w-auto object-contain rounded border border-gray-200 max-w-[60px]">
+                                                    <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Icon" class="h-4 w-auto object-contain rounded border border-gray-200 max-w-[60px]">
                                                 <?php else: ?>
                                                     <span><?php echo htmlspecialchars($txn['method']); ?></span>
                                                 <?php endif; ?>
@@ -386,7 +384,7 @@ if (empty($admin_messages)) {
 
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-eye text-[#024DDF]"></i> Recently Analyzed & Viewed Shows
+                            <i class="fas fa-eye text-[#024DDF]"></i> Recently Viewed Shows
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <?php foreach ($recently_viewed_shows as $show): ?>
@@ -401,7 +399,7 @@ if (empty($admin_messages)) {
                                         </p>
                                     </div>
                                     <a href="search.php?q=<?php echo urlencode($show['artist']); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
-                                        Inspect
+                                        View Show
                                     </a>
                                 </div>
                             <?php endforeach; ?>
