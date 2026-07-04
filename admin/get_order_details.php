@@ -1,16 +1,46 @@
 <?php
 // get_order_details.php
-header('Content-Type: application/json');
 
-// Include your database setup file containing $pdo object
-require_once __DIR__ . '/inc/header.php'; 
+// 1. Clear out any previous buffer layers to guarantee a clean payload delivery channel
+if (ob_get_length()) ob_clean();
 
+// 2. Set strict headers to enforce valid Application JSON handling
+header('Content-Type: application/json; charset=utf-8');
+
+// 3. DATABASE INITIALIZATION
+// NOTE: If /inc/header.php prints standard page layouts (HTML structure/navbars), 
+// DO NOT use it here. Instead, instantiate the PDO connection cleanly as done below:
+try {
+    // If you have a separate standalone database configuration file, uncomment the line below:
+    // require_once __DIR__ . '/inc/db_connect.php'; 
+    
+    // Otherwise, initialize the connection inline or match your setup properties:
+    if (!isset($pdo)) {
+        $host = 'localhost'; // Update with your actual host if different
+        $db   = 'if0_42273705_ticket2';
+        $user = 'root';        // Update with your database username
+        $pass = '';            // Update with your database password
+        $charset = 'utf8mb4';
+
+        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+        $pdo = new PDO($dsn, $user, $pass, $options);
+    }
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
+    exit;
+}
+
+// 4. PARSE EXPECTED GET STRING PARAMETERS 
 if (!isset($_GET['order_ids']) || empty(trim($_GET['order_ids']))) {
     echo json_encode(['success' => false, 'message' => 'Missing order identification sequence.']);
     exit;
 }
 
-// Explode comma-separated order IDs and filter out empty elements or spaces
 $orderIdsArray = array_filter(array_map('intval', explode(',', $_GET['order_ids'])));
 
 if (empty($orderIdsArray)) {
@@ -18,11 +48,10 @@ if (empty($orderIdsArray)) {
     exit;
 }
 
+// 5. QUERY AND PROCESS DATA
 try {
-    // Generate secure dynamic placeholders for the SQL IN clause (e.g. ?, ?, ?)
     $placeholders = implode(',', array_fill(0, count($orderIdsArray), '?'));
     
-    // Construct the query linking tickets -> concerts -> artists -> users
     $query = "
         SELECT 
             t.ticket_id,
@@ -60,14 +89,12 @@ try {
         exit;
     }
 
-    // Extract User parameters from the initial reference row found
     $userData = [
         'full_name' => $records[0]['full_name'] ?? 'N/A',
         'email'     => $records[0]['email'] ?? 'N/A',
         'country'   => $records[0]['country'] ?? 'N/A'
     ];
 
-    // Build the sub-items dictionary lists grouping ticket parameters independently
     $items = [];
     foreach ($records as $row) {
         $items[] = [
@@ -77,15 +104,15 @@ try {
             'row_name'     => $row['row_name'] ?? 'N/A',
             'price'        => $row['price'],
             'concert'      => [
-                'title'   => $row['concert_title'] ?? 'N/A',
-                'date'    => $row['concert_date'] ?? 'N/A',
-                'time'    => $row['day_time'] ?? 'N/A',
-                'venue'   => $row['venue'] ?? 'N/A',
-                'location'=> $row['location'] ?? 'N/A'
+                'title'    => $row['concert_title'] ?? 'N/A',
+                'date'     => $row['concert_date'] ?? 'N/A',
+                'time'     => $row['day_time'] ?? 'N/A',
+                'venue'    => $row['venue'] ?? 'N/A',
+                'location' => $row['location'] ?? 'N/A'
             ],
             'artist'       => [
-                'name'    => $row['artist_name'] ?? 'N/A',
-                'image'   => $row['artist_image'] ?? ''
+                'name'     => $row['artist_name'] ?? 'N/A',
+                'image'    => $row['artist_image'] ?? ''
             ]
         ];
     }
@@ -97,6 +124,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database exception: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Database exception occurred: ' . $e->getMessage()]);
 }
 exit;
