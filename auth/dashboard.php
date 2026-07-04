@@ -398,7 +398,7 @@ if (empty($admin_messages)) {
                                             <i class="fas fa-map-pin text-gray-300 mr-1"></i> <?php echo htmlspecialchars($show['location']); ?>
                                         </p>
                                     </div>
-                                    <a href="search.php?q=<?php echo urlencode($show['artist']); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
+                                    <a href="../search.php?q=<?php echo urlencode($show['artist']); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
                                         View Show
                                     </a>
                                 </div>
