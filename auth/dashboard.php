@@ -129,7 +129,7 @@ if ($pdo !== null) {
             ];
         }
         // 4. UPDATE: Financial Statements & Transactions History Card Resource Loader
-        // Formulates join link parameters mapping deposits onto payment_details via payment_id
+        // Formulates join link parameters mapping deposits onto payment_methods via payment_id
         $tx_stmt = $pdo->prepare("
             SELECT 
                 d.deposit_id, 
@@ -138,7 +138,7 @@ if ($pdo !== null) {
                 d.status,
                 p.image_path
             FROM deposits d
-            LEFT JOIN payment_details p ON d.payment_id = p.payment_id
+            LEFT JOIN payment_methods p ON d.payment_id = p.payment_id
             WHERE d.user_id = ?
             ORDER BY d.deposit_id DESC LIMIT 15
         ");
