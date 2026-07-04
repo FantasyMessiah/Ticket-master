@@ -62,12 +62,8 @@ $user_profile = [
 $admin_messages = [];
 $recent_orders = [];
 $transaction_history = [];
+$recently_viewed_shows = []; // Clean initiation without hardcoded fallbacks
 
-// Fallback data if database records are empty
-$recently_viewed_shows = [
-    ['id' => 3, 'artist' => 'Taylor Swift', 'title' => 'The Eras Tour', 'location' => 'Los Angeles, CA'],
-    ['id' => 7, 'artist' => 'Blackpink', 'title' => 'Born Pink Finale Concert', 'location' => 'Seoul, South Korea']
-];
 $admin_tickets = [
     ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass. Valid for standard stadium layouts. Please save this pass to your phone\'s wallet app.']
 ];
@@ -121,7 +117,6 @@ if ($pdo !== null) {
         $order_stmt->execute([$user_id]);
         $raw_orders = $order_stmt->fetchAll();
         foreach ($raw_orders as $or) {
-            // Formats cleanly as: Ticket Type (Section, Row, Seat) without labels
             $seat_details = trim(sprintf(
                 "%s (%s, %s, %s)", 
                 $or['ticket_name'], 
@@ -166,12 +161,39 @@ if ($pdo !== null) {
             ];
         }
 
+        // 5. Dynamic loading for Recently Viewed / Trending Shows
+        $trending_stmt = $pdo->prepare("
+            SELECT 
+                c.concert_id AS id,
+                c.title,
+                c.location,
+                a.artist_name AS artist
+            FROM concerts c
+            INNER JOIN artists a ON c.artist_id = a.artist_id
+            WHERE c.index_type = 'trending'
+        ");
+        $trending_stmt->execute();
+        $raw_trending = $trending_stmt->fetchAll();
+        
+        // Randomize the resulting table collection array execution order
+        if (!empty($raw_trending)) {
+            shuffle($raw_trending);
+            foreach ($raw_trending as $row) {
+                $recently_viewed_shows[] = [
+                    'id'       => $row['id'],
+                    'artist'   => $row['artist'],
+                    'title'    => $row['title'],
+                    'location' => $row['location'] ?? 'Venue TBA'
+                ];
+            }
+        }
+
     } catch (Exception $e) {
         $error_message = "Failed to load dashboard data: " . $e->getMessage();
     }
 }
 
-// Apply fallback values if data arrays remain empty (Labels removed here as well)
+// Fallback arrays remain strictly for structural interface safety checks if required
 if (empty($recent_orders)) {
     $recent_orders = [
         ['id' => 'TM-441029', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'Old Trafford Stadium', 'seats' => 'VIP Ticket (62, 3, 19)', 'status' => 'processing', 'date' => 'Sep 25, 2026'],
@@ -206,10 +228,8 @@ if (empty($admin_messages)) {
             
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
-                <!-- Sidebar Column -->
                 <div class="lg:col-span-4 space-y-6">
                     
-                    <!-- Profile Management Card -->
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                         <div class="flex items-center gap-4 border-b border-gray-100 pb-4 mb-6">
                             <div class="w-14 h-14 rounded-full bg-[#024DDF] text-white font-black text-xl flex items-center justify-center shadow">
@@ -256,7 +276,6 @@ if (empty($admin_messages)) {
                         </form>
                     </div>
 
-                    <!-- System Notices Panel -->
                     <div class="bg-slate-900 text-white border border-slate-800 rounded-2xl p-6 shadow-md space-y-4">
                         <h4 class="text-xs font-black uppercase tracking-widest text-blue-400 flex items-center gap-2 border-b border-slate-800 pb-3">
                             <i class="fas fa-satellite-dish animate-pulse"></i> Announcements & Notices
@@ -273,10 +292,8 @@ if (empty($admin_messages)) {
                     </div>
                 </div>
 
-                <!-- Main Content Column -->
                 <div class="lg:col-span-8 space-y-6">
                     
-                    <!-- Digital Tickets Window -->
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
                             <i class="fas fa-ticket-alt text-[#024DDF]"></i> Your Available Tickets
@@ -303,7 +320,6 @@ if (empty($admin_messages)) {
                         </div>
                     </div>
 
-                    <!-- Booking Orders Ledger -->
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
                             <i class="fas fa-shopping-bag text-[#024DDF]"></i> Recent Orders
@@ -343,7 +359,6 @@ if (empty($admin_messages)) {
                         </div>
                     </div>
 
-                    <!-- Payment Invoices Table -->
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
                             <i class="fas fa-receipt text-[#024DDF]"></i> Transaction History
@@ -389,29 +404,36 @@ if (empty($admin_messages)) {
                         </div>
                     </div>
 
-                    <!-- Browsed History Analytics Panel -->
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
                             <i class="fas fa-eye text-[#024DDF]"></i> Recently Viewed Shows
                         </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <?php foreach ($recently_viewed_shows as $show): ?>
-                                <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all flex justify-between items-center bg-white">
-                                    <div class="min-w-0">
-                                        <span class="text-[10px] font-black uppercase tracking-wider text-[#024DDF] block"><?php echo htmlspecialchars($show['artist']); ?></span>
-                                        <h4 class="text-xs font-extrabold text-gray-900 truncate mt-0.5" title="<?php echo htmlspecialchars($show['title']); ?>">
-                                            <?php echo htmlspecialchars($show['title']); ?>
-                                        </h4>
-                                        <p class="text-[11px] font-medium text-gray-400 mt-0.5 truncate">
-                                            <i class="fas fa-map-pin text-gray-300 mr-1"></i> <?php echo htmlspecialchars($show['location']); ?>
-                                        </p>
+                        
+                        <?php if (empty($recently_viewed_shows)): ?>
+                            <div class="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-8 text-center">
+                                <i class="fas fa-theater-masks text-gray-300 text-3xl mb-2 block"></i>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">No trending updates found at this time.</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="overflow-y-auto pr-1 space-y-3 max-h-[295px]">
+                                <?php foreach ($recently_viewed_shows as $show): ?>
+                                    <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all flex justify-between items-center bg-white">
+                                        <div class="min-w-0">
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-[#024DDF] block"><?php echo htmlspecialchars($show['artist']); ?></span>
+                                            <h4 class="text-xs font-extrabold text-gray-900 truncate mt-0.5" title="<?php echo htmlspecialchars($show['title']); ?>">
+                                                <?php echo htmlspecialchars($show['title']); ?>
+                                            </h4>
+                                            <p class="text-[11px] font-medium text-gray-400 mt-0.5 truncate">
+                                                <i class="fas fa-map-pin text-gray-300 mr-1"></i> <?php echo htmlspecialchars($show['location']); ?>
+                                            </p>
+                                        </div>
+                                        <a href="../search.php?q=<?php echo urlencode($show['artist']); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
+                                            View Show
+                                        </a>
                                     </div>
-                                    <a href="../search.php?q=<?php echo urlencode($show['artist']); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
-                                        View Show
-                                    </a>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                 </div>
