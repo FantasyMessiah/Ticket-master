@@ -62,7 +62,7 @@ $user_profile = [
 $admin_messages = [];
 $recent_orders = [];
 $transaction_history = [];
-$recently_viewed_shows = []; // Clean initiation without hardcoded fallbacks
+$recently_viewed_shows = []; // Initialized empty for dynamic population
 
 $admin_tickets = [
     ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass. Valid for standard stadium layouts. Please save this pass to your phone\'s wallet app.']
@@ -161,39 +161,27 @@ if ($pdo !== null) {
             ];
         }
 
-        // 5. Dynamic loading for Recently Viewed / Trending Shows
+        // 5. Load trending dynamic content for "Recently Viewed Shows"
         $trending_stmt = $pdo->prepare("
             SELECT 
-                c.concert_id AS id,
-                c.title,
-                c.location,
-                a.artist_name AS artist
+                c.concert_id AS id, 
+                c.title, 
+                c.location, 
+                a.artist_name AS artist 
             FROM concerts c
             INNER JOIN artists a ON c.artist_id = a.artist_id
             WHERE c.index_type = 'trending'
+            ORDER BY c.concert_id DESC
         ");
         $trending_stmt->execute();
-        $raw_trending = $trending_stmt->fetchAll();
-        
-        // Randomize the resulting table collection array execution order
-        if (!empty($raw_trending)) {
-            shuffle($raw_trending);
-            foreach ($raw_trending as $row) {
-                $recently_viewed_shows[] = [
-                    'id'       => $row['id'],
-                    'artist'   => $row['artist'],
-                    'title'    => $row['title'],
-                    'location' => $row['location'] ?? 'Venue TBA'
-                ];
-            }
-        }
+        $recently_viewed_shows = $trending_stmt->fetchAll();
 
     } catch (Exception $e) {
         $error_message = "Failed to load dashboard data: " . $e->getMessage();
     }
 }
 
-// Fallback arrays remain strictly for structural interface safety checks if required
+// Fallback arrays for orders, transactions, and alerts remain context-independent
 if (empty($recent_orders)) {
     $recent_orders = [
         ['id' => 'TM-441029', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'Old Trafford Stadium', 'seats' => 'VIP Ticket (62, 3, 19)', 'status' => 'processing', 'date' => 'Sep 25, 2026'],
@@ -347,7 +335,7 @@ if (empty($admin_messages)) {
                                         </div>
                                         <h4 class="text-sm font-black text-gray-900 tracking-tight"><?php echo htmlspecialchars($order['title']); ?></h4>
                                         <p class="text-xs text-gray-500 font-medium">
-                                            <i class="fas fa-ticket text-gray-400 mr-1"></i> <?php echo htmlspecialchars($order['venue']); ?> • <span class="font-bold text-gray-600"><?php echo htmlspecialchars($order['seats']); ?></span>
+                                            <i class="fas fa-wallet text-gray-400 mr-1"></i> <?php echo htmlspecialchars($order['venue']); ?> • <span class="font-bold text-gray-600"><?php echo htmlspecialchars($order['seats']); ?></span>
                                         </p>
                                     </div>
                                     <div class="text-left sm:text-right w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-gray-100 pt-2 sm:pt-0">
@@ -406,32 +394,35 @@ if (empty($admin_messages)) {
 
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-eye text-[#024DDF]"></i> Recently Viewed Shows
+                            <i class="fas fa-fire text-amber-500 animate-pulse"></i> Trending Live Concerts
                         </h3>
                         
-                        <?php if (empty($recently_viewed_shows)): ?>
-                            <div class="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-8 text-center">
-                                <i class="fas fa-theater-masks text-gray-300 text-3xl mb-2 block"></i>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">No trending updates found at this time.</p>
-                            </div>
-                        <?php else: ?>
-                            <div class="overflow-y-auto pr-1 space-y-3 max-h-[295px]">
+                        <?php if (!empty($recently_viewed_shows)): ?>
+                            <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1">
                                 <?php foreach ($recently_viewed_shows as $show): ?>
-                                    <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all flex justify-between items-center bg-white">
+                                    <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all flex justify-between items-center bg-white shrink-0">
                                         <div class="min-w-0">
-                                            <span class="text-[10px] font-black uppercase tracking-wider text-[#024DDF] block"><?php echo htmlspecialchars($show['artist']); ?></span>
-                                            <h4 class="text-xs font-extrabold text-gray-900 truncate mt-0.5" title="<?php echo htmlspecialchars($show['title']); ?>">
-                                                <?php echo htmlspecialchars($show['title']); ?>
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-[#024DDF] block">
+                                                <?php echo htmlspecialchars($show['artist'] ?? 'Unknown Artist'); ?>
+                                            </span>
+                                            <h4 class="text-xs font-extrabold text-gray-900 truncate mt-0.5" title="<?php echo htmlspecialchars($show['title'] ?? ''); ?>">
+                                                <?php echo htmlspecialchars($show['title'] ?? 'TBA Performance'); ?>
                                             </h4>
                                             <p class="text-[11px] font-medium text-gray-400 mt-0.5 truncate">
-                                                <i class="fas fa-map-pin text-gray-300 mr-1"></i> <?php echo htmlspecialchars($show['location']); ?>
+                                                <i class="fas fa-map-pin text-gray-300 mr-1"></i> <?php echo htmlspecialchars($show['location'] ?? 'Venue Unconfirmed'); ?>
                                             </p>
                                         </div>
-                                        <a href="../search.php?q=<?php echo urlencode($show['artist']); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
+                                        <a href="../search.php?q=<?php echo urlencode($show['artist'] ?? ''); ?>" class="shrink-0 text-[10px] font-black text-[#024DDF] bg-blue-50 hover:bg-[#024DDF] hover:text-white px-3 py-2 rounded-md transition-all uppercase tracking-wide ml-2">
                                             View Show
                                         </a>
                                     </div>
                                 <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="border border-dashed border-gray-200 rounded-xl py-8 px-4 text-center">
+                                <i class="fas fa-hourglass-start text-gray-300 text-lg mb-2 block"></i>
+                                <p class="text-xs font-bold text-gray-400">No trending concerts are available at this moment.</p>
+                                <p class="text-[10px] text-gray-300 mt-0.5">Check back later for updated promotional feeds.</p>
                             </div>
                         <?php endif; ?>
                     </div>
