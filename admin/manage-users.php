@@ -83,6 +83,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             exit;
         }
 
+         /* ---------------- NOTIFY USER ---------------- */
+         if ($action === 'notify') {
+         
+             $id = (int)($_POST['id'] ?? 0);
+             $messageText = trim($_POST['message'] ?? '');
+         
+             if ($id <= 0) {
+                 throw new Exception("Invalid user ID.");
+             }
+         
+             if ($messageText === '') {
+                 throw new Exception("Message cannot be empty.");
+             }
+         
+             $stmt = $pdo->prepare("
+                 UPDATE users
+                 SET message = ?
+                 WHERE id = ?
+             ");
+         
+             $stmt->execute([
+                 $messageText,
+                 $id
+             ]);
+         
+             $_SESSION['success'] = "Notification saved successfully.";
+             header("Location: " . $_SERVER['PHP_SELF']);
+             exit;
+         }
+
     } catch (Exception $e) {
         $_SESSION['error'] = $e->getMessage();
         header("Location: " . $_SERVER['PHP_SELF']);
@@ -169,6 +199,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
            style="padding:6px 10px;font-size:13px;">
             Edit
         </a>
+        <button
+            type="button"
+            class="btn"
+            style="padding:6px 10px;font-size:13px;margin-left:5px;background:#2563eb;"
+            onclick="notifyUser(<?= $user['id'] ?>)">
+            Notify
+        </button>
 
         <form method="POST"
               onsubmit="return confirm('Delete this user?');"
@@ -246,6 +283,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 </div>
 </div>
 
+<!-- Notify Modal -->
+<div id="notifyModal"
+     style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+     background:rgba(0,0,0,.7);">
+
+<div style="
+    background:#0d1117;
+    max-width:500px;
+    margin:80px auto;
+    padding:2rem;
+    border-radius:10px;
+">
+
+<h2>Notify User</h2>
+
+<form method="POST">
+
+    <input type="hidden" name="action" value="notify">
+    <input type="hidden" name="id" id="notifyUserId">
+
+    <label>Message</label>
+
+    <textarea
+        name="message"
+        rows="6"
+        required
+        style="width:100%;padding:.8rem;margin:1rem 0;"></textarea>
+
+    <button class="btn" style="width:100%;">
+        Save Notification
+    </button>
+
+</form>
+
+<br>
+
+<button onclick="closeNotifyModal()"
+        class="btn red"
+        style="width:100%;">
+    Cancel
+</button>
+
+</div>
+</div>
+
 <script>
 function openModal(){
     document.getElementById('userModal').style.display='block';
@@ -253,6 +335,16 @@ function openModal(){
 function closeModal(){
     document.getElementById('userModal').style.display='none';
 }
+
+function notifyUser(id){
+    document.getElementById('notifyUserId').value = id;
+    document.getElementById('notifyModal').style.display = 'block';
+}
+
+function closeNotifyModal(){
+    document.getElementById('notifyModal').style.display = 'none';
+}
+   
 </script>
 
 </main>
