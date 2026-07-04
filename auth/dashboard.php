@@ -123,7 +123,7 @@ if ($pdo !== null) {
 // -------------------------------------------------------------------------
 if (empty($recent_orders)) {
     $recent_orders = [
-        ['id' => 'TM-908231', 'title' => "The Eras World Tour Live Finale Pass", 'venue' => 'Digital Gateway Platform', 'seats' => 'Payment Method: GIFT CARD', 'status' => 'processing', 'date' => date('M d, Y')],
+        ['id' => 'TM-441029', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'old trafford Stadium', 'seats' => 'Sec 62, Row 3, Seat 19', 'status' => 'processing', 'date' => 'Sep 25, 2026'],
         ['id' => 'TM-441029', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'Wembley Stadium', 'seats' => 'Sec 102, Row 5, Seat 12', 'status' => 'confirmed', 'date' => 'Sep 14, 2026']
     ];
 }
