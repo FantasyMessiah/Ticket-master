@@ -199,11 +199,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
            style="padding:6px 10px;font-size:13px;">
             Edit
         </a>
+       
         <button
             type="button"
             class="btn"
             style="padding:6px 10px;font-size:13px;margin-left:5px;background:#2563eb;"
-            onclick="notifyUser(<?= $user['id'] ?>)">
+            onclick="notifyUser(
+                <?= $user['id'] ?>,
+                <?= json_encode($user['message'] ?? '') ?>
+            )">
             Notify
         </button>
 
@@ -306,6 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     <label>Message</label>
 
     <textarea
+        id="notifyMessage"
         name="message"
         rows="6"
         required
@@ -336,8 +341,11 @@ function closeModal(){
     document.getElementById('userModal').style.display='none';
 }
 
-function notifyUser(id){
+function notifyUser(id, message){
+
     document.getElementById('notifyUserId').value = id;
+    document.getElementById('notifyMessage').value = message || '';
+
     document.getElementById('notifyModal').style.display = 'block';
 }
 
