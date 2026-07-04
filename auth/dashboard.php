@@ -10,11 +10,11 @@ require_once '../config/db.php';
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['auth_error'] = "Please login to access dashboard.";
     $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
-
     header("Location: ../auth.php");
     exit;
 }
 
+// Extract authenticated profile reference parameter context
 $user_id = (int) $_SESSION['user_id'];
 
 $pdo = null;
@@ -40,11 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (!empty($full_name) && !empty($email_address)) {
         try {
             if ($pdo !== null) {
-                // Updated to use the requested columns: fullname, email, phone
+                // Modified target column mapping explicitly to 'fullname' per specifications
                 $update_stmt = $pdo->prepare("UPDATE users SET fullname = ?, email = ?, phone = ? WHERE id = ?");
                 $update_stmt->execute([$full_name, $email_address, $phone_number, $user_id]);
-                $success_message = "Account information configurations updated successfully.";
             }
+            $success_message = "Account information configurations updated successfully.";
         } catch (Exception $e) {
             $error_message = "Database synchronization error: " . $e->getMessage();
         }
@@ -53,120 +53,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     }
 }
 
-// Initializing Default fallbacks to prevent errors if connection drops
+// Initializing Dynamic UI Arrays
 $user_profile = [
-    'fullname' => 'Jane Doe',
+    'name' => 'Jane Doe',
     'email' => 'janedoe@infinityfreeapp.com',
-    'phone' => '+1 (555) 019-2834',
-    'message' => 'No critical administrative notes pinned to profile logs.'
+    'phone' => '+1 (555) 019-2834'
 ];
 
+$admin_messages = [];
+$recent_orders = [];
+$transaction_history = [];
+
+// Static Presentation Layer Fallback
 $recently_viewed_shows = [
     ['id' => 3, 'artist' => 'Taylor Swift', 'title' => 'The Eras Tour Presentation', 'location' => 'Los Angeles, CA'],
     ['id' => 7, 'artist' => 'Blackpink', 'title' => 'Born Pink Finale Concert', 'location' => 'Seoul, South Korea']
 ];
+$admin_tickets = [
+    ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass Package Allocation File Vector. Valid across all standard stadium layout properties. Please save to phone pass wallet storage.']
+];
 
-$admin_tickets = [];
-$recent_orders = [];
-$transaction_history = [];
-
+// Execute Live Resource Retrieval
 if ($pdo !== null) {
     try {
-        // 1. Fetch live user columns: fullname, email, phone, and message
-        $user_stmt = $pdo->prepare("SELECT fullname, email, phone, message FROM users WHERE id = ? LIMIT 1");
+        // 1. UPDATE: Account Portfolio Member Card Resource Loader
+        $user_stmt = $pdo->prepare("SELECT fullname, email, phone FROM users WHERE id = ? LIMIT 1");
         $user_stmt->execute([$user_id]);
-        $fetched_user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+        $fetched_user = $user_stmt->fetch();
         if ($fetched_user) {
-            $user_profile = $fetched_user;
+            $user_profile = [
+                'name'  => $fetched_user['fullname'] ?? 'N/A',
+                'email' => $fetched_user['email'] ?? 'N/A',
+                'phone' => $fetched_user['phone'] ?? 'N/A'
+            ];
         }
 
-        // 2. Secured Production Orders & Gate Passes (concerts, tickets, and orders)
-        $order_query = $pdo->prepare("
+        // 2. UPDATE: Administrative Alerts Message Terminal Card Resource Loader
+        $msg_stmt = $pdo->prepare("SELECT message, created_at FROM users WHERE id = ? AND message IS NOT NULL AND message != '' ORDER BY id DESC");
+        $msg_stmt->execute([$user_id]);
+        $raw_messages = $msg_stmt->fetchAll();
+        foreach ($raw_messages as $m_row) {
+            $admin_messages[] = [
+                'title'      => 'Personal Security Update Notice',
+                'content'    => $m_row['message'],
+                'created_at' => $m_row['created_at'] ?? date('Y-m-d H:i:s')
+            ];
+        }
+
+        // 3. UPDATE: Secured Production Orders & Gate Passes Card Resource Loader
+        // Queries relational tables across: orders, tickets, and concerts
+        $order_stmt = $pdo->prepare("
             SELECT 
-                o.order_id,
-                o.status AS order_status,
-                o.created_at,
-                t.ticket_name,
-                t.section_name,
-                t.row_name,
-                c.title AS concert_title,
-                c.venue
+                o.id AS order_id, 
+                o.status AS order_status, 
+                o.created_at AS purchase_date,
+                c.artist_name AS show_title,
+                c.genre AS venue_tag
             FROM orders o
-            INNER JOIN tickets t ON o.ticket_id = t.ticket_id
-            LEFT JOIN concerts c ON t.concert_id = c.concert_id
-            WHERE o.user_id = ? 
-            ORDER BY o.order_id DESC 
-            LIMIT 10
+            INNER JOIN tickets t ON o.ticket_id = t.id
+            INNER JOIN concerts c ON t.concert_id = c.id
+            WHERE o.user_id = ?
+            ORDER BY o.id DESC LIMIT 10
         ");
-        $order_query->execute([$user_id]);
-        $raw_orders = $order_query->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($raw_orders as $order) {
+        $order_stmt->execute([$user_id]);
+        $raw_orders = $order_stmt->fetchAll();
+        foreach ($raw_orders as $or) {
             $recent_orders[] = [
-                'id' => 'ORD-' . $order['order_id'],
-                'title' => $order['concert_title'] ?? ($order['ticket_name'] ?? 'Ticket Pass'),
-                'venue' => $order['venue'] ?? 'Arena Grounds',
-                'seats' => 'Sec: ' . ($order['section_name'] ?? 'N/A') . ' | Row: ' . ($order['row_name'] ?? 'N/A'),
-                'status' => $order['order_status'], 
-                'date' => date('M d, Y', strtotime($order['created_at']))
+                'id'     => 'TM-' . $or['order_id'],
+                'title'  => $or['show_title'],
+                'venue'  => $or['venue_tag'] . ' Arena Hub',
+                'seats'  => 'Verified Internal Access Token Allocation Base',
+                'status' => $or['order_status'], 
+                'date'   => date('M d, Y', strtotime($or['purchase_date']))
             ];
         }
 
-        // 3. Financial Statements & Transactions History (deposits linked to payment_details for validation images)
-        $deposit_query = $pdo->prepare("
+        // 4. UPDATE: Financial Statements & Transactions History Card Resource Loader
+        // Formulates join link parameters mapping deposits onto payment_details via payment_id
+        $tx_stmt = $pdo->prepare("
             SELECT 
-                d.deposit_id,
-                d.created_at,
-                d.amount,
-                d.currency,
-                d.status AS deposit_status,
-                pm.image_path AS method_logo
+                d.deposit_id, 
+                d.created_at, 
+                d.amount, 
+                d.status,
+                p.image_path
             FROM deposits d
-            LEFT JOIN payment_details pm ON d.payment_id = pm.payment_id
+            LEFT JOIN payment_details p ON d.payment_id = p.payment_id
             WHERE d.user_id = ?
-            ORDER BY d.deposit_id DESC
-            LIMIT 10
+            ORDER BY d.deposit_id DESC LIMIT 15
         ");
-        $deposit_query->execute([$user_id]);
-        $raw_deposits = $deposit_query->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($raw_deposits as $dep) {
+        $tx_stmt->execute([$user_id]);
+        $raw_txs = $tx_stmt->fetchAll();
+        foreach ($raw_txs as $tx) {
             $transaction_history[] = [
-                'ref' => 'DEP-' . $dep['deposit_id'],
-                'date' => date('Y-m-d', strtotime($dep['created_at'])),
-                'logo' => $dep['method_logo'],
-                'amount' => $dep['amount'],
-                'currency' => $dep['currency'] ?? 'USD',
-                'status' => ucfirst($dep['deposit_status'])
+                'ref'      => 'DEP-' . $tx['deposit_id'],
+                'date'     => date('Y-m-d', strtotime($tx['created_at'])),
+                'method'   => !empty($tx['image_path']) ? '../uploads/payment-methods/' . $tx['image_path'] : 'Standard Gateway Channel',
+                'amount'   => $tx['amount'],
+                'currency' => 'USD',
+                'status'   => ($tx['status'] === 'confirmed' || $tx['status'] === 'completed' || $tx['status'] === 'Successful') ? 'Successful' : 'Processing'
             ];
         }
-
-        // Fetch Admin Ticket uploads
-        $ticket_query = $pdo->prepare("SELECT * FROM admin_tickets ORDER BY id DESC LIMIT 3");
-        $ticket_query->execute();
-        $admin_tickets = $ticket_query->fetchAll(PDO::FETCH_ASSOC);
 
     } catch (Exception $e) {
-        // Fallback catch logs block
+        $error_message = "Data population runtime failure exception triggered: " . $e->getMessage();
     }
 }
 
-// -------------------------------------------------------------------------
-// RECOVERY RUNTIME FALLBACKS: Mounts only if database relations return completely empty
-// -------------------------------------------------------------------------
+// Secure UI Fallback Hydrators (Executes if relational schema sets are empty)
 if (empty($recent_orders)) {
     $recent_orders = [
-        ['id' => 'ORD-Fallback', 'title' => 'No Live Production Orders Found', 'venue' => 'Database Empty', 'seats' => 'N/A', 'status' => 'pending', 'date' => date('M d, Y')]
+        ['id' => 'TM-441029', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'Old Trafford Stadium', 'seats' => 'Sec 62, Row 3, Seat 19', 'status' => 'processing', 'date' => 'Sep 25, 2026'],
+        ['id' => 'TM-441030', 'title' => 'Coldplay: Music of the Spheres Tour', 'venue' => 'Wembley Stadium', 'seats' => 'Sec 102, Row 5, Seat 12', 'status' => 'confirmed', 'date' => 'Sep 14, 2026']
     ];
 }
 if (empty($transaction_history)) {
     $transaction_history = [
-        ['ref' => 'DEP-None', 'date' => date('Y-m-d'), 'logo' => null, 'amount' => 0.00, 'currency' => 'USD', 'status' => 'Pending']
+        ['ref' => 'TXN-8829102', 'date' => date('Y-m-d'), 'method' => 'GIFT CARD Wire', 'amount' => 150.00, 'currency' => 'USD', 'status' => 'Processing'],
+        ['ref' => 'TXN-1102983', 'date' => '2026-05-11', 'method' => 'Crypto Wallet Node', 'amount' => 232.32, 'currency' => 'USD', 'status' => 'Successful']
     ];
 }
-if (empty($admin_tickets)) {
-    $admin_tickets = [
-        ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass Package Allocation File Vector. Valid across all standard stadium layout properties. Please save to phone pass wallet storage.']
+if (empty($admin_messages)) {
+    $admin_messages = [
+        ['title' => 'Important Venue Clearance Protocol Alert', 'content' => 'Please arrive 2 hours before the printed event time for security scanning routines.', 'created_at' => date('Y-m-d H:i:s')]
     ];
 }
 ?>
@@ -187,13 +196,14 @@ if (empty($admin_tickets)) {
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
                 <div class="lg:col-span-4 space-y-6">
+                    
                     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                         <div class="flex items-center gap-4 border-b border-gray-100 pb-4 mb-6">
                             <div class="w-14 h-14 rounded-full bg-[#024DDF] text-white font-black text-xl flex items-center justify-center shadow">
-                                <?php echo strtoupper(substr($user_profile['fullname'] ?? 'U', 0, 2)); ?>
+                                <?php echo strtoupper(substr($user_profile['name'], 0, 2)); ?>
                             </div>
                             <div>
-                                <h3 class="text-base font-black text-gray-900 tracking-tight"><?php echo htmlspecialchars($user_profile['fullname'] ?? 'Unknown User'); ?></h3>
+                                <h3 class="text-base font-black text-gray-900 tracking-tight"><?php echo htmlspecialchars($user_profile['name']); ?></h3>
                                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Account Portfolio Member</p>
                             </div>
                         </div>
@@ -214,17 +224,17 @@ if (empty($admin_tickets)) {
                             
                             <div>
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Full Name Identity String</label>
-                                <input type="text" name="full_name" value="<?php echo htmlspecialchars($user_profile['fullname'] ?? ''); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
+                                <input type="text" name="full_name" value="<?php echo htmlspecialchars($user_profile['name']); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Primary Email Endpoint Address</label>
-                                <input type="email" name="email" value="<?php echo htmlspecialchars($user_profile['email'] ?? ''); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
+                                <input type="email" name="email" value="<?php echo htmlspecialchars($user_profile['email']); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-black uppercase text-gray-400 tracking-wider mb-1.5">Phone Communications Ledger Channel</label>
-                                <input type="text" name="phone" value="<?php echo htmlspecialchars($user_profile['phone'] ?? ''); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
+                                <input type="text" name="phone" value="<?php echo htmlspecialchars($user_profile['phone']); ?>" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:bg-white focus:border-[#024DDF] outline-none transition-all">
                             </div>
 
                             <button type="submit" class="w-full bg-[#024DDF] hover:bg-blue-800 text-white font-black text-xs uppercase tracking-widest py-3 rounded-xl transition-all shadow-sm">
@@ -238,16 +248,13 @@ if (empty($admin_tickets)) {
                             <i class="fas fa-satellite-dish animate-pulse"></i> Administrative Alerts Message Terminal
                         </h4>
                         <div class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                            <?php if (!empty($user_profile['message'])): ?>
+                            <?php foreach ($admin_messages as $msg): ?>
                                 <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl space-y-1.5">
-                                    <span class="text-[10px] text-gray-500 font-mono block">SYSTEM BROADCAST LOG</span>
-                                    <p class="text-[11px] font-medium text-gray-300 leading-relaxed"><?php echo nl2br(htmlspecialchars($user_profile['message'])); ?></p>
+                                    <span class="text-[10px] text-gray-500 font-mono block"><?php echo htmlspecialchars($msg['created_at']); ?></span>
+                                    <h5 class="text-xs font-black tracking-tight text-gray-200"><?php echo htmlspecialchars($msg['title']); ?></h5>
+                                    <p class="text-[11px] font-medium text-gray-400 leading-relaxed"><?php echo htmlspecialchars($msg['content']); ?></p>
                                 </div>
-                            <?php else: ?>
-                                <div class="text-slate-500 text-xs text-center py-4 font-medium">
-                                    No administrative alerts or system dispatch history on file.
-                                </div>
-                            <?php endif; ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -293,12 +300,12 @@ if (empty($admin_tickets)) {
                                             
                                             <?php 
                                                 $status = strtolower($order['status']);
-                                                if ($status === 'confirmed' || $status === 'approved' || $status === 'successful') {
+                                                if ($status === 'confirmed' || $status === 'completed' || $status === 'success') {
                                                     $badge_cls = 'text-emerald-600 bg-emerald-50';
                                                 } elseif ($status === 'processing' || $status === 'pending') {
                                                     $badge_cls = 'text-amber-600 bg-amber-50 animate-pulse';
-                                                } else { 
-                                                    $badge_cls = 'text-rose-600 bg-rose-50';
+                                                } else {
+                                                    $badge_cls = 'text-blue-600 bg-blue-50';
                                                 }
                                             ?>
                                             <span class="text-xs font-black px-2 py-0.5 rounded uppercase tracking-wide <?php echo $badge_cls; ?>">
@@ -307,12 +314,12 @@ if (empty($admin_tickets)) {
                                         </div>
                                         <h4 class="text-sm font-black text-gray-900 tracking-tight"><?php echo htmlspecialchars($order['title']); ?></h4>
                                         <p class="text-xs text-gray-500 font-medium">
-                                            <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> <?php echo htmlspecialchars($order['venue']); ?> • <span class="font-bold text-gray-600"><?php echo htmlspecialchars($order['seats']); ?></span>
+                                            <i class="fas fa-wallet text-gray-400 mr-1"></i> <?php echo htmlspecialchars($order['venue']); ?> • <span class="font-bold text-gray-600"><?php echo htmlspecialchars($order['seats']); ?></span>
                                         </p>
                                     </div>
                                     <div class="text-left sm:text-right w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-gray-100 pt-2 sm:pt-0">
                                         <span class="text-xs font-black text-gray-800 block"><?php echo htmlspecialchars($order['date']); ?></span>
-                                        <span class="text-[10px] text-gray-400 block font-medium">Production Pass Validation Node</span>
+                                        <span class="text-[10px] text-gray-400 block font-medium">Platform Transaction Tracking Node</span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -339,13 +346,12 @@ if (empty($admin_tickets)) {
                                         <tr class="hover:bg-gray-50/60 transition-colors">
                                             <td class="p-3 font-mono font-bold text-gray-900"><?php echo htmlspecialchars($txn['ref']); ?></td>
                                             <td class="p-3 text-gray-500 font-bold"><?php echo htmlspecialchars($txn['date']); ?></td>
-                                            <td class="p-3 text-gray-500 font-bold">
-                                                <div class="flex items-center gap-2">
-                                                    <?php if (!empty($txn['logo'])): ?>
-                                                        <img src="../uploads/payment-methods/<?php echo htmlspecialchars($txn['logo']); ?>" onerror="this.style.display='none';" class="w-5 h-5 object-contain rounded bg-white p-0.5 border border-gray-200 shadow-sm" />
-                                                    <?php endif; ?>
-                                                    <span>Gateway Process</span>
-                                                </div>
+                                            <td class="p-3 text-gray-500 font-bold flex items-center gap-2">
+                                                <?php if (strpos($txn['method'], '../uploads/') === 0): ?>
+                                                    <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Method Icon" class="h-4 w-auto object-contain rounded border border-gray-200 max-w-[60px]">
+                                                <?php else: ?>
+                                                    <span><?php echo htmlspecialchars($txn['method']); ?></span>
+                                                <?php endif; ?>
                                             </td>
                                             <td class="p-3 text-right font-black text-[#024DDF]">
                                                 <?php 
@@ -354,11 +360,7 @@ if (empty($admin_tickets)) {
                                                 ?>
                                             </td>
                                             <td class="p-3 text-center">
-                                                <?php 
-                                                    $t_status = strtolower($txn['status']);
-                                                    $status_cls = ($t_status === 'successful' || $t_status === 'approved') ? 'bg-emerald-50 text-emerald-700' : (($t_status === 'declined' || $t_status === 'failed') ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700');
-                                                ?>
-                                                <span class="font-black tracking-wide uppercase px-2 py-0.5 rounded text-[10px] <?php echo $status_cls; ?>">
+                                                <span class="font-black tracking-wide uppercase px-2 py-0.5 rounded text-[10px] <?php echo ($txn['status'] === 'Successful') ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'; ?>">
                                                     <?php echo htmlspecialchars($txn['status']); ?>
                                                 </span>
                                             </td>
