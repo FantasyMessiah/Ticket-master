@@ -9,7 +9,7 @@ $message = '';
 $error   = '';
 
 /* --------------------------------------------------
-   FETCH ALL DEPOSITS WITH USER & METHOD DETAILS
+    FETCH ALL DEPOSITS WITH USER & METHOD DETAILS
 -------------------------------------------------- */
 try {
     $stmt = $pdo->query("
@@ -30,7 +30,7 @@ try {
 }
 
 /* --------------------------------------------------
-   HANDLE ACTIONS
+    HANDLE ACTIONS
 -------------------------------------------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 
@@ -79,6 +79,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     }
 }
 ?>
+
+<style>
+/* CSS styles for the Order Details Modal Context */
+.order-map-link {
+    color: #60a5fa; 
+    text-decoration: underline; 
+    cursor: pointer;
+    font-weight: bold;
+}
+.order-map-link:hover {
+    color: #93c5fd;
+}
+
+.details-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.details-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.details-modal-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 550px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    color: #f3f4f6;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+.details-modal-overlay.active .details-modal-card {
+    transform: translateY(0);
+}
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+}
+.modal-close-btn:hover {
+    color: #ffffff;
+}
+.modal-title {
+    margin-top: 0;
+    border-bottom: 1px solid #374151;
+    padding-bottom: 10px;
+    font-size: 1.25rem;
+    color: #ffffff;
+}
+.modal-section {
+    margin: 15px 0;
+}
+.modal-section h4 {
+    margin: 0 0 8px 0;
+    color: #9ca3af;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+.info-grid {
+    background: #111827;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.info-row:last-child {
+    margin-bottom: 0;
+}
+.info-label {
+    color: #9ca3af;
+}
+.info-value {
+    font-weight: 600;
+}
+</style>
 
 <main>
 
@@ -142,8 +242,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
         <small style="color:#aaa;font-size:11px;text-transform:uppercase;"><?= htmlspecialchars($deposit['country'] ?? 'Unknown Reg') ?></small>
     </td>
 
-    <td style="padding:12px;font-family:monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?= htmlspecialchars($deposit['order_ids']) ?>">
-        <?= htmlspecialchars($deposit['order_ids']) ?>
+    <td style="padding:12px;font-family:monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to view full detail mappings">
+        <?php if (!empty($deposit['order_ids'])): ?>
+            <span class="order-map-link class-trigger-modal" data-order-id="<?= htmlspecialchars($deposit['order_ids']) ?>">
+                <?= htmlspecialchars($deposit['order_ids']) ?>
+            </span>
+        <?php else: ?>
+            <span style="color:#666;">N/A</span>
+        <?php endif; ?>
     </td>
 
     <td style="padding:12px;font-weight:bold;color:#34d399;">
@@ -255,5 +361,133 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 </div>
 
 </main>
+
+<div id="orderMapModal" class="details-modal-overlay">
+    <div class="details-modal-card">
+        <button type="button" class="modal-close-btn" id="closeModalBtn">&times;</button>
+        <h3 class="modal-title">Order Mappings Reference</h3>
+        
+        <div class="modal-section">
+            <h4>Client Base Information</h4>
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-label">Full Name:</span>
+                    <span class="info-value" id="modalUserFullName">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email Address:</span>
+                    <span class="info-value" id="modalUserEmail">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <h4>Purchased Ticket Details</h4>
+            <div class="info-grid">
+                <div class="info-row">
+                    <span class="info-label">Order Link ID:</span>
+                    <span class="info-value" id="modalTicketId">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Event Target:</span>
+                    <span class="info-value" id="modalEventTitle">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tier Type:</span>
+                    <span class="info-value" id="modalTicketType">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Quantity:</span>
+                    <span class="info-value" id="modalTicketQty">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total Volume Cost:</span>
+                    <span class="info-value" style="color:#34d399;" id="modalTicketPrice">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Workflow Status:</span>
+                    <span class="info-value" id="modalTicketStatus">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Logged Timestamp:</span>
+                    <span class="info-value" id="modalTicketDate">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('orderMapModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+    
+    // Elements to update dynamic content
+    const nameEl = document.getElementById('modalUserFullName');
+    const emailEl = document.getElementById('modalUserEmail');
+    const idEl = document.getElementById('modalTicketId');
+    const eventEl = document.getElementById('modalEventTitle');
+    const typeEl = document.getElementById('modalTicketType');
+    const qtyEl = document.getElementById('modalTicketQty');
+    const priceEl = document.getElementById('modalTicketPrice');
+    const statusEl = document.getElementById('modalTicketStatus');
+    const dateEl = document.getElementById('modalTicketDate');
+
+    // Attach click listeners to all Order Map links
+    document.querySelectorAll('.class-trigger-modal').forEach(link => {
+        link.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            
+            // Set loading state visuals before calling API
+            nameEl.textContent = 'Fetching mapping details...';
+            emailEl.textContent = 'Fetching mapping details...';
+            idEl.textContent = '#'+orderId;
+            eventEl.textContent = '-';
+            typeEl.textContent = '-';
+            qtyEl.textContent = '-';
+            priceEl.textContent = '-';
+            statusEl.textContent = '-';
+            dateEl.textContent = '-';
+            
+            // Activate the Modal window opacity wrapper
+            modal.classList.add('active');
+            
+            // Execute non-blocking backend payload fetch
+            fetch(`get_order_details.php?order_id=${encodeURIComponent(orderId)}`)
+                .then(response => response.json())
+                .then(res => {
+                    if(res.success) {
+                        const d = res.data;
+                        nameEl.textContent = d.full_name ? d.full_name : 'N/A';
+                        emailEl.textContent = d.email ? d.email : 'N/A';
+                        idEl.textContent = '# ' + d.ticket_id;
+                        eventEl.textContent = d.event_title ? d.event_title : 'N/A';
+                        typeEl.textContent = d.ticket_type ? d.ticket_type.toUpperCase() : 'N/A';
+                        qtyEl.textContent = d.quantity;
+                        priceEl.textContent = '$' + parseFloat(d.total_price).toFixed(2);
+                        statusEl.textContent = d.ticket_status ? d.ticket_status.toUpperCase() : 'PENDING';
+                        dateEl.textContent = d.purchase_date;
+                    } else {
+                        nameEl.textContent = 'Error occurred';
+                        emailEl.textContent = res.message;
+                    }
+                })
+                .catch(err => {
+                    nameEl.textContent = 'Failed to fetch tracking data.';
+                    emailEl.textContent = err.message;
+                });
+        });
+    });
+
+    // Close handler event bindings
+    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+});
+</script>
 
 <?php require_once __DIR__ . '/inc/footer.php'; ?>
