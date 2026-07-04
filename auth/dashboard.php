@@ -40,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (!empty($full_name) && !empty($email_address)) {
         try {
             if ($pdo !== null) {
-                // Modified target column mapping explicitly to 'fullname' per specifications
-                $update_stmt = $pdo->prepare("UPDATE users SET fullname = ?, email = ?, phone = ? WHERE id = ?");
+                // Modified target column mapping explicitly to 'full_name' per specifications
+                $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?");
                 $update_stmt->execute([$full_name, $email_address, $phone_number, $user_id]);
             }
             $success_message = "Account information configurations updated successfully.";
@@ -77,12 +77,12 @@ $admin_tickets = [
 if ($pdo !== null) {
     try {
         // 1. UPDATE: Account Portfolio Member Card Resource Loader
-        $user_stmt = $pdo->prepare("SELECT fullname, email, phone FROM users WHERE id = ? LIMIT 1");
+        $user_stmt = $pdo->prepare("SELECT full_name, email, phone FROM users WHERE id = ? LIMIT 1");
         $user_stmt->execute([$user_id]);
         $fetched_user = $user_stmt->fetch();
         if ($fetched_user) {
             $user_profile = [
-                'name'  => $fetched_user['fullname'] ?? 'N/A',
+                'name'  => $fetched_user['full_name'] ?? 'N/A',
                 'email' => $fetched_user['email'] ?? 'N/A',
                 'phone' => $fetched_user['phone'] ?? 'N/A'
             ];
