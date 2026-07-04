@@ -81,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 ?>
 
 <style>
-/* CSS styles for the Order Details Modal Context */
 .order-map-link {
     color: #60a5fa; 
     text-decoration: underline; 
@@ -242,9 +241,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
         <small style="color:#aaa;font-size:11px;text-transform:uppercase;"><?= htmlspecialchars($deposit['country'] ?? 'Unknown Reg') ?></small>
     </td>
 
-    <td style="padding:12px;font-family:monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="Click to view full detail mappings">
+    <td style="padding:12px;font-family:monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
         <?php if (!empty($deposit['order_ids'])): ?>
-            <span class="order-map-link class-trigger-modal" data-order-id="<?= htmlspecialchars($deposit['order_ids']) ?>">
+            <span class="order-map-link class-trigger-modal" 
+                  data-deposit-id="<?= htmlspecialchars($deposit['deposit_id']) ?>" 
+                  data-order-id="<?= htmlspecialchars($deposit['order_ids']) ?>">
                 <?= htmlspecialchars($deposit['order_ids']) ?>
             </span>
         <?php else: ?>
@@ -422,7 +423,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('orderMapModal');
     const closeBtn = document.getElementById('closeModalBtn');
     
-    // Elements to update dynamic content
     const nameEl = document.getElementById('modalUserFullName');
     const emailEl = document.getElementById('modalUserEmail');
     const idEl = document.getElementById('modalTicketId');
@@ -433,15 +433,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusEl = document.getElementById('modalTicketStatus');
     const dateEl = document.getElementById('modalTicketDate');
 
-    // Attach click listeners to all Order Map links
     document.querySelectorAll('.class-trigger-modal').forEach(link => {
         link.addEventListener('click', function() {
+            const depositId = this.getAttribute('data-deposit-id');
             const orderId = this.getAttribute('data-order-id');
             
-            // Set loading state visuals before calling API
-            nameEl.textContent = 'Fetching mapping details...';
-            emailEl.textContent = 'Fetching mapping details...';
-            idEl.textContent = '#'+orderId;
+            nameEl.textContent = 'Searching records...';
+            emailEl.textContent = 'Searching records...';
+            idEl.textContent = '#' + orderId;
             eventEl.textContent = '-';
             typeEl.textContent = '-';
             qtyEl.textContent = '-';
@@ -449,39 +448,36 @@ document.addEventListener('DOMContentLoaded', function() {
             statusEl.textContent = '-';
             dateEl.textContent = '-';
             
-            // Activate the Modal window opacity wrapper
             modal.classList.add('active');
             
-            // Execute non-blocking backend payload fetch
-            fetch(`get_order_details.php?order_id=${encodeURIComponent(orderId)}`)
+            // Query by explicitly passing the deposit reference context to resolve IDs safely
+            fetch(`get_order_details.php?deposit_id=${depositId}&order_id=${encodeURIComponent(orderId)}`)
                 .then(response => response.json())
                 .then(res => {
                     if(res.success) {
                         const d = res.data;
-                        nameEl.textContent = d.full_name ? d.full_name : 'N/A';
-                        emailEl.textContent = d.email ? d.email : 'N/A';
+                        nameEl.textContent = d.full_name;
+                        emailEl.textContent = d.email;
                         idEl.textContent = '# ' + d.ticket_id;
-                        eventEl.textContent = d.event_title ? d.event_title : 'N/A';
+                        eventEl.textContent = d.event_title;
                         typeEl.textContent = d.ticket_type ? d.ticket_type.toUpperCase() : 'N/A';
                         qtyEl.textContent = d.quantity;
                         priceEl.textContent = '$' + parseFloat(d.total_price).toFixed(2);
                         statusEl.textContent = d.ticket_status ? d.ticket_status.toUpperCase() : 'PENDING';
                         dateEl.textContent = d.purchase_date;
                     } else {
-                        nameEl.textContent = 'Error occurred';
+                        nameEl.textContent = 'Data Not Setup';
                         emailEl.textContent = res.message;
                     }
                 })
                 .catch(err => {
-                    nameEl.textContent = 'Failed to fetch tracking data.';
+                    nameEl.textContent = 'Execution Failure';
                     emailEl.textContent = err.message;
                 });
         });
     });
 
-    // Close handler event bindings
     closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    
     window.addEventListener('click', function(e) {
         if (e.target === modal) {
             modal.classList.remove('active');
