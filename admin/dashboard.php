@@ -163,7 +163,7 @@ border:1px solid #30363d;
 
     <div class="card">
         <div class="card-icon" style="color:#a59c64;">
-            <i class="fas fa-deposits"></i>
+            <i class="fas fa-money-bill-wave"></i>
         </div>
         <div class="card-value"><?= number_format($total_deposits) ?></div>
         <div class="card-label">Deposits</div>
@@ -226,7 +226,7 @@ Management Sections
     </a>
 
     <a href="manage-deposits.php" class="btn">
-        <i class="fas fa-deposits"></i> Manage Deposits
+        <i class="fas fa-money-bill-wave"></i> Manage Deposits
     </a>
 
     <a href="manage-artists.php" class="btn">
