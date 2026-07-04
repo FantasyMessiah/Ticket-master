@@ -54,6 +54,10 @@ try {
     /* NEW: region_settings count */
     $stmt = $pdo->query("SELECT COUNT(*) FROM region_settings");
     $total_region_settings = (int)$stmt->fetchColumn();
+
+        /* NEW: tickets count */
+    $stmt = $pdo->query("SELECT COUNT(*) FROM deposits");
+    $total_deposits = (int)$stmt->fetchColumn();
     
 } catch (PDOException $e) {
 
@@ -67,6 +71,7 @@ try {
     $total_tickets = 0;
     $total_payments_methods = 0;
     $total_region_settings = 0;
+    $total_deposits = 0;
 }
 ?>
 
@@ -157,6 +162,14 @@ border:1px solid #30363d;
     </div>
 
     <div class="card">
+        <div class="card-icon" style="color:#a59c64;">
+            <i class="fas fa-deposits"></i>
+        </div>
+        <div class="card-value"><?= number_format($total_deposits) ?></div>
+        <div class="card-label">Deposits</div>
+    </div>
+
+    <div class="card">
         <div class="card-icon" style="color:#ff7b72;">
             <i class="fas fa-microphone"></i>
         </div>
@@ -210,6 +223,10 @@ Management Sections
 
     <a href="manage-users.php" class="btn">
         <i class="fas fa-users"></i> Manage Users
+    </a>
+
+    <a href="manage-deposits.php" class="btn">
+        <i class="fas fa-deposits"></i> Manage Deposits
     </a>
 
     <a href="manage-artists.php" class="btn">
