@@ -8,30 +8,17 @@ if (ob_get_length()) ob_clean();
 header('Content-Type: application/json; charset=utf-8');
 
 // 3. DATABASE INITIALIZATION
-// NOTE: If /inc/header.php prints standard page layouts (HTML structure/navbars), 
-// DO NOT use it here. Instead, instantiate the PDO connection cleanly as done below:
 try {
-    // If you have a separate standalone database configuration file, uncomment the line below:
-    // require_once __DIR__ . '/inc/db_connect.php'; 
+    // Dynamically include your centralized database core configurations file
+    require_once __DIR__ . '/../config/db.php'; 
     
-    // Otherwise, initialize the connection inline or match your setup properties:
-    if (!isset($pdo)) {
-        $host = 'localhost'; // Update with your actual host if different
-        $db   = 'if0_42273705_ticket2';
-        $user = 'root';        // Update with your database username
-        $pass = '';            // Update with your database password
-        $charset = 'utf8mb4';
-
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-        $pdo = new PDO($dsn, $user, $pass, $options);
+    // Safety check: Validate if the $pdo variable exists post inclusion
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        echo json_encode(['success' => false, 'message' => 'Database connection state instance missing ($pdo variable not defined in db.php).']);
+        exit;
     }
-} catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Failed loading configuration architecture: ' . $e->getMessage()]);
     exit;
 }
 
@@ -41,6 +28,7 @@ if (!isset($_GET['order_ids']) || empty(trim($_GET['order_ids']))) {
     exit;
 }
 
+// Extract and normalize array keys safely
 $orderIdsArray = array_filter(array_map('intval', explode(',', $_GET['order_ids'])));
 
 if (empty($orderIdsArray)) {
@@ -48,7 +36,7 @@ if (empty($orderIdsArray)) {
     exit;
 }
 
-// 5. QUERY AND PROCESS DATA
+// 5. QUERY AND PROCESS RELATIONAL DATA
 try {
     $placeholders = implode(',', array_fill(0, count($orderIdsArray), '?'));
     
@@ -85,16 +73,18 @@ try {
     $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($records)) {
-        echo json_encode(['success' => false, 'message' => 'No matching data logs found in database.']);
+        echo json_encode(['success' => false, 'message' => 'No matching active order maps found in database logs.']);
         exit;
     }
 
+    // Capture User Info profile metrics from first indexed trace row 
     $userData = [
         'full_name' => $records[0]['full_name'] ?? 'N/A',
         'email'     => $records[0]['email'] ?? 'N/A',
         'country'   => $records[0]['country'] ?? 'N/A'
     ];
 
+    // Reassemble standard items dictionary list grouping elements independently
     $items = [];
     foreach ($records as $row) {
         $items[] = [
@@ -124,6 +114,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database exception occurred: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Database SQL execution exception: ' . $e->getMessage()]);
 }
 exit;
