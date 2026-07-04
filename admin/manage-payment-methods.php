@@ -35,10 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             $error_msg = trim($_POST['error_msg'] ?? '');
             $is_active = $_POST['is_active'] ?? 'yes';
 
-            if (!in_array($type, ['bank', 'gift_card', 'crypto'])) {
+            if (!in_array($type, ['bank', 'gift_card', 'crypto', 'e_pay'])) {
                 throw new Exception("Invalid payment type.");
             }
-
+           
             if (!in_array($is_active, ['yes', 'no'])) {
                 $is_active = 'yes';
             }
@@ -156,8 +156,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 </td>
 
 <td style="padding:12px;">
-    <?= ucfirst(htmlspecialchars($payment['type'])) ?>
-</td>
+   <?= match ($payment['type']) {
+       'gift_card' => 'Gift Card',
+       'bank' => 'Bank',
+       'e_pay' => 'E-Pay',
+       'crypto' => 'Crypto',
+       default => ucfirst(htmlspecialchars($payment['type']))
+   } ?>
+   </td>
 
 <td style="padding:12px;max-width:300px;">
     <?= htmlspecialchars(mb_strimwidth($payment['error_msg'],0,60,'...')) ?>
@@ -245,6 +251,7 @@ style="width:100%;padding:.7rem;margin-bottom:1rem;">
 <option value="bank">Bank</option>
 <option value="gift_card">Gift Card</option>
 <option value="crypto">Crypto</option>
+<option value="e_pay">E-Pay</option>
 
 </select>
 
