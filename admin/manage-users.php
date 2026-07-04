@@ -204,10 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             type="button"
             class="btn"
             style="padding:6px 10px;font-size:13px;margin-left:5px;background:#2563eb;"
-            onclick="notifyUser(
-                <?= $user['id'] ?>,
-                <?= json_encode($user['message'] ?? '') ?>
-            )">
+            data-id="<?= $user['id'] ?>"
+            data-message="<?= htmlspecialchars($user['message'] ?? '', ENT_QUOTES) ?>"
+            onclick="notifyUser(this)">
             Notify
         </button>
 
@@ -341,15 +340,18 @@ function closeModal(){
     document.getElementById('userModal').style.display='none';
 }
 
-function notifyUser(id, message){
+function notifyUser(button) {
 
-    document.getElementById('notifyUserId').value = id;
-    document.getElementById('notifyMessage').value = message || '';
+    document.getElementById('notifyUserId').value =
+        button.dataset.id;
+
+    document.getElementById('notifyMessage').value =
+        button.dataset.message || '';
 
     document.getElementById('notifyModal').style.display = 'block';
 }
 
-function closeNotifyModal(){
+function closeNotifyModal() {
     document.getElementById('notifyModal').style.display = 'none';
 }
    
