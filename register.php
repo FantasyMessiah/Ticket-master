@@ -64,42 +64,15 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 /* -------------------------
-   REDIRECT RESOLUTION HELPER
+   CHECK EXISTING USER
 --------------------------*/
-// Extracted logic into a reusable block to keep code DRY since both paths redirect to the same targets
-$getRedirectUrl = function() {
-    if (!empty($_POST['redirect'])) {
-        return $_POST['redirect'];
-    } else if (!empty($_SESSION["redirect_after_auth"])) {
-        return $_SESSION["redirect_after_auth"];
-    } else {
-        return "auth/dashboard.php";
-    }
-};
-
-/* -------------------------
-   CHECK EXISTING USER & LOG IN
---------------------------*/
-$stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE email = ? LIMIT 1");
+$stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->execute([$email]);
-$existing_user = $stmt->fetch();
 
-if ($existing_user) {
-    // Verify password before authorizing the automatic fallback login
-    if (password_verify($password, $existing_user['password_hash'])) {
-        $_SESSION["user_id"] = $existing_user['id'];
-        $_SESSION["email"] = $email;
-        
-        $redirect = $getRedirectUrl();
-        unset($_SESSION["redirect_after_auth"]);
-        
-        header("Location: " . $redirect);
-        exit;
-    } else {
-        $_SESSION['auth_error'] = "This email address is already registered, but the password entered is incorrect.";
-        header("Location: auth.php");
-        exit;
-    }
+if ($stmt->fetch()) {
+    $_SESSION['auth_error'] = "This email address is already registered.";
+    header("Location: auth.php");
+    exit;
 }
 
 /* -------------------------
@@ -128,12 +101,22 @@ $stmt->execute([
 $user_id = $pdo->lastInsertId();
 
 /* -------------------------
-   AUTO LOGIN FOR NEW REGISTRANTS
+   AUTO LOGIN
 --------------------------*/
 $_SESSION["user_id"] = $user_id;
 $_SESSION["email"] = $email;
 
-$redirect = $getRedirectUrl();
+/* -------------------------
+   REDIRECT LOGIC (Hierarchical Safeguard)
+--------------------------*/
+if (!empty($_POST['redirect'])) {
+    $redirect = $_POST['redirect'];
+} else if (!empty($_SESSION["redirect_after_auth"])) {
+    $redirect = $_SESSION["redirect_after_auth"];
+} else {
+    $redirect = "auth/dashboard.php"; // Fixed path to match subdirectory configuration
+}
+
 unset($_SESSION["redirect_after_auth"]);
 
 header("Location: " . $redirect);
