@@ -44,9 +44,10 @@ if (!empty($search_query) && $pdo !== null) {
                        LIMIT 10";
         $artist_stmt = $pdo->prepare($artist_sql);
         $artist_stmt->execute([$wildcard_param, $search_query]);
-        $matched_artists = $artist_stmt->fetchAll();
+        $matched_artists = $artist_stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Query 2: Smart Event Matching across Titles, Venues, Locations, and Dates
+        // Query 2: FIXED Smart Event Matching across Titles, Venues, Locations, and Dates
+        // Grouped the OR statements in parentheses so it doesn't break the INNER JOIN logic
         $event_sql = "
         SELECT
             c.*,
@@ -55,56 +56,56 @@ if (!empty($search_query) && $pdo !== null) {
         FROM concerts c
         INNER JOIN artists a
             ON c.artist_id = a.artist_id
-        WHERE
-              LOWER(a.artist_name) LIKE ?
-           OR LOWER(c.title) LIKE ?
-           OR LOWER(c.venue) LIKE ?
-           OR SOUNDEX(a.artist_name) = SOUNDEX(?)
-           OR SOUNDEX(c.title) = SOUNDEX(?)
-           OR SOUNDEX(c.venue) = SOUNDEX(?)
+        WHERE (
+             LOWER(a.artist_name) LIKE ?
+          OR LOWER(c.title) LIKE ?
+          OR LOWER(c.venue) LIKE ?
+          OR LOWER(c.location) LIKE ?
+          OR SOUNDEX(a.artist_name) = SOUNDEX(?)
+          OR SOUNDEX(c.title) = SOUNDEX(?)
+          OR SOUNDEX(c.venue) = SOUNDEX(?)
+          OR SOUNDEX(c.location) = SOUNDEX(?)
+        )
         ORDER BY c.concert_date DESC
         LIMIT 20
         ";
-                              
+                     
         $event_stmt = $pdo->prepare($event_sql);
         
         $event_stmt->execute([
             $wildcard_param,   // artist_name
             $wildcard_param,   // title
             $wildcard_param,   // venue
-            $search_query,
-            $search_query,
-            $search_query
+            $wildcard_param,   // location
+            $search_query,     // soundex artist_name
+            $search_query,     // soundex title
+            $search_query,     // soundex venue
+            $search_query      // soundex location
         ]);
 
-$matched_events = $event_stmt->fetchAll(PDO::FETCH_ASSOC);
+        $matched_events = $event_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/* --------------------------------------------
-   SAVE SEARCH HISTORY
----------------------------------------------*/
-try {
+        /* --------------------------------------------
+           SAVE SEARCH HISTORY
+        ---------------------------------------------*/
+        try {
+            $user_id = $_SESSION['user_id'] ?? null;
+            $result_count = count($matched_artists) + count($matched_events);
 
-    // Adjust this session key if yours is different
-    $user_id = $_SESSION['user_id'] ?? null;
+            $save = $pdo->prepare("
+                INSERT INTO user_searches
+                (user_id, search, result)
+                VALUES (?, ?, ?)
+            ");
 
-    // Total search results
-    $result_count = count($matched_artists) + count($matched_events);
-
-    $save = $pdo->prepare("
-        INSERT INTO user_searches
-        (user_id, search, result)
-        VALUES (?, ?, ?)
-    ");
-
-    $save->execute([
-        $user_id,
-        $search_query,
-        $result_count
-    ]);
-
-} catch (Exception $e) {
-    // Never stop the search page if logging fails
-}
+            $save->execute([
+                $user_id,
+                $search_query,
+                $result_count
+            ]);
+        } catch (Exception $e) {
+            // Never stop the search page if logging fails
+        }
         
     } catch (Exception $e) {
         // Query fallback container protection
@@ -196,7 +197,7 @@ $top_searches_list = [
                                 
                                 <a href="events.php?artist_id=<?php echo $artist['artist_id']; ?>" 
                                    class="mt-3 text-[11px] font-bold text-white bg-[#024DDF] hover:bg-blue-800 px-3 py-1.5 rounded-md transition-all uppercase tracking-wider w-full text-center block shadow-sm">
-                                    View Artist
+                                     View Artist
                                 </a>
                             </div>
                         <?php endforeach; ?>
@@ -217,14 +218,14 @@ $top_searches_list = [
                 <?php if (!empty($matched_events)): ?>
                     <div class="space-y-4">
                         <?php foreach ($matched_events as $event): 
-                            // Pull localized values or reference safe fallback presentations strings
                             $timestamp = strtotime($event['concert_date']);
                             
                             $month_val = date('M', $timestamp);
                             $day_num_val = date('d', $timestamp);
                             $day_name_val = date('D', $timestamp);
                             
-                            $time_val = $event['day_time'];
+                            // Correct dynamic assignment key mapping for day time string properties
+                            $time_val = $event['day_time'] ?? '00:00';
                         ?>
                             <div class="bg-white border border-gray-200 rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 
