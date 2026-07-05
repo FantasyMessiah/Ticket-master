@@ -4,6 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// FIXED: Corrected path traversal reference from '../config/db.php' to 'config/db.php'
+require_once 'config/db.php';
+
 $pdo = null;
 try {
     if (class_exists('Database')) {
@@ -47,7 +50,6 @@ if (!empty($search_query) && $pdo !== null) {
         $matched_artists = $artist_stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Query 2: FIXED Smart Event Matching across Titles, Venues, Locations, and Dates
-        // Grouped the OR statements in parentheses so it doesn't break the INNER JOIN logic
         $event_sql = "
         SELECT
             c.*,
@@ -224,7 +226,6 @@ $top_searches_list = [
                             $day_num_val = date('d', $timestamp);
                             $day_name_val = date('D', $timestamp);
                             
-                            // Correct dynamic assignment key mapping for day time string properties
                             $time_val = $event['day_time'] ?? '00:00';
                         ?>
                             <div class="bg-white border border-gray-200 rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6">
