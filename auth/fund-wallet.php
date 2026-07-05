@@ -77,9 +77,9 @@ $convertedTotal = $input_amount * $displayRate;
 // FETCH PAYMENT METHODS WHERE redirect_link = 'no'
 // ---------------------------------------------
 $stmt = $pdo->prepare("
-    SELECT payment_id, image_path, error_msg, is_active, redirect, redirect_link 
+    SELECT payment_id, image_path, error_msg, is_active, redirect
     FROM payment_methods 
-    WHERE redirect_link = 'no'
+    WHERE redirect = 'no'
     ORDER BY payment_id ASC
 ");
 $stmt->execute();
