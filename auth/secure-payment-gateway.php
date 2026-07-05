@@ -135,10 +135,11 @@ foreach ($all_orders as $order) {
 }
 
 // Region & Exchange Rate adjustments
-$stmt = $pdo->prepare("SELECT country FROM users WHERE id = ? LIMIT 1");
+$stmt = $pdo->prepare("SELECT country, balance FROM users WHERE id = ? LIMIT 1");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 $user_country = trim($user['country'] ?? '');
+$user_balance = (float)($user['balance'] ?? 0.00);
 
 $stmt = $pdo->prepare("SELECT exchange_rates FROM region_settings WHERE country = ? LIMIT 1");
 $stmt->execute([$user_country]);
@@ -152,10 +153,78 @@ $symbols = ['USD'=>'$', 'EUR'=>'€', 'GBP'=>'£', 'NGN'=>'₦', 'CAD'=>'C$', 'A
 $displaySymbol = $symbols[$displayCurrency] ?? '$';
 
 // ---------------------------------------------
-// POST FORM HANDLING & SAVING DEPOSIT
+// INTERCEPT: PAY WITH WALLET BALANCE
+// ---------------------------------------------
+$isBalancePayment = isset($_GET['pay-with-balance']) && (int)$_GET['pay-with-balance'] === 1;
+
+if ($isBalancePayment) {
+    // 1. Check if the user has enough money in their balance
+    if ($user_balance < $final_payable_amount) {
+        $_SESSION['flash_error'] = "Inadequate account balance. You require an additional " . $displaySymbol . number_format(($final_payable_amount - $user_balance), 2) . " to clear this checkout sequence.";
+        header("Location: fund-wallet.php");
+        exit;
+    }
+
+    // 2. Process immediate checkout if confirmation is POSTed
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_balance_payment'])) {
+        try {
+            $pdo->beginTransaction();
+
+            // Deduct funds from user profile
+            $deductStmt = $pdo->prepare("UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?");
+            $deductStmt->execute([$final_payable_amount, $user_id, $final_payable_amount]);
+
+            if ($deductStmt->rowCount() === 0) {
+                throw new Exception("Account mutation safety locks tripped. Balance update declined.");
+            }
+
+            // Log successful balance payment event straight into deposits ledger
+            $order_ids_string = implode(',', $order_ids);
+            $logDeposit = $pdo->prepare("
+                INSERT INTO deposits (user_id, payment_id, order_ids, amount, currency, payment_type, submitted_details, proof_file, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'Wallet Deduction Balance', 'approved')
+            ");
+            $logDeposit->execute([
+                $user_id,
+                $payment_id,
+                $order_ids_string,
+                $final_payable_amount,
+                $displayCurrency,
+                'wallet_balance',
+                json_encode(['payment_type' => 'account_balance_deduction'])
+            ]);
+
+            // Shift statuses directly from 'pending' to 'paid' (since balance settlement is instant)
+            $updatePlaceholders = implode(',', array_fill(0, count($order_ids), '?'));
+            $updateStmt = $pdo->prepare("
+                UPDATE orders 
+                SET status = 'paid' 
+                WHERE order_id IN ($updatePlaceholders) AND user_id = ?
+            ");
+            $updateParams = array_merge($order_ids, [$user_id]);
+            $updateStmt->execute($updateParams);
+
+            $pdo->commit();
+            unset($_SESSION['checkout_order_ids']);
+            
+            $_SESSION['flash_success'] = "Order settled completely using your wallet balance! Your passes are active.";
+            header("Location: dashboard");
+            exit;
+
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $errors[] = "Balance checkout failure: " . $e->getMessage();
+        }
+    }
+}
+
+// ---------------------------------------------
+// POST FORM HANDLING & SAVING DEPOSIT (TRADITIONAL MANUALLY PROVED ROUTE)
 // ---------------------------------------------
 $errors = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
     $submittedData = [];
     
     // Capture data dynamically depending on the payment type
@@ -279,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="bg-gradient-to-r from-blue-800 to-indigo-900 p-8 text-white flex items-center justify-between">
             <div>
                 <span class="text-xs uppercase font-bold tracking-widest bg-white/20 px-3 py-1 rounded-full">Secure Payment Hub</span>
-                <h1 class="text-3xl font-black mt-2">Gateway Validation</h1>
+                <h1 class="text-3xl font-black mt-2"><?= $isBalancePayment ? "Wallet Debit Confirmation" : "Gateway Validation" ?></h1>
             </div>
             <img src="<?php echo $payment_logo; ?>" alt="Payment Method Logo" class="h-16 w-auto object-contain bg-white/10 p-2 rounded-xl">
         </div>
@@ -294,151 +363,184 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-6 mb-8">
-                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2 mb-2">
-                    <i class="fas fa-info-circle text-blue-600"></i> Payment Instructions
-                </h3>
-                <p class="text-slate-700 whitespace-pre-line leading-relaxed"><?php echo htmlspecialchars($instructions); ?></p>
-            </div>
-
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
-                <h3 class="font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 text-sm uppercase tracking-wider">Send Funds to the Following Target Account</h3>
-                
-                <?php if ($payment_type === 'gift_card'): ?>
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Acceptable Card Asset Class</span>
-                            <span class="text-lg font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['card_name']); ?></span>
-                        </div>
-                        <div class="shrink-0">
-                            <a href="../giftcard" 
-                               target="_blank" 
-                               class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-sm transition-all focus:outline-none">
-                                <i class="fas fa-shopping-bag text-[11px]"></i> Buy Giftcard Guide <i class="fas fa-external-link-alt text-[10px] text-slate-400"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                <?php elseif ($payment_type === 'bank'): ?>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Bank Name</span>
-                            <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['bank_name']); ?></span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Account Name</span>
-                            <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['account_name']); ?></span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Account Number</span>
-                            <span class="text-base font-mono font-bold text-blue-700 select-all"><?php echo htmlspecialchars($gatewayDetails['account_number']); ?></span>
-                        </div>
-                    </div>
-
-                <?php elseif ($payment_type === 'crypto'): ?>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Digital Currency Asset</span>
-                            <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['coin']); ?></span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Network Chain Mapping</span>
-                            <span class="text-xs font-bold inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-800 uppercase mt-1"><?php echo htmlspecialchars($gatewayDetails['chain']); ?></span>
-                        </div>
-                        <div class="md:col-span-3">
-                            <span class="text-xs text-slate-400 block font-medium">Wallet Address Destination</span>
-                            <span class="text-sm font-mono font-bold text-indigo-700 block break-all select-all mt-1 bg-white p-3 border border-slate-200 rounded-xl"><?php echo htmlspecialchars($gatewayDetails['address']); ?></span>
-                        </div>
-                    </div>
-
-                <?php elseif ($payment_type === 'e_pay'): ?>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Digital E-Pay Platform Platform</span>
-                            <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['method_name']); ?></span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block font-medium">Merchant Address Alias (Email/Phone)</span>
-                            <span class="text-base font-mono font-bold text-blue-700 select-all"><?php echo htmlspecialchars($gatewayDetails['email_phone']); ?></span>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <form method="POST" action="" enctype="multipart/form-data" class="space-y-6">
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 class="font-bold text-slate-900 text-base mb-2">Submit Your Verification Data</h3>
+            <?php if ($isBalancePayment): ?>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 mb-8 text-center">
+                    <h3 class="font-bold text-emerald-900 text-xl flex items-center justify-center gap-2 mb-2">
+                        <i class="fas fa-wallet text-emerald-600"></i> Internal Balance Available
+                    </h3>
+                    <p class="text-slate-600 mb-4">You are checking out via your internal digital voucher pool account balance. No manual receipts or files required.</p>
                     
-                    <div class="p-4 bg-emerald-50 text-emerald-900 rounded-xl flex justify-between items-center mb-4">
-                        <span class="text-sm font-medium">Required Payable Amount (Calculated Rate Total):</span>
-                        <span class="text-xl font-black"><?php echo $displaySymbol . number_format($final_payable_amount, 2) . ' ' . $displayCurrency; ?></span>
+                    <div class="inline-grid grid-cols-2 gap-8 text-left bg-white p-4 rounded-xl border border-emerald-100 shadow-sm">
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium uppercase tracking-wider">Your Balance</span>
+                            <span class="text-lg font-bold text-slate-800"><?= $displaySymbol . number_format($user_balance, 2) ?></span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium uppercase tracking-wider">Order Total</span>
+                            <span class="text-lg font-bold text-blue-700"><?= $displaySymbol . number_format($final_payable_amount, 2) ?></span>
+                        </div>
                     </div>
+                </div>
 
+                <form method="POST" action="" class="space-y-6">
+                    <input type="hidden" name="confirm_balance_payment" value="1">
+                    <div class="flex items-center justify-between gap-4 pt-4">
+                        <a href="checkout?currency=<?php echo urlencode($displayCurrency); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
+                            Cancel
+                        </a>
+                        <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition text-center tracking-wide text-sm">
+                            Confirm Instant Deduction & Secure Tickets <i class="fas fa-check-circle ml-1"></i>
+                        </button>
+                    </div>
+                </form>
+
+            <?php else: ?>
+                <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-6 mb-8">
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2 mb-2">
+                        <i class="fas fa-info-circle text-blue-600"></i> Payment Instructions
+                    </h3>
+                    <p class="text-slate-700 whitespace-pre-line leading-relaxed"><?php echo htmlspecialchars($instructions); ?></p>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
+                    <h3 class="font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200 text-sm uppercase tracking-wider">Send Funds to the Following Target Account</h3>
+                    
                     <?php if ($payment_type === 'gift_card'): ?>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Gift Card Voucher Code/Number</label>
-                                <input type="text" name="card_code" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="XXXX-XXXX-XXXX-XXXX">
+                                <span class="text-xs text-slate-400 block font-medium">Acceptable Card Asset Class</span>
+                                <span class="text-lg font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['card_name']); ?></span>
                             </div>
-                            <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Card Security Code / Pin (Optional)</label>
-                                <input type="text" name="card_pin" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="1234">
+                            <div class="shrink-0">
+                                <a href="../giftcard" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-sm transition-all focus:outline-none">
+                                    <i class="fas fa-shopping-bag text-[11px]"></i> Buy Giftcard Guide <i class="fas fa-external-link-alt text-[10px] text-slate-400"></i>
+                                </a>
                             </div>
                         </div>
 
                     <?php elseif ($payment_type === 'bank'): ?>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Your Executing Bank Name</label>
-                                <input type="text" name="sender_bank" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" placeholder="e.g. Chase Bank">
+                                <span class="text-xs text-slate-400 block font-medium">Bank Name</span>
+                                <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['bank_name']); ?></span>
                             </div>
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Sender Bank Account Holder Name</label>
-                                <input type="text" name="sender_account_name" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" placeholder="John Doe">
+                                <span class="text-xs text-slate-400 block font-medium">Account Name</span>
+                                <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['account_name']); ?></span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block font-medium">Account Number</span>
+                                <span class="text-base font-mono font-bold text-blue-700 select-all"><?php echo htmlspecialchars($gatewayDetails['account_number']); ?></span>
                             </div>
                         </div>
 
                     <?php elseif ($payment_type === 'crypto'): ?>
-                        <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Transaction ID / TxHash String</label>
-                                <input type="text" name="txid_hash" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="0xabc123...">
+                                <span class="text-xs text-slate-400 block font-medium">Digital Currency Asset</span>
+                                <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['coin']); ?></span>
                             </div>
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Your External Wallet Outgoing Address (Optional)</label>
-                                <input type="text" name="sender_wallet" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="Source wallet hash">
+                                <span class="text-xs text-slate-400 block font-medium">Network Chain Mapping</span>
+                                <span class="text-xs font-bold inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-800 uppercase mt-1"><?php echo htmlspecialchars($gatewayDetails['chain']); ?></span>
+                            </div>
+                            <div class="md:col-span-3">
+                                <span class="text-xs text-slate-400 block font-medium">Wallet Address Destination</span>
+                                <span class="text-sm font-mono font-bold text-indigo-700 block break-all select-all mt-1 bg-white p-3 border border-slate-200 rounded-xl"><?php echo htmlspecialchars($gatewayDetails['address']); ?></span>
                             </div>
                         </div>
 
                     <?php elseif ($payment_type === 'e_pay'): ?>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Your Dynamic E-Pay Identifier (Email/Phone)</label>
-                                <input type="text" name="sender_email_phone" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" placeholder="john.doe@example.com">
+                                <span class="text-xs text-slate-400 block font-medium">Digital E-Pay Platform Platform</span>
+                                <span class="text-base font-bold text-slate-900"><?php echo htmlspecialchars($gatewayDetails['method_name']); ?></span>
                             </div>
                             <div>
-                                <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Transaction Ref / Order Reference</label>
-                                <input type="text" name="transaction_reference" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="PAY-998231">
+                                <span class="text-xs text-slate-400 block font-medium">Merchant Address Alias (Email/Phone)</span>
+                                <span class="text-base font-mono font-bold text-blue-700 select-all"><?php echo htmlspecialchars($gatewayDetails['email_phone']); ?></span>
                             </div>
                         </div>
                     <?php endif; ?>
+                </div>
 
-                    <div class="pt-2">
-                        <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Upload Receipt Image / Payment Proof Documents</label>
-                        <input type="file" name="proof_file" required class="w-full border border-dashed border-slate-300 bg-slate-50/50 rounded-xl px-4 py-4 text-sm focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-800 cursor-pointer">
-                        <small class="text-slate-400 block mt-1">Accepted formats: JPEG, PNG, PDF. Max file configuration execution properties dynamic restrictions apply.</small>
+                <form method="POST" action="" enctype="multipart/form-data" class="space-y-6">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base mb-2">Submit Your Verification Data</h3>
+                        
+                        <div class="p-4 bg-emerald-50 text-emerald-900 rounded-xl flex justify-between items-center mb-4">
+                            <span class="text-sm font-medium">Required Payable Amount (Calculated Rate Total):</span>
+                            <span class="text-xl font-black"><?php echo $displaySymbol . number_format($final_payable_amount, 2) . ' ' . $displayCurrency; ?></span>
+                        </div>
+
+                        <?php if ($payment_type === 'gift_card'): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Gift Card Voucher Code/Number</label>
+                                    <input type="text" name="card_code" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="XXXX-XXXX-XXXX-XXXX">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Card Security Code / Pin (Optional)</label>
+                                    <input type="text" name="card_pin" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="1234">
+                                </div>
+                            </div>
+
+                        <?php elseif ($payment_type === 'bank'): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Your Executing Bank Name</label>
+                                    <input type="text" name="sender_bank" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" placeholder="e.g. Chase Bank">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Sender Bank Account Holder Name</label>
+                                    <input type="text" name="sender_account_name" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" placeholder="John Doe">
+                                </div>
+                            </div>
+
+                        <?php elseif ($payment_type === 'crypto'): ?>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Transaction ID / TxHash String</label>
+                                    <input type="text" name="txid_hash" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="0xabc123...">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Your External Wallet Outgoing Address (Optional)</label>
+                                    <input type="text" name="sender_wallet" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="Source wallet hash">
+                                </div>
+                            </div>
+
+                        <?php elseif ($payment_type === 'e_pay'): ?>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Your Dynamic E-Pay Identifier (Email/Phone)</label>
+                                    <input type="text" name="sender_email_phone" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500" placeholder="john.doe@example.com">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Transaction Ref / Order Reference</label>
+                                    <input type="text" name="transaction_reference" required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 font-mono" placeholder="PAY-998231">
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="pt-2">
+                            <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Upload Receipt Image / Payment Proof Documents</label>
+                            <input type="file" name="proof_file" required class="w-full border border-dashed border-slate-300 bg-slate-50/50 rounded-xl px-4 py-4 text-sm focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-800 cursor-pointer">
+                            <small class="text-slate-400 block mt-1">Accepted formats: JPEG, PNG, PDF. Max file configuration execution properties dynamic restrictions apply.</small>
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex items-center justify-between gap-4 pt-4">
-                    <a href="checkout?currency=<?php echo urlencode($displayCurrency); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
-                        <i class="fas fa-chevron-left mr-1"></i> Go Back
-                    </a>
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition text-center tracking-wide text-sm">
-                        Confirm & Process Payment Data <i class="fas fa-shield-alt ml-1"></i>
-                    </button>
-                </div>
-            </form>
+                    <div class="flex items-center justify-between gap-4 pt-4">
+                        <a href="checkout?currency=<?php echo urlencode($displayCurrency); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
+                            <i class="fas fa-chevron-left mr-1"></i> Go Back
+                        </a>
+                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition text-center tracking-wide text-sm">
+                            Confirm & Process Payment Data <i class="fas fa-shield-alt ml-1"></i>
+                        </button>
+                    </div>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 </div>
