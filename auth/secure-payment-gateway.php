@@ -251,9 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
-<?php include "../inc/head.php"; ?>
 <body class="bg-gradient-to-br from-slate-100 via-white to-slate-200 min-h-screen">
-<?php include "../inc/header.php"; ?>
 
 <div class="max-w-4xl mx-auto px-5 py-10">
     <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -424,6 +422,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php include "../inc/footer.php"; ?>
 </body>
 </html>
