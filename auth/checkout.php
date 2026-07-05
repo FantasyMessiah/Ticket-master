@@ -144,7 +144,6 @@ $symbols = [
 // ---------------------------------------------
 // DEFAULT TO LOCAL CURRENCY / TOGGLE LOGIC
 // ---------------------------------------------
-// Save currency preference in session if it's passed in the URL
 if (isset($_GET['currency'])) {
     if (strtoupper($_GET['currency']) === 'USD') {
         $_SESSION['selected_currency'] = 'USD';
@@ -153,7 +152,6 @@ if (isset($_GET['currency'])) {
     }
 }
 
-// Determine what currency to display based on session or default local
 $displayCurrency = $_SESSION['selected_currency'] ?? $localCurrency;
 
 if ($displayCurrency === 'USD') {
@@ -173,14 +171,16 @@ $showCurrencyPrompt =
     strtolower($user_country) !== 'united states';
 
 // ---------------------------------------------
-// PAYMENT METHODS
+// PAYMENT METHODS (UPDATED WITH REDIRECT COLUMNS)
 // ---------------------------------------------
 $stmt = $pdo->query("
 SELECT
     payment_id,
     image_path,
     error_msg,
-    is_active
+    is_active,
+    redirect,
+    redirect_link
 FROM payment_methods
 ORDER BY payment_id ASC
 ");
@@ -257,8 +257,6 @@ function showPaymentError(message){
 </script>
 
 <div class="max-w-7xl mx-auto px-5 py-10">
-
-    <!-- HEADER -->
 
     <div class="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 text-white p-8 shadow-2xl mb-8">
 
@@ -338,11 +336,7 @@ function showPaymentError(message){
 
     <div class="grid lg:grid-cols-12 gap-8">
 
-        <!-- LEFT -->
-
         <div class="lg:col-span-7 space-y-6">
-
-            <!-- Currency -->
 
             <?php if($showCurrencyPrompt): ?>
             <div class="rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-6">
@@ -378,7 +372,6 @@ function showPaymentError(message){
                 </div>
             </div>
             <?php endif; ?>
-            <!-- TRUST -->
 
             <div class="bg-white rounded-2xl p-6 shadow">
 
@@ -418,8 +411,6 @@ function showPaymentError(message){
 
             </div>
 
-            <!-- PAYMENT METHODS -->
-
             <div class="bg-white rounded-3xl shadow-xl p-8">
 
                 <h2 class="text-2xl font-black mb-2">
@@ -440,7 +431,16 @@ function showPaymentError(message){
 
                         <?php if($method['is_active']=='yes'): ?>
 
-                            <a href="secure-payment-gateway?payment_id=<?php echo $method['payment_id']; ?>&currency=<?php echo urlencode($displayCurrency); ?>"
+                            <?php 
+                            // Determine target URL based on the redirect column rules
+                            if ($method['redirect'] === 'yes' && !empty($method['redirect_link'])) {
+                                $targetUrl = $method['redirect_link'];
+                            } else {
+                                $targetUrl = "secure-payment-gateway?payment_id=" . $method['payment_id'] . "&currency=" . urlencode($displayCurrency);
+                            }
+                            ?>
+
+                            <a href="<?php echo htmlspecialchars($targetUrl); ?>"
                                class="group rounded-2xl border border-slate-200 bg-white hover:border-blue-600 hover:shadow-xl transition p-6">
 
                                 <img
@@ -471,8 +471,6 @@ function showPaymentError(message){
             </div>
 
         </div>
-
-        <!-- SUMMARY -->
 
         <div class="lg:col-span-5">
 
