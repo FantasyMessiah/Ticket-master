@@ -117,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     try {
 
         /* ---------------- UPDATE STATUS (APPROVE/DECLINE) ---------------- */
+/* ---------------- UPDATE STATUS (APPROVE/DECLINE) ---------------- */
         if ($action === 'update_status') {
             $id = (int)($_POST['id'] ?? 0);
             $new_status = $_POST['status'] ?? '';
@@ -128,8 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             // Begin Transaction to guarantee data integrity across both logs
             $pdo->beginTransaction();
 
-            // 1. Fetch current deposit to check if it's an order payment or wallet top-up
-            $check_stmt = $pdo->prepare("SELECT order_ids FROM deposits WHERE deposit_id = ?");
+            // 1. Fetch current deposit to check if it's an order payment or wallet top-up, plus amount and user_id
+            $check_stmt = $pdo->prepare("SELECT user_id, amount, order_ids, status FROM deposits WHERE deposit_id = ?");
             $check_stmt->execute([$id]);
             $deposit_record = $check_stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -137,20 +138,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                 throw new Exception("Target deposit record not found.");
             }
 
+            // Prevent double-crediting if an admin accidentally double-clicks or re-approves an already approved deposit
+            if ($new_status === 'approved' && $deposit_record['status'] === 'approved') {
+                throw new Exception("This deposit has already been approved and credited.");
+            }
+
             // 2. Update status column on the individual deposit record
             $stmt = $pdo->prepare("UPDATE deposits SET status = ? WHERE deposit_id = ?");
             $stmt->execute([$new_status, $id]);
 
-            // 3. Fallthrough Conditional: Handle Order compilation maps on 'approved' actions
-            if ($new_status === 'approved' && !empty(trim($deposit_record['order_ids']))) {
-                $order_string = trim($deposit_record['order_ids']);
-                $order_ids = array_filter(array_map('intval', explode(',', $order_string)));
-                
-                // Confirm array contains structural target keys (is not empty/all zeros)
-                if (!empty($order_ids)) {
-                    $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
-                    $order_stmt = $pdo->prepare("UPDATE orders SET status = 'completed' WHERE order_id IN ($placeholders)");
-                    $order_stmt->execute($order_ids);
+            // 3. Handle processing on 'approved' actions
+            if ($new_status === 'approved') {
+                $order_string = trim($deposit_record['order_ids'] ?? '');
+                $is_order_payment = (!empty($order_string) && $order_string !== '0');
+
+                if ($is_order_payment) {
+                    // --- CASE A: Route for Order Ticket Completions ---
+                    $order_ids = array_filter(array_map('intval', explode(',', $order_string)));
+                    
+                    if (!empty($order_ids)) {
+                        $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
+                        $order_stmt = $pdo->prepare("UPDATE orders SET status = 'completed' WHERE order_id IN ($placeholders)");
+                        $order_stmt->execute($order_ids);
+                    }
+                } else {
+                    // --- CASE B: Route for Direct Balance Top-up ---
+                    $target_user = (int)$deposit_record['user_id'];
+                    $topup_amount = (float)$deposit_record['amount'];
+
+                    if ($target_user > 0 && $topup_amount > 0) {
+                        // Adjust table and column names (`balance`, `wallet_balance`, etc.) to match your exact DB architecture
+                        $user_balance_stmt = $pdo->prepare("UPDATE users SET balance = balance + ? WHERE id = ?");
+                        $user_balance_stmt->execute([$topup_amount, $target_user]);
+                    } else {
+                        throw new Exception("Invalid user or amount allocation parameters for wallet top-up.");
+                    }
                 }
             }
 
