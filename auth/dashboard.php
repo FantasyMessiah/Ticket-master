@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['auth_error'] = "Please login to access dashboard.";
+    $_SESSION['auth_error'] = "Please login to access your dashboard.";
     $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
     header("Location: ../auth.php");
     exit;
@@ -38,19 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?");
                 $update_stmt->execute([$full_name, $email_address, $phone_number, $user_id]);
             }
-            $success_message = "Account updates saved successfully.";
+            $success_message = "Profile updated successfully.";
         } catch (Exception $e) {
-            $error_message = "Database synchronization error: " . $e->getMessage();
+            $error_message = "Error saving changes: " . $e->getMessage();
         }
     } else {
-        $error_message = "Required verification entry fields cannot be saved blank.";
+        $error_message = "Name and Email are required fields.";
     }
 }
 
 // Initializing UI Arrays
 $user_profile = [
     'name'    => 'Jane Doe',
-    'email'   => 'janedoe@infinityfreeapp.com',
+    'email'   => 'janedoe@example.com',
     'phone'   => '+1 (555) 019-2834',
     'balance' => 0.00
 ];
@@ -60,7 +60,7 @@ $recent_orders = [];
 $transaction_history = [];
 
 $admin_tickets = [
-    ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass Package Allocation File Vector. Valid across all standard stadium layout properties. Please save to phone pass wallet storage.']
+    ['file_path' => 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=600&q=80', 'description' => 'VIP Golden Circle Early Entry Pass. Valid for standard stadium layouts. Download and save to your phone.']
 ];
 
 $support = ['email' => '', 'telegram' => '', 'whatsapp' => ''];
@@ -93,7 +93,7 @@ if ($pdo !== null) {
         $raw_messages = $msg_stmt->fetchAll();
         foreach ($raw_messages as $m_row) {
             $admin_messages[] = [
-                'title'      => 'System Security Alert',
+                'title'      => 'New Notification',
                 'content'    => $m_row['message'],
                 'created_at' => $m_row['created_at'] ?? date('Y-m-d H:i:s')
             ];
@@ -133,7 +133,7 @@ if ($pdo !== null) {
                 'id'     => 'TM-' . $or['order_id'],
                 'title'  => $or['show_title'],
                 'venue'  => $or['concert_title'],
-                'seats'  => !empty($seat_details) ? $seat_details : 'General Entry Allocation',
+                'seats'  => !empty($seat_details) ? $seat_details : 'General Admission',
                 'status' => $or['order_status'], 
                 'date'   => date('M d, Y', strtotime($or['purchase_date']))
             ];
@@ -192,7 +192,7 @@ if ($pdo !== null) {
         <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-800 rounded-r-xl shadow-sm">
             <div class="flex items-center gap-2">
                 <i class="fas fa-exclamation-triangle text-red-600 text-lg"></i>
-                <p class="font-bold">Transaction Alert</p>
+                <p class="font-bold">Notice</p>
             </div>
             <p class="text-sm mt-1"><?php echo htmlspecialchars($_SESSION['flash_error']); ?></p>
         </div>
@@ -204,20 +204,19 @@ if ($pdo !== null) {
         <div class="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 text-white p-8 shadow-2xl mb-8">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                 <div>
-                    <h1 class="text-4xl font-black">Command Dashboard</h1>
+                    <h1 class="text-4xl font-black">Dashboard</h1>
                     <p class="text-blue-100 mt-2">
-                        Welcome back, <span class="font-bold text-white"><?php echo htmlspecialchars($user_profile['name']); ?></span>. Manage your passes, check ledger allocations, and monitor system entries.
+                        Welcome back, <span class="font-bold text-white"><?php echo htmlspecialchars($user_profile['name']); ?></span>. Manage your tickets, check your balance, and view your orders here.
                     </p>
                     <div class="mt-6 inline-flex items-center bg-white/20 rounded-full px-5 py-2 text-sm">
-                        Client Workspace Node: 
+                        User ID: 
                         <span class="font-mono ml-2 font-bold text-yellow-300">
-                            #USR-T60MST240<?php echo $user_id; ?>
+                            #<?php echo $user_id; ?>
                         </span>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap gap-4 items-center shrink-0 relative z-10">
-                    <!-- Global Top Up Action Button -->
                     <a href="../auth/fund-wallet.php" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow hover:shadow-lg transition flex items-center gap-2">
                         <i class="fas fa-plus-circle"></i> Top Up Wallet
                     </a>
@@ -234,7 +233,7 @@ if ($pdo !== null) {
                                 <i class="fab fa-telegram-plane text-sky-600 text-lg"></i> Telegram
                             </a>
                             <a href="mailto:<?php echo htmlspecialchars($support['email']); ?>" class="flex items-center gap-3 px-5 py-4 hover:bg-blue-50 transition">
-                                <i class="fas fa-envelope text-blue-600 text-lg"></i> Email Helpdesk
+                                <i class="fas fa-envelope text-blue-600 text-lg"></i> Email Support
                             </a>
                         </div>
                     </div>
@@ -244,20 +243,20 @@ if ($pdo !== null) {
 
         <div class="bg-white rounded-2xl p-4 shadow mb-8 overflow-x-auto scrollbar-none">
             <div class="flex items-center space-x-2 min-w-max">
-                <a href="#manifests-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                    <i class="fas fa-ticket-alt mr-1.5"></i> Allocation Manifests
+                <a href="#tickets-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
+                    <i class="fas fa-ticket-alt mr-1.5"></i> My Tickets
                 </a>
-                <a href="#alerts-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                    <i class="fas fa-bell mr-1.5"></i> System Alerts
+                <a href="#notifications-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
+                    <i class="fas fa-bell mr-1.5"></i> Notifications
                 </a>
                 <a href="#profile-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                    <i class="fas fa-user-cog mr-1.5"></i> Profile Configuration
+                    <i class="fas fa-user-cog mr-1.5"></i> Profile Settings
                 </a>
                 <a href="#orders-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                    <i class="fas fa-shopping-bag mr-1.5"></i> Active Gate Passes
+                    <i class="fas fa-shopping-bag mr-1.5"></i> Recent Orders
                 </a>
                 <a href="#transactions-section" class="bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                    <i class="fas fa-receipt mr-1.5"></i> Financial Statements
+                    <i class="fas fa-receipt mr-1.5"></i> Transaction History
                 </a>
             </div>
         </div>
@@ -266,12 +265,12 @@ if ($pdo !== null) {
             
             <div class="lg:col-span-7 space-y-8">
                 
-                <div id="manifests-section" class="bg-white rounded-3xl shadow-xl p-8">
+                <div id="tickets-section" class="bg-white rounded-3xl shadow-xl p-8">
                     <h2 class="text-2xl font-black mb-2 flex items-center gap-2">
-                        <i class="fas fa-ticket-alt text-indigo-600"></i> Ticket Allocation Manifests
+                        <i class="fas fa-ticket-alt text-indigo-600"></i> Download Tickets
                     </h2>
                     <p class="text-slate-500 mb-6">
-                        Administrative uploaded pass assets generated specifically for your active orders profile.
+                        View and download tickets for your upcoming events.
                     </p>
                     <div class="space-y-4">
                         <?php foreach ($admin_tickets as $ticket): ?>
@@ -285,7 +284,7 @@ if ($pdo !== null) {
                                         <?php echo htmlspecialchars($ticket['description']); ?>
                                     </p>
                                     <a href="<?php echo htmlspecialchars($ticket['file_path']); ?>" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl px-6 py-3 font-bold transition shadow shadow-blue-600/20 text-xs uppercase tracking-wider">
-                                        <i class="fas fa-download"></i> Download Clean Vector Pass
+                                        <i class="fas fa-download"></i> Download Ticket
                                     </a>
                                 </div>
                             </div>
@@ -296,12 +295,12 @@ if ($pdo !== null) {
                 <div id="orders-section" class="bg-white rounded-3xl shadow-xl p-8">
                     <div class="flex justify-between items-center mb-6">
                         <div>
-                            <h2 class="text-2xl font-black">Secured Gate Passes</h2>
-                            <p class="text-slate-500 text-sm mt-1">Review live active verification ticket passes attached to this profile.</p>
+                            <h2 class="text-2xl font-black">Recent Orders</h2>
+                            <p class="text-slate-500 text-sm mt-1">Review your recent ticket purchases.</p>
                         </div>
                         <?php if (count($recent_orders) > 3): ?>
                             <button onclick="openOrdersModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs transition uppercase tracking-wide">
-                                View History
+                                View All
                             </button>
                         <?php endif; ?>
                     </div>
@@ -331,12 +330,12 @@ if ($pdo !== null) {
                                     </div>
                                     <div class="text-left sm:text-right shrink-0 border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
                                         <span class="text-sm font-black text-slate-800 block font-mono"><?php echo htmlspecialchars($order['date']); ?></span>
-                                        <span class="text-[11px] text-slate-400 font-medium">Platform Reference Node</span>
+                                        <span class="text-[11px] text-slate-400 font-medium">Purchased on</span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-sm text-slate-400 italic text-center py-6">No active digital passes loaded.</p>
+                            <p class="text-sm text-slate-400 italic text-center py-6">You have no recent orders.</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -344,12 +343,12 @@ if ($pdo !== null) {
                 <div id="transactions-section" class="bg-white rounded-3xl shadow-xl p-8">
                     <div class="flex justify-between items-center mb-6">
                         <div>
-                            <h2 class="text-2xl font-black">Financial Statements Ledger</h2>
-                            <p class="text-slate-500 text-sm mt-1">Historical ledger entries synchronized into the user terminal.</p>
+                            <h2 class="text-2xl font-black">Transaction History</h2>
+                            <p class="text-slate-500 text-sm mt-1">A record of your recent deposits and payments.</p>
                         </div>
                         <?php if (count($transaction_history) > 3): ?>
                             <button onclick="openTxModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs transition uppercase tracking-wide">
-                                All Statements
+                                View All
                             </button>
                         <?php endif; ?>
                     </div>
@@ -361,9 +360,9 @@ if ($pdo !== null) {
                                     <tr>
                                         <th class="p-4 font-mono">Reference</th>
                                         <th class="p-4">Date</th>
-                                        <th class="p-4">Channel</th>
-                                        <th class="p-4 text-right">Total</th>
-                                        <th class="p-4 text-center">Settlement</th>
+                                        <th class="p-4">Method</th>
+                                        <th class="p-4 text-right">Amount</th>
+                                        <th class="p-4 text-center">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200 bg-white">
@@ -376,7 +375,7 @@ if ($pdo !== null) {
                                             <td class="p-4 text-slate-500 font-bold font-mono"><?php echo htmlspecialchars($txn['date']); ?></td>
                                             <td class="p-4 text-slate-500 font-bold">
                                                 <?php if (strpos($txn['method'], '../uploads/') === 0): ?>
-                                                    <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Icon" class="h-6 w-auto object-contain rounded max-w-[60px]">
+                                                    <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Method" class="h-6 w-auto object-contain rounded max-w-[60px]">
                                                 <?php else: ?>
                                                     <span><?php echo htmlspecialchars($txn['method']); ?></span>
                                                 <?php endif; ?>
@@ -394,7 +393,7 @@ if ($pdo !== null) {
                                 </tbody>
                             </table>
                         <?php else: ?>
-                            <p class="text-sm text-slate-400 italic text-center py-6">No localized statements logged to ledger.</p>
+                            <p class="text-sm text-slate-400 italic text-center py-6">No transactions found.</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -404,13 +403,13 @@ if ($pdo !== null) {
             <div class="lg:col-span-5 space-y-8 sticky top-6">
                 
                 <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white shadow-2xl p-8">
-                    <h2 class="text-2xl font-black mb-6">Portfolio Ledger</h2>
+                    <h2 class="text-2xl font-black mb-6">My Wallet</h2>
                     
                     <div class="space-y-5">
                         <div class="flex justify-between border-b border-white/10 pb-4">
                             <div>
-                                <div class="font-semibold text-white/90">Identity Designation</div>
-                                <div class="text-sm text-white/60">Registered Identity Label</div>
+                                <div class="font-semibold text-white/90">Full Name</div>
+                                <div class="text-sm text-white/60">Account Holder</div>
                             </div>
                             <div class="font-bold text-right text-indigo-300">
                                 <?php echo htmlspecialchars($user_profile['name']); ?>
@@ -419,8 +418,8 @@ if ($pdo !== null) {
 
                         <div class="flex justify-between border-b border-white/10 pb-4">
                             <div>
-                                <div class="font-semibold text-white/90">Email Node</div>
-                                <div class="text-sm text-white/60">Primary Routing Channel</div>
+                                <div class="font-semibold text-white/90">Email Address</div>
+                                <div class="text-sm text-white/60">Primary Contact</div>
                             </div>
                             <div class="font-mono text-xs font-bold text-right text-indigo-300 max-w-[180px] break-all">
                                 <?php echo htmlspecialchars($user_profile['email']); ?>
@@ -431,13 +430,12 @@ if ($pdo !== null) {
                     <div class="border-t border-white/20 mt-8 pt-6">
                         <div class="flex justify-between items-center flex-wrap gap-4">
                             <div>
-                                <div class="text-white/70 font-semibold">Available Funds Profile</div>
+                                <div class="text-white/70 font-semibold">Wallet Balance</div>
                                 <div class="text-4xl font-black mt-2 font-mono tracking-tight text-emerald-400">
                                     $<?php echo number_format($user_profile['balance'], 2); ?>
                                 </div>
                             </div>
                             
-                            <!-- Contextual Top Up Action Button -->
                             <a href="../auth/fund-wallet.php" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-3 rounded-xl shadow transition text-xs uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fas fa-plus-circle text-sm"></i> Top Up
                             </a>
@@ -445,11 +443,11 @@ if ($pdo !== null) {
                     </div>
                 </div>
 
-                <div id="alerts-section" class="bg-white rounded-3xl shadow-xl p-8">
+                <div id="notifications-section" class="bg-white rounded-3xl shadow-xl p-8">
                     <h3 class="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
-                        <i class="fas fa-satellite-dish text-amber-500 animate-pulse"></i> Message Terminal
+                        <i class="fas fa-bell text-amber-500 animate-pulse"></i> Notifications
                     </h3>
-                    <p class="text-slate-500 text-xs mb-6">Direct communication alerts broadcasted from secure system administrators.</p>
+                    <p class="text-slate-500 text-xs mb-6">Updates and messages regarding your account.</p>
                     
                     <div class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                         <?php if (!empty($admin_messages)): ?>
@@ -463,7 +461,7 @@ if ($pdo !== null) {
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-xs text-slate-400 italic text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-xl">No security warning markers present.</p>
+                            <p class="text-xs text-slate-400 italic text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-xl">You have no new notifications.</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -472,24 +470,24 @@ if ($pdo !== null) {
                     <div class="grid grid-cols-3 gap-4 text-center">
                         <div class="flex flex-col items-center">
                             <i class="fas fa-lock text-2xl text-green-500 mb-2"></i>
-                            <div class="font-bold text-xs text-slate-800">SSL Anchored</div>
+                            <div class="font-bold text-xs text-slate-800">Secure</div>
                         </div>
                         <div class="flex flex-col items-center">
                             <i class="fas fa-shield-alt text-2xl text-blue-500 mb-2"></i>
-                            <div class="font-bold text-xs text-slate-800">Verified System</div>
+                            <div class="font-bold text-xs text-slate-800">Verified</div>
                         </div>
                         <div class="flex flex-col items-center">
                             <i class="fas fa-bolt text-2xl text-yellow-500 mb-2"></i>
-                            <div class="font-bold text-xs text-slate-800">Instant Sync</div>
+                            <div class="font-bold text-xs text-slate-800">Fast Sync</div>
                         </div>
                     </div>
                 </div>
 
                 <div id="profile-section" class="bg-white rounded-3xl shadow-xl p-8">
                     <h2 class="text-xl font-black mb-1 flex items-center gap-2">
-                        <i class="fas fa-user-cog text-slate-700"></i> Settings Matrix
+                        <i class="fas fa-user-cog text-slate-700"></i> Profile Settings
                     </h2>
-                    <p class="text-slate-400 text-xs mb-6">Modify identity configurations securely.</p>
+                    <p class="text-slate-400 text-xs mb-6">Update your account information.</p>
 
                     <?php if (!empty($success_message)): ?>
                         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs p-4 rounded-xl mb-4">
@@ -506,22 +504,22 @@ if ($pdo !== null) {
                         <input type="hidden" name="update_profile" value="1">
                         
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Full Name Identity</label>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Full Name</label>
                             <input type="text" name="full_name" value="<?php echo htmlspecialchars($user_profile['name']); ?>" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 outline-none transition">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Email Node Endpoint</label>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Email Address</label>
                             <input type="email" name="email" value="<?php echo htmlspecialchars($user_profile['email']); ?>" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 outline-none transition">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Secured Mobile Line</label>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Phone Number</label>
                             <input type="text" name="phone" value="<?php echo htmlspecialchars($user_profile['phone']); ?>" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 outline-none transition">
                         </div>
 
                         <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow transition text-xs uppercase tracking-wide">
-                            Save Account Configuration
+                            Save Changes
                         </button>
                     </form>
                 </div>
@@ -530,15 +528,15 @@ if ($pdo !== null) {
         </div>
     </div>
 
-    <!-- ================= MODALS TERMINAL SYSTEM ================= -->
+    <!-- ================= MODALS ================= -->
 
-    <!-- Secured Gate Passes History Modal -->
+    <!-- Orders Modal -->
     <div id="ordersModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 shadow-2xl">
         <div class="bg-white rounded-3xl max-w-2xl w-full flex flex-col max-h-[85vh] overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
-                    <h3 class="text-xl font-black text-slate-900">Pass Allocation History</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Complete ledger historical record for active passes</p>
+                    <h3 class="text-xl font-black text-slate-900">Order History</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">A complete list of your ticket orders.</p>
                 </div>
                 <button onclick="closeOrdersModal()" class="text-slate-400 hover:text-slate-700 text-xl bg-slate-200/50 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center transition">
                     <i class="fas fa-times"></i>
@@ -572,13 +570,13 @@ if ($pdo !== null) {
         </div>
     </div>
 
-    <!-- Financial Statements Ledger Modal -->
+    <!-- Transactions Modal -->
     <div id="txModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 shadow-2xl">
         <div class="bg-white rounded-3xl max-w-4xl w-full flex flex-col max-h-[85vh] overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
-                    <h3 class="text-xl font-black text-slate-900">All Financial Ledger Entries</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Comprehensive chronological synchronized financial statements</p>
+                    <h3 class="text-xl font-black text-slate-900">All Transactions</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">A complete history of your wallet deposits and payments.</p>
                 </div>
                 <button onclick="closeTxModal()" class="text-slate-400 hover:text-slate-700 text-xl bg-slate-200/50 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center transition">
                     <i class="fas fa-times"></i>
@@ -591,9 +589,9 @@ if ($pdo !== null) {
                             <tr>
                                 <th class="p-4 font-mono">Reference</th>
                                 <th class="p-4">Date</th>
-                                <th class="p-4">Channel</th>
-                                <th class="p-4 text-right">Total</th>
-                                <th class="p-4 text-center">Settlement</th>
+                                <th class="p-4">Method</th>
+                                <th class="p-4 text-right">Amount</th>
+                                <th class="p-4 text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 bg-white">
@@ -603,7 +601,7 @@ if ($pdo !== null) {
                                     <td class="p-4 text-slate-500 font-bold font-mono text-xs"><?php echo htmlspecialchars($txn['date']); ?></td>
                                     <td class="p-4 text-slate-500 font-bold text-xs">
                                         <?php if (strpos($txn['method'], '../uploads/') === 0): ?>
-                                            <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Icon" class="h-6 w-auto object-contain rounded max-w-[60px]">
+                                            <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Method" class="h-6 w-auto object-contain rounded max-w-[60px]">
                                         <?php else: ?>
                                             <span><?php echo htmlspecialchars($txn['method']); ?></span>
                                         <?php endif; ?>
@@ -625,7 +623,7 @@ if ($pdo !== null) {
         </div>
     </div>
 
-    <!-- Script Terminal Functions -->
+    <!-- Scripts -->
     <script>
         function openOrdersModal() {
             document.getElementById('ordersModal').classList.remove('hidden');
@@ -647,7 +645,7 @@ if ($pdo !== null) {
             document.body.style.overflow = '';
         }
 
-        // Close windows automatically if users click outside modal containers
+        // Close modals on outside click
         window.onclick = function(event) {
             const ordersModal = document.getElementById('ordersModal');
             const txModal = document.getElementById('txModal');
