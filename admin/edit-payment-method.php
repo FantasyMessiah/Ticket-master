@@ -11,7 +11,7 @@ $typeDetails = [];
 $instruction = '';
 
 /* --------------------------------------------------
-    GET PAYMENT METHOD ID
+     GET PAYMENT METHOD ID
 -------------------------------------------------- */
 $id = (int)($_GET['id'] ?? 0);
 
@@ -22,7 +22,7 @@ if ($id <= 0) {
 }
 
 /* --------------------------------------------------
-    FETCH PAYMENT METHOD & DYNAMIC DETAILS
+     FETCH PAYMENT METHOD & DYNAMIC DETAILS
 -------------------------------------------------- */
 try {
 
@@ -64,7 +64,7 @@ try {
 }
 
 /* --------------------------------------------------
-    HANDLE UPDATE
+     HANDLE UPDATE
 -------------------------------------------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -74,6 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_msg   = trim($_POST['error_msg'] ?? '');
         $is_active   = $_POST['is_active'] ?? 'yes';
         $instruction = trim($_POST['instruction'] ?? '');
+        
+        // Dynamic routing attributes
+        $redirect      = $_POST['redirect'] ?? 'no';
+        $redirect_link = trim($_POST['redirect_link'] ?? '');
 
         if (!in_array($newType, ['bank', 'gift_card', 'crypto', 'e_pay'])) {
             throw new Exception("Invalid payment type choice.");
@@ -81,6 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!in_array($is_active, ['yes', 'no'])) {
             $is_active = 'yes';
+        }
+
+        if (!in_array($redirect, ['yes', 'no'])) {
+            $redirect = 'no';
+        }
+
+        if ($redirect === 'yes' && empty($redirect_link)) {
+            throw new Exception("Please provide a valid destination URL if external redirection behavior is enabled.");
         }
 
         $imageName = $payment['image_path'];
@@ -100,13 +112,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Start transaction for compound write actions
         $pdo->beginTransaction();
 
-        /* 1. UPDATE CORE METHOD PROPERTIES */
+        /* 1. UPDATE CORE METHOD PROPERTIES (Including routing configurations) */
         $stmt = $pdo->prepare("
             UPDATE payment_methods
-            SET image_path = ?, error_msg = ?, is_active = ?, type = ?
+            SET image_path = ?, error_msg = ?, is_active = ?, type = ?, redirect = ?, redirect_link = ?
             WHERE payment_id = ?
         ");
-        $stmt->execute([$imageName, $error_msg, $is_active, $newType, $id]);
+        $stmt->execute([
+            $imageName, 
+            $error_msg, 
+            $is_active, 
+            $newType, 
+            $redirect, 
+            ($redirect === 'yes' ? $redirect_link : null), 
+            $id
+        ]);
 
         /* 2. SYNC CHILD ENTRY BLOCKS */
         // Clear conflicting parameters if structural shifting occurred
@@ -274,6 +294,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </div>
 
+    <div style="background:#161b22; padding:20px; border-radius:8px; margin-bottom:1rem; border:1px solid #30363d;">
+        <label style="display:block;margin-bottom:0.3rem;font-weight:bold;">Gateway Action Routing</label>
+        <select name="redirect" id="edit_redirect_selector" onchange="toggleEditRedirectLinkField()"
+                style="width:100%;padding:.7rem;margin-bottom:1rem;background:#0d1117;color:#fff;border:1px solid #30363d;border-radius:6px;">
+            <option value="no" <?= ($payment['redirect'] ?? 'no') === 'no' ? 'selected' : '' ?>>Open Internal Checkout Flow (Native)</option>
+            <option value="yes" <?= ($payment['redirect'] ?? 'no') === 'yes' ? 'selected' : '' ?>>Redirect User to External URL</option>
+        </select>
+
+        <div id="edit_redirect_url_wrapper" style="display:none;">
+            <label style="display:block;margin-bottom:0.3rem;">Target Destination Link URL</label>
+            <input type="url" name="redirect_link" id="edit_redirect_link_input"
+                   value="<?= htmlspecialchars($payment['redirect_link'] ?? '') ?>" 
+                   placeholder="https://external-payment-processor.com/pay" 
+                   style="width:100%;padding:.5rem;background:#0d1117;color:#fff;border:1px solid #30363d;border-radius:4px;">
+        </div>
+    </div>
+
     <label style="display:block;margin-bottom:0.3rem;font-weight:bold;">Gateway Directives & Instructions</label>
     <textarea name="instruction" style="width:100%;padding:.7rem;margin-bottom:1rem;background:#161b22;color:#fff;border:1px solid #30363d;border-radius:6px;height:100px;resize:vertical;"><?= htmlspecialchars($instruction) ?></textarea>
 
@@ -327,9 +364,26 @@ function toggleEditFields(){
     }
 }
 
+function toggleEditRedirectLinkField() {
+    const redirectSelector = document.getElementById('edit_redirect_selector');
+    const redirectWrapper = document.getElementById('edit_redirect_url_wrapper');
+    const redirectInput = document.getElementById('edit_redirect_link_input');
+    
+    if (redirectSelector && redirectWrapper && redirectInput) {
+        if (redirectSelector.value === 'yes') {
+            redirectWrapper.style.display = 'block';
+            redirectInput.setAttribute('required', 'required');
+        } else {
+            redirectWrapper.style.display = 'none';
+            redirectInput.removeAttribute('required');
+        }
+    }
+}
+
 // Ensure interface layers balance accurately upon component rendering cycles
 document.addEventListener("DOMContentLoaded", function() {
     toggleEditFields();
+    toggleEditRedirectLinkField();
 });
 </script>
 
