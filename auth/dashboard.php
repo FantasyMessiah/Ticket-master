@@ -40,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (!empty($full_name) && !empty($email_address)) {
         try {
             if ($pdo !== null) {
-                // Modified target column mapping explicitly to 'full_name' per specifications
                 $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?");
                 $update_stmt->execute([$full_name, $email_address, $phone_number, $user_id]);
             }
@@ -77,7 +76,7 @@ $admin_tickets = [
 // Execute Live Resource Retrieval
 if ($pdo !== null) {
     try {
-        // 1. UPDATE: Account Portfolio Member Card Resource Loader (Fetched Balance Added)
+        // 1. Account Portfolio Member Card Resource Loader
         $user_stmt = $pdo->prepare("SELECT full_name, email, phone, balance FROM users WHERE id = ? LIMIT 1");
         $user_stmt->execute([$user_id]);
         $fetched_user = $user_stmt->fetch();
@@ -90,7 +89,7 @@ if ($pdo !== null) {
             ];
         }
 
-        // 2. UPDATE: Administrative Alerts Message Terminal Card Resource Loader
+        // 2. Administrative Alerts Message Terminal Card Resource Loader
         $msg_stmt = $pdo->prepare("SELECT message, created_at FROM users WHERE id = ? AND message IS NOT NULL AND message != '' ORDER BY id DESC");
         $msg_stmt->execute([$user_id]);
         $raw_messages = $msg_stmt->fetchAll();
@@ -102,7 +101,7 @@ if ($pdo !== null) {
             ];
         }
 
-        // 3. FIX: Secured Production Orders & Gate Passes Card Resource Loader
+        // 3. Secured Production Orders & Gate Passes Card Resource Loader
         $order_stmt = $pdo->prepare("
             SELECT 
                 o.order_id, 
@@ -142,7 +141,7 @@ if ($pdo !== null) {
             ];
         }
         
-        // 4. UPDATE: Financial Statements & Transactions History Card Resource Loader
+        // 4. Financial Statements & Transactions History Card Resource Loader
         $tx_stmt = $pdo->prepare("
             SELECT 
                 d.deposit_id, 
@@ -153,7 +152,7 @@ if ($pdo !== null) {
             FROM deposits d
             LEFT JOIN payment_methods p ON d.payment_id = p.payment_id
             WHERE d.user_id = ?
-            ORDER BY d.deposit_id DESC LIMIT 15
+            ORDER BY d.deposit_id DESC LIMIT 30
         ");
         $tx_stmt->execute([$user_id]);
         $raw_txs = $tx_stmt->fetchAll();
@@ -174,7 +173,7 @@ if ($pdo !== null) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <?php include "../inc/head.php"; ?>
 <?php include "../inc/navbar.php"; ?>
@@ -182,6 +181,31 @@ if ($pdo !== null) {
 <body class="bg-gray-100 text-gray-900 font-sans antialiased">
 
     <?php include "../inc/header.php"; ?>
+
+    <div class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="flex items-center space-x-6 overflow-x-auto py-3.5 scrollbar-none scroll-smooth snap-x">
+                <a href="#profile-section" class="snap-start shrink-0 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#024DDF] transition-colors border-b-2 border-transparent hover:border-[#024DDF] pb-1">
+                    <i class="fas fa-user-cog mr-1"></i> Profile Controls
+                </a>
+                <a href="#alerts-section" class="snap-start shrink-0 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#024DDF] transition-colors border-b-2 border-transparent hover:border-[#024DDF] pb-1">
+                    <i class="fas fa-bell mr-1"></i> System Alerts
+                </a>
+                <a href="#manifests-section" class="snap-start shrink-0 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#024DDF] transition-colors border-b-2 border-transparent hover:border-[#024DDF] pb-1">
+                    <i class="fas fa-ticket-alt mr-1"></i> Ticket Manifests
+                </a>
+                <a href="#orders-section" class="snap-start shrink-0 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#024DDF] transition-colors border-b-2 border-transparent hover:border-[#024DDF] pb-1">
+                    <i class="fas fa-shopping-bag mr-1"></i> Active Passes
+                </a>
+                <a href="#transactions-section" class="snap-start shrink-0 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#024DDF] transition-colors border-b-2 border-transparent hover:border-[#024DDF] pb-1">
+                    <i class="fas fa-receipt mr-1"></i> Financial Ledger
+                </a>
+                <a href="#shows-section" class="snap-start shrink-0 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#024DDF] transition-colors border-b-2 border-transparent hover:border-[#024DDF] pb-1">
+                    <i class="fas fa-eye mr-1"></i> Analyzed Shows
+                </a>
+            </div>
+        </div>
+    </div>
 
     <div id="__next" class="min-h-screen flex flex-col justify-between">
 
@@ -191,7 +215,7 @@ if ($pdo !== null) {
                 
                 <div class="lg:col-span-4 space-y-6">
                     
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                    <div id="profile-section" class="scroll-mt-24 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                         <div class="flex items-center gap-4 border-b border-gray-100 pb-4 mb-4">
                             <div class="w-14 h-14 rounded-full bg-[#024DDF] text-white font-black text-xl flex items-center justify-center shadow">
                                 <?php echo strtoupper(substr($user_profile['name'], 0, 2)); ?>
@@ -247,7 +271,7 @@ if ($pdo !== null) {
                         </form>
                     </div>
 
-                    <div class="bg-slate-900 text-white border border-slate-800 rounded-2xl p-6 shadow-md space-y-4">
+                    <div id="alerts-section" class="scroll-mt-24 bg-slate-900 text-white border border-slate-800 rounded-2xl p-6 shadow-md space-y-4">
                         <h4 class="text-xs font-black uppercase tracking-widest text-blue-400 flex items-center gap-2 border-b border-slate-800 pb-3">
                             <i class="fas fa-satellite-dish animate-pulse"></i> Administrative Alerts Message Terminal
                         </h4>
@@ -269,7 +293,7 @@ if ($pdo !== null) {
 
                 <div class="lg:col-span-8 space-y-6">
                     
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div id="manifests-section" class="scroll-mt-24 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
                             <i class="fas fa-ticket-alt text-[#024DDF]"></i> Admin-Uploaded Ticket Allocation Manifests
                         </h3>
@@ -295,7 +319,7 @@ if ($pdo !== null) {
                         </div>
                     </div>
 
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div id="orders-section" class="scroll-mt-24 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
                             <i class="fas fa-shopping-bag text-[#024DDF]"></i> Secured Production Orders & Gate Passes
                         </h3>
@@ -338,10 +362,18 @@ if ($pdo !== null) {
                         </div>
                     </div>
 
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
-                        <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-receipt text-[#024DDF]"></i> Financial Statements & Transactions History
-                        </h3>
+                    <div id="transactions-section" class="scroll-mt-24 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <div class="flex flex-row justify-between items-center border-b border-gray-100 pb-3 gap-2">
+                            <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2">
+                                <i class="fas fa-receipt text-[#024DDF]"></i> Financial Statements & Transactions History
+                            </h3>
+                            <?php if (count($transaction_history) > 3): ?>
+                                <button type="button" onclick="openTxModal()" class="text-[10px] font-black text-[#024DDF] hover:text-blue-800 uppercase tracking-widest bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all">
+                                    View More <i class="fas fa-arrow-right ml-0.5"></i>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                        
                         <div class="overflow-x-auto">
                             <?php if (!empty($transaction_history)): ?>
                                 <table class="w-full text-left text-xs font-medium text-gray-600">
@@ -355,7 +387,11 @@ if ($pdo !== null) {
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
-                                        <?php foreach ($transaction_history as $txn): ?>
+                                        <?php 
+                                        // Display initial array subset containing exactly 3 execution rows
+                                        $limited_tx = array_slice($transaction_history, 0, 3);
+                                        foreach ($limited_tx as $txn): 
+                                        ?>
                                             <tr class="hover:bg-gray-50/60 transition-colors">
                                                 <td class="p-3 font-mono font-bold text-gray-900"><?php echo htmlspecialchars($txn['ref']); ?></td>
                                                 <td class="p-3 text-gray-500 font-bold"><?php echo htmlspecialchars($txn['date']); ?></td>
@@ -367,10 +403,7 @@ if ($pdo !== null) {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="p-3 text-right font-black text-[#024DDF]">
-                                                    <?php 
-                                                        $symbol = ($txn['currency'] === 'EUR') ? '€' : (($txn['currency'] === 'GBP') ? '£' : '$');
-                                                        echo $symbol . number_format($txn['amount'], 2); 
-                                                    ?>
+                                                    $<?php echo number_format($txn['amount'], 2); ?>
                                                 </td>
                                                 <td class="p-3 text-center">
                                                     <span class="font-black tracking-wide uppercase px-2 py-0.5 rounded text-[10px] <?php echo ($txn['status'] === 'Successful') ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'; ?>">
@@ -387,9 +420,9 @@ if ($pdo !== null) {
                         </div>
                     </div>
 
-                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div id="shows-section" class="scroll-mt-24 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
                         <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2 border-b border-gray-100 pb-3">
-                            <i class="fas fa-eye text-[#024DDF]"></i> Recently Analyzed & Viewed Shows
+                            <i class="fas fa-eye text-[#024DDF]"></i> Recently Viewed & Tracked Shows
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <?php foreach ($recently_viewed_shows as $show): ?>
@@ -419,8 +452,79 @@ if ($pdo !== null) {
         <?php include "../inc/footer.php"; ?>
     </div>
 
+    <div id="txHistoryModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 opacity-0">
+        <div class="bg-white border border-gray-200 w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col transform scale-95 transition-all duration-300 max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+                <h3 class="text-sm font-black uppercase tracking-wider text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-history text-[#024DDF]"></i> Complete Activity Log Ledger Statements
+                </h3>
+                <button onclick="closeTxModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto p-6 space-y-4 flex-1">
+                <table class="w-full text-left text-xs font-medium text-gray-600">
+                    <thead class="bg-gray-50 text-gray-400 uppercase tracking-wider text-[10px] font-black border border-gray-200 rounded-lg">
+                        <tr>
+                            <th class="p-3">Reference Block</th>
+                            <th class="p-3">Execution Date</th>
+                            <th class="p-3">Channel Method</th>
+                            <th class="p-3 text-right">Cumulative Total</th>
+                            <th class="p-3 text-center">Settlement</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php foreach ($transaction_history as $txn): ?>
+                            <tr class="hover:bg-gray-50/60 transition-colors">
+                                <td class="p-3 font-mono font-bold text-gray-900"><?php echo htmlspecialchars($txn['ref']); ?></td>
+                                <td class="p-3 text-gray-500 font-bold"><?php echo htmlspecialchars($txn['date']); ?></td>
+                                <td class="p-3 text-gray-500 font-bold flex items-center gap-2">
+                                    <?php if (strpos($txn['method'], '../uploads/') === 0): ?>
+                                        <img src="<?php echo htmlspecialchars($txn['method']); ?>" alt="Method Icon" class="h-4 w-auto object-contain rounded border border-gray-200 max-w-[60px]">
+                                    <?php else: ?>
+                                        <span><?php echo htmlspecialchars($txn['method']); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="p-3 text-right font-black text-[#024DDF]">
+                                    $<?php echo number_format($txn['amount'], 2); ?>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <span class="font-black tracking-wide uppercase px-2 py-0.5 rounded text-[10px] <?php echo ($txn['status'] === 'Successful') ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'; ?>">
+                                        <?php echo htmlspecialchars($txn['status']); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function openTxModal() {
+            const el = document.getElementById('txHistoryModal');
+            el.classList.remove('hidden');
+            setTimeout(() => {
+                el.classList.remove('opacity-0');
+                el.querySelector('.transform').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeTxModal() {
+            const el = document.getElementById('txHistoryModal');
+            el.classList.add('opacity-0');
+            el.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                el.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+
     <style>
         body { overflow-x: hidden; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
