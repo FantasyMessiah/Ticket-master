@@ -26,7 +26,7 @@
   
       <!-- Country Selector -->
       <div class="pl-[30px] lg:pl-0">
-        <a href="/inc/countries.php" class="flex items-center gap-2">
+        <a href="/inc/language.php" class="flex items-center gap-2">
       
           <!-- Circular border around flag only -->
           <span class="flex items-center justify-center w-6 h-6 rounded-full border border-gray-600 hover:border-gray-500 hover:bg-gray-800 transition-all">
