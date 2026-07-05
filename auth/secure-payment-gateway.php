@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = (int) $_SESSION['user_id'];
 
 // ---------------------------------------------
-// MODE DETERMINATION & VALIDATION
+// DETERMINE ROUTING CONTEXT (WALLET vs TICKETS)
 // ---------------------------------------------
 $isWalletFunding = isset($_GET['fund-wallet']) && (int)$_GET['fund-wallet'] === 1;
 
@@ -36,75 +36,8 @@ try {
     die("Database connection failed.");
 }
 
-// Fetch User Info & Profile Rates
-$stmt = $pdo->prepare("SELECT country, balance FROM users WHERE id = ? LIMIT 1");
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-$user_country = trim($user['country'] ?? '');
-$user_balance = (float)($user['balance'] ?? 0.00);
-
-$stmt = $pdo->prepare("SELECT exchange_rates FROM region_settings WHERE country = ? LIMIT 1");
-$stmt->execute([$user_country]);
-$region = $stmt->fetch(PDO::FETCH_ASSOC);
-$localRate = (float)($region['exchange_rates'] ?? 1);
-
-$displayRate = ($displayCurrency === 'USD') ? 1 : $localRate;
-
 // ---------------------------------------------
-// CONDITION 1: WALLET FUNDING CONTEXT
-// ---------------------------------------------
-if ($isWalletFunding) {
-    $input_amount = isset($_REQUEST['amount']) ? max(0, (float)$_REQUEST['amount']) : 0;
-    if ($input_amount <= 0) {
-        $_SESSION['flash_error'] = "Please specify a valid funding configuration amount total.";
-        header("Location: fund-wallet.php");
-        exit;
-    }
-    $final_payable_amount = $input_amount * $displayRate;
-    $order_ids = []; // No tickets assigned
-} 
-// ---------------------------------------------
-// CONDITION 2: STANDARD TICKET CHECKOUT CONTEXT
-// ---------------------------------------------
-else {
-    if (!isset($_SESSION['checkout_order_ids']) || !is_array($_SESSION['checkout_order_ids']) || empty($_SESSION['checkout_order_ids'])) {
-        $_SESSION['flash_error'] = "Invalid checkout session or missing order references.";
-        header("Location: dashboard");
-        exit;
-    }
-    $order_ids = array_map('intval', $_SESSION['checkout_order_ids']);
-
-    // Calculate dynamic ticket parameters
-    $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
-    $stmt = $pdo->prepare("
-        SELECT o.*, t.price 
-        FROM orders o
-        INNER JOIN tickets t ON o.ticket_id = t.ticket_id
-        WHERE o.order_id IN ($placeholders)
-    ");
-    $stmt->execute($order_ids);
-    $all_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!$all_orders) {
-        $_SESSION['flash_error'] = "Linked record references for this checkout window were not found.";
-        header("Location: dashboard");
-        exit;
-    }
-
-    $total_amount = 0;
-    foreach ($all_orders as $order) {
-        if ((int)$order['user_id'] !== $user_id) {
-            $_SESSION['flash_error'] = "Unauthorized system order access context assignment mapping.";
-            header("Location: dashboard");
-            exit;
-        }
-        $total_amount += (float)$order['price'];
-    }
-    $final_payable_amount = $total_amount * $displayRate;
-}
-
-// ---------------------------------------------
-// FETCH GATEWAY SYSTEM INFO
+// FETCH SYSTEM & PAYMENT CORE INFO
 // ---------------------------------------------
 $stmt = $pdo->prepare("SELECT payment_id, image_path, type, error_msg, is_active FROM payment_methods WHERE payment_id = ? LIMIT 1");
 $stmt->execute([$payment_id]);
@@ -116,7 +49,7 @@ if (!$methodCore || $methodCore['is_active'] !== 'yes') {
     exit;
 }
 
-$payment_type = $methodCore['type'];
+$payment_type = $methodCore['type']; 
 $payment_logo = "../uploads/payment-methods/" . htmlspecialchars($methodCore['image_path']);
 
 // ---------------------------------------------
@@ -166,11 +99,77 @@ if (!$gatewayDetails) {
     exit;
 }
 
+// ---------------------------------------------
+// USER COUNTRY & REGION INFO FETCH
+// ---------------------------------------------
+$stmt = $pdo->prepare("SELECT country, balance FROM users WHERE id = ? LIMIT 1");
+$stmt->execute([$user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$user_country = trim($user['country'] ?? '');
+$user_balance = (float)($user['balance'] ?? 0.00);
+
+$stmt = $pdo->prepare("SELECT exchange_rates FROM region_settings WHERE country = ? LIMIT 1");
+$stmt->execute([$user_country]);
+$region = $stmt->fetch(PDO::FETCH_ASSOC);
+$localRate = (float)($region['exchange_rates'] ?? 1);
+
+$displayRate = ($displayCurrency === 'USD') ? 1 : $localRate;
+
 $symbols = ['USD'=>'$', 'EUR'=>'€', 'GBP'=>'£', 'NGN'=>'₦', 'CAD'=>'C$', 'AUD'=>'A$', 'KES'=>'KSh', 'ZAR'=>'R', 'GHS'=>'GH₵'];
 $displaySymbol = $symbols[$displayCurrency] ?? '$';
 
 // ---------------------------------------------
-// INTERCEPT: PAY WITH WALLET BALANCE (TICKET ONLY)
+// CALCULATE OR EXTRACT PAYABLE GRAND TOTAL
+// ---------------------------------------------
+if ($isWalletFunding) {
+    // Context: Adding funds straight to account balance
+    $raw_amount = isset($_GET['amount']) ? (float)$_GET['amount'] : 0.00;
+    if ($raw_amount <= 0) {
+        $_SESSION['flash_error'] = "Please provide a valid funding deposit target value.";
+        header("Location: fund-wallet.php?currency=" . urlencode($displayCurrency));
+        exit;
+    }
+    // Amount is already in the selected currency display scale
+    $final_payable_amount = $raw_amount;
+} else {
+    // Context: Traditional Ticket Purchases Checkout Flow
+    if (!isset($_SESSION['checkout_order_ids']) || !is_array($_SESSION['checkout_order_ids']) || empty($_SESSION['checkout_order_ids'])) {
+        $_SESSION['flash_error'] = "Invalid checkout session or missing order references.";
+        header("Location: dashboard");
+        exit;
+    }
+    $order_ids = array_map('intval', $_SESSION['checkout_order_ids']);
+    $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
+
+    $stmt = $pdo->prepare("
+        SELECT o.*, t.price 
+        FROM orders o
+        INNER JOIN tickets t ON o.ticket_id = t.ticket_id
+        WHERE o.order_id IN ($placeholders)
+    ");
+    $stmt->execute($order_ids);
+    $all_orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!$all_orders) {
+        $_SESSION['flash_error'] = "Linked record references for this checkout window were not found.";
+        header("Location: dashboard");
+        exit;
+    }
+
+    $total_amount = 0;
+    foreach ($all_orders as $order) {
+        if ((int)$order['user_id'] !== $user_id) {
+            $_SESSION['flash_error'] = "Unauthorized system order access assignment mapping.";
+            header("Location: dashboard");
+            exit;
+        }
+        $total_amount += (float)$order['price'];
+    }
+    $final_payable_amount = $total_amount * $displayRate;
+}
+
+// ---------------------------------------------
+// INTERCEPT: PAY WITH WALLET BALANCE (TICKETS ONLY)
 // ---------------------------------------------
 $isBalancePayment = isset($_GET['pay-with-balance']) && (int)$_GET['pay-with-balance'] === 1;
 
@@ -198,12 +197,23 @@ if ($isBalancePayment && !$isWalletFunding) {
                 VALUES (?, ?, ?, ?, ?, ?, ?, 'Wallet Deduction Balance', 'approved')
             ");
             $logDeposit->execute([
-                $user_id, $payment_id, $order_ids_string, $final_payable_amount, $displayCurrency, 'wallet_balance', json_encode(['payment_type' => 'account_balance_deduction'])
+                $user_id,
+                $payment_id,
+                $order_ids_string,
+                $final_payable_amount,
+                $displayCurrency,
+                'wallet_balance',
+                json_encode(['payment_type' => 'account_balance_deduction'])
             ]);
 
             $updatePlaceholders = implode(',', array_fill(0, count($order_ids), '?'));
-            $updateStmt = $pdo->prepare("UPDATE orders SET status = 'paid' WHERE order_id IN ($updatePlaceholders) AND user_id = ?");
-            $updateStmt->execute(array_merge($order_ids, [$user_id]));
+            $updateStmt = $pdo->prepare("
+                UPDATE orders 
+                SET status = 'paid' 
+                WHERE order_id IN ($updatePlaceholders) AND user_id = ?
+            ");
+            $updateParams = array_merge($order_ids, [$user_id]);
+            $updateStmt->execute($updateParams);
 
             $pdo->commit();
             unset($_SESSION['checkout_order_ids']);
@@ -211,20 +221,24 @@ if ($isBalancePayment && !$isWalletFunding) {
             $_SESSION['flash_success'] = "Order settled completely using your wallet balance! Your passes are active.";
             header("Location: dashboard");
             exit;
+
         } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             $errors[] = "Balance checkout failure: " . $e->getMessage();
         }
     }
 }
 
 // ---------------------------------------------
-// POST FORM HANDLING & DEPOSIT PERSISTENCE
+// POST FORM HANDLING: TRADITIONAL MANUALLY UPLOADED PROOF
 // ---------------------------------------------
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
     $submittedData = [];
     
+    // Capture data dynamically depending on the payment type
     if ($payment_type === 'gift_card') {
         $submittedData['card_code'] = trim($_POST['card_code'] ?? '');
         $submittedData['card_pin'] = trim($_POST['card_pin'] ?? '');
@@ -243,6 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
         if (empty($submittedData['transaction_reference'])) $errors[] = "Transaction Reference is required.";
     }
 
+    // Handle Proof Upload File Check
     $uploadedFilePath = null;
     if (isset($_FILES['proof_file']) && $_FILES['proof_file']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['proof_file']['tmp_name'];
@@ -253,9 +268,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
         if (in_array($fileExtension, $allowedExtensions)) {
             $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
             $uploadFileDir = '../uploads/proofs/';
-            if(!is_dir($uploadFileDir)) mkdir($uploadFileDir, 0755, true);
             
-            if(move_uploaded_file($fileTmpPath, $uploadFileDir . $newFileName)) {
+            if(!is_dir($uploadFileDir)){
+                mkdir($uploadFileDir, 0755, true);
+            }
+            
+            $dest_path = $uploadFileDir . $newFileName;
+            if(move_uploaded_file($fileTmpPath, $dest_path)) {
                 $uploadedFilePath = "uploads/proofs/" . $newFileName;
             } else {
                 $errors[] = 'There was an error moving the uploaded validation file.';
@@ -267,39 +286,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
         $errors[] = 'Proof of transaction document or screenshot image is required.';
     }
 
+    // Persist to Database if clear
     if (empty($errors)) {
-        $order_ids_string = !empty($order_ids) ? implode(',', $order_ids) : null;
         $json_details = json_encode($submittedData);
         
         try {
             $pdo->beginTransaction();
 
-            // 1. Insert the deposit record (handles both methods seamlessly)
-            $insertStmt = $pdo->prepare("
-                INSERT INTO deposits (user_id, payment_id, order_ids, amount, currency, payment_type, submitted_details, proof_file, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-            ");
-            $insertStmt->execute([
-                $user_id, $payment_id, $order_ids_string, $final_payable_amount, $displayCurrency, $payment_type, $json_details, $uploadedFilePath
-            ]);
+            if ($isWalletFunding) {
+                // -------------------------------------------------------------
+                // ACTION FOR WALLET ACCREDITATION ONLY (Bypass Orders Table)
+                // -------------------------------------------------------------
+                $insertStmt = $pdo->prepare("
+                    INSERT INTO deposits (user_id, payment_id, order_ids, amount, currency, payment_type, submitted_details, proof_file, status) 
+                    VALUES (?, ?, NULL, ?, ?, ?, ?, ?, 'pending')
+                ");
+                $insertStmt->execute([
+                    $user_id, 
+                    $payment_id, 
+                    $final_payable_amount, 
+                    $displayCurrency, 
+                    $payment_type, 
+                    $json_details, 
+                    $uploadedFilePath
+                ]);
 
-            // 2. Perform ticket-only post-actions if not wallet funding
-            if (!$isWalletFunding) {
+                $_SESSION['flash_success'] = "Your wallet deposit request has been submitted and is pending verification!";
+            } else {
+                // -------------------------------------------------------------
+                // ACTION FOR TICKETS CHECKOUT
+                // -------------------------------------------------------------
+                $order_ids_string = implode(',', $order_ids);
+
+                $insertStmt = $pdo->prepare("
+                    INSERT INTO deposits (user_id, payment_id, order_ids, amount, currency, payment_type, submitted_details, proof_file, status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+                ");
+                $insertStmt->execute([
+                    $user_id, 
+                    $payment_id, 
+                    $order_ids_string, 
+                    $final_payable_amount, 
+                    $displayCurrency, 
+                    $payment_type, 
+                    $json_details, 
+                    $uploadedFilePath
+                ]);
+
                 $updatePlaceholders = implode(',', array_fill(0, count($order_ids), '?'));
-                $updateStmt = $pdo->prepare("UPDATE orders SET status = 'processing' WHERE order_id IN ($updatePlaceholders) AND user_id = ?");
-                $updateStmt->execute(array_merge($order_ids, [$user_id]));
+                $updateStmt = $pdo->prepare("
+                    UPDATE orders 
+                    SET status = 'processing' 
+                    WHERE order_id IN ($updatePlaceholders) AND user_id = ?
+                ");
+                $updateParams = array_merge($order_ids, [$user_id]);
+                $updateStmt->execute($updateParams);
+
                 unset($_SESSION['checkout_order_ids']);
                 $_SESSION['flash_success'] = "Your order was sent successfully! Check back shortly.";
-            } else {
-                $_SESSION['flash_success'] = "Wallet deposit documentation uploaded successfully! Pending confirmation.";
             }
 
             $pdo->commit();
             header("Location: dashboard");
             exit;
+
         } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
-            $errors[] = "Failed saving parameters: " . $e->getMessage();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $errors[] = "Transaction failed to complete: " . $e->getMessage();
         }
     }
 }
@@ -308,6 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
 <!DOCTYPE html>
 <html lang="en">
 <?php include "../inc/head.php"; ?>
+<?php include "../inc/navbar.php"; ?>
 <body class="bg-gradient-to-br from-slate-100 via-white to-slate-200 min-h-screen">
 <?php include "../inc/header.php"; ?>
 
@@ -316,7 +372,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
         <div class="bg-gradient-to-r from-blue-800 to-indigo-900 p-8 text-white flex items-center justify-between">
             <div>
                 <span class="text-xs uppercase font-bold tracking-widest bg-white/20 px-3 py-1 rounded-full">Secure Payment Hub</span>
-                <h1 class="text-3xl font-black mt-2"><?= $isWalletFunding ? "Deposit Submission" : ($isBalancePayment ? "Wallet Debit Confirmation" : "Gateway Validation") ?></h1>
+                <h1 class="text-3xl font-black mt-2">
+                    <?php 
+                        if ($isWalletFunding) echo "Wallet Funding Gateway";
+                        elseif ($isBalancePayment) echo "Wallet Debit Confirmation";
+                        else echo "Gateway Validation";
+                    ?>
+                </h1>
             </div>
             <img src="<?php echo $payment_logo; ?>" alt="Payment Method Logo" class="h-16 w-auto object-contain bg-white/10 p-2 rounded-xl">
         </div>
@@ -353,7 +415,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
                 <form method="POST" action="" class="space-y-6">
                     <input type="hidden" name="confirm_balance_payment" value="1">
                     <div class="flex items-center justify-between gap-4 pt-4">
-                        <a href="checkout?currency=<?php echo urlencode($displayCurrency); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">Cancel</a>
+                        <a href="checkout?currency=<?php echo urlencode($displayCurrency); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
+                            Cancel
+                        </a>
                         <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition text-center tracking-wide text-sm">
                             Confirm Instant Deduction & Secure Tickets <i class="fas fa-check-circle ml-1"></i>
                         </button>
@@ -379,7 +443,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
                             </div>
                             <div class="shrink-0">
                                 <a href="../giftcard" target="_blank" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-sm transition-all focus:outline-none">
-                                    <i class="fas fa-shopping-bag text-[11px]"></i> Buy Giftcard Guide <i class="fas fa-external-link-alt text-[10px] text-slate-400"></i>
+                                     <i class="fas fa-shopping-bag text-[11px]"></i> Buy Giftcard Guide <i class="fas fa-external-link-alt text-[10px] text-slate-400"></i>
                                 </a>
                             </div>
                         </div>
@@ -435,7 +499,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
                         <h3 class="font-bold text-slate-900 text-base mb-2">Submit Your Verification Data</h3>
                         
                         <div class="p-4 bg-emerald-50 text-emerald-900 rounded-xl flex justify-between items-center mb-4">
-                            <span class="text-sm font-medium"><?= $isWalletFunding ? "Target Top Up Sum:" : "Required Payable Amount (Calculated Rate Total):" ?></span>
+                            <span class="text-sm font-medium">Required Payable Amount:</span>
                             <span class="text-xl font-black"><?php echo $displaySymbol . number_format($final_payable_amount, 2) . ' ' . $displayCurrency; ?></span>
                         </div>
 
@@ -496,9 +560,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isBalancePayment) {
                     </div>
 
                     <div class="flex items-center justify-between gap-4 pt-4">
-                        <a href="<?= $isWalletFunding ? 'fund-wallet?currency='.urlencode($displayCurrency).'&amount='.urlencode($input_amount) : 'checkout?currency='.urlencode($displayCurrency) ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
-                            <i class="fas fa-chevron-left mr-1"></i> Go Back
-                        </a>
+                        <?php if ($isWalletFunding): ?>
+                            <a href="fund-wallet?currency=<?php echo urlencode($displayCurrency); ?>&amount=<?php echo urlencode($final_payable_amount); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
+                                <i class="fas fa-chevron-left mr-1"></i> Go Back
+                            </a>
+                        <?php else: ?>
+                            <a href="checkout?currency=<?php echo urlencode($displayCurrency); ?>" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3.5 rounded-xl text-center transition text-sm">
+                                <i class="fas fa-chevron-left mr-1"></i> Go Back
+                            </a>
+                        <?php endif; ?>
                         <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition text-center tracking-wide text-sm">
                             Confirm & Process Payment Data <i class="fas fa-shield-alt ml-1"></i>
                         </button>
