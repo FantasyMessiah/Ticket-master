@@ -215,7 +215,7 @@ function checkAmountSelection(e, targetUrl) {
                     <?php foreach($paymentMethods as $method): ?>
                         <?php if($method['is_active'] == 'yes'): ?>
                             <?php 
-                            $targetUrl = "secure-payment-gateway?payment_id=" . $method['payment_id'] . "&currency=" . urlencode($displayCurrency);
+                            $targetUrl = "secure-payment-gateway?fund-wallet=1&payment_id=" . $method['payment_id'] . "&currency=" . urlencode($displayCurrency);
                             ?>
                             <a href="<?php echo htmlspecialchars($targetUrl); ?>" onclick="return checkAmountSelection(event, '<?php echo $targetUrl; ?>')" class="group rounded-2xl border border-slate-200 bg-white hover:border-blue-600 hover:shadow-xl transition p-6 flex flex-col justify-between items-center min-h-[140px]">
                                 <img src="../uploads/payment-methods/<?php echo htmlspecialchars($method['image_path']); ?>" class="mx-auto h-16 object-contain group-hover:scale-105 transition">
