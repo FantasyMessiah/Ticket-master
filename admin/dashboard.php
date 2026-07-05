@@ -2,31 +2,48 @@
 // admin/dashboard.php
 require_once __DIR__ . '/inc/header.php';
 
-/* UPDATE WHATSAPP NUMBER */
+/* UPDATE CONTACT DETAILS */
 $success = '';
 
-if(isset($_POST['update_whatsapp'])){
+if (isset($_POST['update_contacts'])) {
 
     $whatsapp = trim($_POST['whatsapp']);
+    $telegram = trim($_POST['telegram']);
+    $email     = trim($_POST['email']);
 
-    try{
+    try {
 
-        $stmt = $pdo->prepare("UPDATE admins SET whatsapp=? LIMIT 1");
-        $stmt->execute([$whatsapp]);
+        $stmt = $pdo->prepare("
+            UPDATE admins
+            SET whatsapp = ?, telegram = ?, email = ?
+            LIMIT 1
+        ");
 
-        $success = "WhatsApp number updated successfully.";
+        $stmt->execute([
+            $whatsapp,
+            $telegram,
+            $email
+        ]);
 
-    } catch(PDOException $e){
+        $success = "Contact details updated successfully.";
+
+    } catch (PDOException $e) {
 
         $success = "Error: " . $e->getMessage();
     }
 }
 
-/* FETCH CURRENT WHATSAPP */
-$stmt = $pdo->query("SELECT whatsapp FROM admins LIMIT 1");
+$stmt = $pdo->query("
+    SELECT whatsapp, telegram, email
+    FROM admins
+    LIMIT 1
+");
+
 $currentAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $currentWhatsapp = $currentAdmin['whatsapp'] ?? '';
+$currentTelegram = $currentAdmin['telegram'] ?? '';
+$currentEmail     = $currentAdmin['email'] ?? '';
 
 /* --------------------------------------------------
    DASHBOARD STATS
@@ -92,7 +109,7 @@ border:1px solid #30363d;
 ">
 
 <h2 style="margin-bottom:1rem; text-align:center;">
-  WhatsApp Support Number
+    Support Contact Details
 </h2>
 
 <?php if(!empty($success)): ?>
@@ -110,41 +127,74 @@ border:1px solid #30363d;
 
 <form method="POST">
 
-  <input
-    type="text"
-    name="whatsapp"
-    value="<?= htmlspecialchars($currentWhatsapp) ?>"
-    placeholder="Enter WhatsApp Number"
-    required
-    style="
-      width:100%;
-      padding:14px;
-      border-radius:8px;
-      border:1px solid #30363d;
-      background:#0d1117;
-      color:white;
-      margin-bottom:1rem;
-      font-size:15px;
-    "
-  >
+    <label style="display:block;margin-bottom:6px;">WhatsApp</label>
+    <input
+        type="text"
+        name="whatsapp"
+        value="<?= htmlspecialchars($currentWhatsapp) ?>"
+        placeholder="WhatsApp Number"
+        style="
+            width:100%;
+            padding:14px;
+            border-radius:8px;
+            border:1px solid #30363d;
+            background:#0d1117;
+            color:#fff;
+            margin-bottom:15px;
+        "
+    >
 
-  <button
-    type="submit"
-    name="update_whatsapp"
-    style="
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:8px;
-      background:#25D366;
-      color:white;
-      font-size:15px;
-      cursor:pointer;
-      font-weight:bold;
-    "
-  >
-    Update WhatsApp
-  </button>
+    <label style="display:block;margin-bottom:6px;">Telegram</label>
+    <input
+        type="text"
+        name="telegram"
+        value="<?= htmlspecialchars($currentTelegram) ?>"
+        placeholder="@telegram_username"
+        style="
+            width:100%;
+            padding:14px;
+            border-radius:8px;
+            border:1px solid #30363d;
+            background:#0d1117;
+            color:#fff;
+            margin-bottom:15px;
+        "
+    >
+
+    <label style="display:block;margin-bottom:6px;">Support Email</label>
+    <input
+        type="email"
+        name="email"
+        value="<?= htmlspecialchars($currentEmail) ?>"
+        placeholder="support@example.com"
+        style="
+            width:100%;
+            padding:14px;
+            border-radius:8px;
+            border:1px solid #30363d;
+            background:#0d1117;
+            color:#fff;
+            margin-bottom:20px;
+        "
+    >
+
+    <button
+        type="submit"
+        name="update_contacts"
+        style="
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:8px;
+            background:#238636;
+            color:#fff;
+            font-size:15px;
+            font-weight:bold;
+            cursor:pointer;
+        "
+    >
+        Update Contact Details
+    </button>
 
 </form>
 
