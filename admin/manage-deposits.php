@@ -125,8 +125,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
                 throw new Exception("Invalid parameters provided.");
             }
 
+            // Begin Transaction to guarantee data integrity across both logs
+            $pdo->beginTransaction();
+
+            // 1. Fetch current deposit to check if it's an order payment or wallet top-up
+            $check_stmt = $pdo->prepare("SELECT order_ids FROM deposits WHERE deposit_id = ?");
+            $check_stmt->execute([$id]);
+            $deposit_record = $check_stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$deposit_record) {
+                throw new Exception("Target deposit record not found.");
+            }
+
+            // 2. Update status column on the individual deposit record
             $stmt = $pdo->prepare("UPDATE deposits SET status = ? WHERE deposit_id = ?");
             $stmt->execute([$new_status, $id]);
+
+            // 3. Fallthrough Conditional: Handle Order compilation maps on 'approved' actions
+            if ($new_status === 'approved' && !empty(trim($deposit_record['order_ids']))) {
+                $order_string = trim($deposit_record['order_ids']);
+                $order_ids = array_filter(array_map('intval', explode(',', $order_string)));
+                
+                // Confirm array contains structural target keys (is not empty/all zeros)
+                if (!empty($order_ids)) {
+                    $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
+                    $order_stmt = $pdo->prepare("UPDATE orders SET status = 'completed' WHERE order_id IN ($placeholders)");
+                    $order_stmt->execute($order_ids);
+                }
+            }
+
+            $pdo->commit();
 
             $_SESSION['success'] = "Deposit payment reference status changed to " . ucfirst($new_status) . ".";
             header("Location: " . $_SERVER['PHP_SELF']);
@@ -151,6 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
         }
 
     } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         $_SESSION['error'] = $e->getMessage();
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
@@ -190,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 <tr style="text-align:left;background:#111827;">
     <th style="padding:12px;">ID</th>
     <th style="padding:12px;">Client ID</th>
-    <th style="padding:12px;">Order Maps</th>
+    <th style="padding:12px;">Intent Type / Order Maps</th>
     <th style="padding:12px;">Amount Due</th>
     <th style="padding:12px;">Gateway Type</th>
     <th style="padding:12px;">Submitted Payload</th>
@@ -221,13 +252,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
     </td>
 
     <td style="padding:12px;">
-        <span class="order-map-badge" 
-              data-orders="<?= htmlspecialchars($deposit['order_ids']) ?>" 
-              data-user="<?= (int)$deposit['user_id'] ?>"
-              style="display:inline-block;padding:4px 8px;background:#2563eb;color:#ffffff;border-radius:4px;font-family:monospace;cursor:pointer;font-weight:bold;font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-              title="Click to view full map configuration">
-            <?= htmlspecialchars($deposit['order_ids']) ?>
-        </span>
+        <?php 
+            $clean_order_ids = trim($deposit['order_ids'] ?? '');
+            $is_order_payment = (!empty($clean_order_ids) && $clean_order_ids !== '0');
+            
+            if ($is_order_payment): 
+        ?>
+            <div style="margin-bottom: 4px;">
+                <span style="background:#0284c7; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">Order Payment</span>
+            </div>
+            <span class="order-map-badge" 
+                  data-orders="<?= htmlspecialchars($clean_order_ids) ?>" 
+                  data-user="<?= (int)$deposit['user_id'] ?>"
+                  style="display:inline-block;padding:4px 8px;background:#1e293b;color:#38bdf8;border:1px solid #0284c7;border-radius:4px;font-family:monospace;cursor:pointer;font-weight:bold;font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                  title="Click to view associated Ticket details">
+                IDs: <?= htmlspecialchars($clean_order_ids) ?>
+            </span>
+        <?php else: ?>
+            <div>
+                <span style="background:#059669; color:#fff; font-size:10px; padding:3px 6px; border-radius:4px; font-weight:bold; text-transform:uppercase; letter-spacing:0.3px;">Fund Wallet Request</span>
+            </div>
+            <small style="color:#64748b; font-family:monospace; display:block; margin-top:2px;">Direct Balance Top-up</small>
+        <?php endif; ?>
     </td>
 
     <td style="padding:12px;font-weight:bold;color:#34d399;">
