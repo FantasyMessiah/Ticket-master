@@ -34,7 +34,7 @@ try {
     $insert = $pdo->prepare("
         INSERT INTO orders 
         (user_id, ticket_id, status, created_at) 
-        VALUES (?, ?, 'pending', NOW())
+        VALUES (?, ?, 'cancelled', NOW())
     ");
 
     $orderIds = [];
