@@ -233,7 +233,7 @@ if ($pdo !== null) {
                     <div class="mt-6 inline-flex items-center bg-white/20 rounded-full px-5 py-2 text-sm">
                         Client Workspace Node: 
                         <span class="font-mono ml-2 font-bold text-yellow-300">
-                            #USR-6004240<?php echo $user_id; ?>
+                            #USR-T60MST240<?php echo $user_id; ?>
                         </span>
                     </div>
                 </div>
