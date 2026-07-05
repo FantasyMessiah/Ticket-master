@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 <tr style="background:#111827;text-align:left;">
     <th style="padding:12px;">Image</th>
     <th style="padding:12px;">Type</th>
-    <th style="padding:12px;">Behavior / Link</th>
+    <th style="padding:12px;">Redirect Link</th>
     <th style="padding:12px;">Error Message</th>
     <th style="padding:12px;">Status</th>
     <th style="padding:12px;">Actions</th>
@@ -246,7 +246,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 
 <td style="padding:12px; font-size: 14px;">
     <?php if(($payment['redirect'] ?? 'no') === 'yes'): ?>
-        <span style="color:#e3b341; font-weight:bold; display:block; margin-bottom:2px;">External Redirect</span>
         <span style="color:var(--text-muted); font-family:monospace; display:block; max-width:200px; overflow:hidden; text-overflow:ellipsis;" title="<?= htmlspecialchars($payment['redirect_link'] ?? '') ?>">
             <?= htmlspecialchars($payment['redirect_link'] ?? 'No URL saved') ?>
         </span>
