@@ -33,7 +33,7 @@ session_start();
                 </a>
                 <span class="text-xs font-bold bg-gray-100 text-gray-500 uppercase tracking-widest px-2.5 py-1 rounded-md border border-gray-200">Legal Platform</span>
             </div>
-            <a href="auth.php" class="text-sm font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
+            <a href="oauth.php" class="text-sm font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Return to Account Gateway
             </a>
