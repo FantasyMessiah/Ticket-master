@@ -10,7 +10,7 @@ require_once '../config/db.php';
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['auth_error'] = "Please login to access your dashboard.";
     $_SESSION['redirect_after_auth'] = $_SERVER['REQUEST_URI'];
-    header("Location: ../auth.php");
+    header("Location: ../oauth.php");
     exit;
 }
 
@@ -217,7 +217,7 @@ if ($pdo !== null) {
                 </div>
 
                 <div class="flex flex-wrap gap-4 items-center shrink-0 relative z-10">
-                    <a href="../auth/fund-wallet.php" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow hover:shadow-lg transition flex items-center gap-2">
+                    <a href="fund-wallet.php" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow hover:shadow-lg transition flex items-center gap-2">
                         <i class="fas fa-plus-circle"></i> Top Up Wallet
                     </a>
                     
@@ -436,7 +436,7 @@ if ($pdo !== null) {
                                 </div>
                             </div>
                             
-                            <a href="../auth/fund-wallet.php" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-3 rounded-xl shadow transition text-xs uppercase tracking-wider flex items-center gap-1.5">
+                            <a href="fund-wallet.php" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-3 rounded-xl shadow transition text-xs uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fas fa-plus-circle text-sm"></i> Top Up
                             </a>
                         </div>
