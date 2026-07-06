@@ -4,7 +4,7 @@ require_once "config/db.php";
 
 $pdo = (new Database())->connect();
 
-// Catch the simulated 'YES' login path from auth.php if clicked
+// Catch the simulated 'YES' login path from oauth.php if clicked
 if (isset($_GET['action']) && $_GET['action'] === 'login_sim') {
     $sim_email = trim($_GET['email'] ?? '');
     
@@ -23,14 +23,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'login_sim') {
         exit;
     } else {
         $_SESSION['auth_error'] = "No existing profile found for that email address.";
-        header("Location: auth.php");
+        header("Location: oauth.php");
         exit;
     }
 }
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     $_SESSION['auth_error'] = "Invalid request method.";
-    header("Location: auth.php");
+    header("Location: oauth.php");
     exit;
 }
 
@@ -47,19 +47,19 @@ $confirm = $_POST["confirm_password"] ?? '';
 --------------------------*/
 if (!$full_name || !$email || !$country || !$phone || !$password) {
     $_SESSION['auth_error'] = "All profile fields are required.";
-    header("Location: auth.php");
+    header("Location: oauth.php");
     exit;
 }
 
 if ($password !== $confirm) {
     $_SESSION['auth_error'] = "Your chosen passwords do not match.";
-    header("Location: auth.php");
+    header("Location: oauth.php");
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $_SESSION['auth_error'] = "Please enter a valid email address.";
-    header("Location: auth.php");
+    header("Location: oauth.php");
     exit;
 }
 
@@ -71,7 +71,7 @@ $stmt->execute([$email]);
 
 if ($stmt->fetch()) {
     $_SESSION['auth_error'] = "This email address is already registered.";
-    header("Location: auth.php");
+    header("Location: oauth.php");
     exit;
 }
 
