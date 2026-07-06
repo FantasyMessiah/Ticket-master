@@ -46,7 +46,7 @@ $localRate     = (float)($region['exchange_rates'] ?? 1);
 // CURRENCY SYMBOLS
 // ---------------------------------------------
 $symbols = [
-    'USD' => '$', 'EUR' => '€', 'GBP' => '£', 'NGN' => '₦', 
+    'USD' => '$', 'EUR' => 'e', 'GBP' => '£', 'NGN' => '₦', 
     'CAD' => 'C$', 'AUD' => 'A$', 'KES' => 'KSh', 'ZAR' => 'R', 'GHS' => 'GH₵'
 ];
 
@@ -119,13 +119,12 @@ function checkAmountSelection(e, targetUrl) {
         e.preventDefault();
         Swal.fire({
             icon: 'error',
-            title: 'Required Configuration Missing',
-            text: 'Please input a valid funding target deposit total value first.',
+            title: 'Amount Required',
+            text: 'Please enter a valid amount to deposit.',
             confirmButtonColor: '#2563eb'
         });
         return false;
     }
-    // Forward directly to secure payment processor alongside user input volume
     window.location.href = targetUrl + "&amount=" + encodeURIComponent(amt);
     return false;
 }
@@ -135,7 +134,7 @@ function checkAmountSelection(e, targetUrl) {
 
     <?php if (isset($_SESSION['flash_error'])): ?>
         <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded-r-xl shadow-sm animate-pulse">
-            <p class="font-bold">System Hold Alert</p>
+            <p class="font-bold">Account Alert</p>
             <p class="text-sm"><?= htmlspecialchars($_SESSION['flash_error']); unset($_SESSION['flash_error']); ?></p>
         </div>
     <?php endif; ?>
@@ -143,10 +142,10 @@ function checkAmountSelection(e, targetUrl) {
     <div class="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 text-white p-8 shadow-2xl mb-8">
         <div class="flex flex-col lg:flex-row justify-between gap-8">
             <div>
-                <h1 class="text-4xl font-black">Fund Account Wallet</h1>
-                <p class="text-blue-100 mt-2">Add balance credits into your portal wallet using manual asset validation processing paths.</p>
+                <h1 class="text-4xl font-black">Top Up Wallet</h1>
+                <p class="text-blue-100 mt-2">Add funds to your account balance using any of our secure payment options below.</p>
                 <div class="mt-6 inline-flex items-center bg-white/20 rounded-full px-5 py-2 text-sm">
-                    Current Active Balance: <span class="font-bold font-mono ml-2"><?= $displaySymbol . number_format($current_wallet_balance * $displayRate, 2) . ' ' . $displayCurrency; ?></span>
+                    Available Balance: <span class="font-bold font-mono ml-2"><?= $displaySymbol . number_format($current_wallet_balance * $displayRate, 2) . ' ' . $displayCurrency; ?></span>
                 </div>
             </div>
 
@@ -179,9 +178,9 @@ function checkAmountSelection(e, targetUrl) {
                 <div class="flex justify-between items-center flex-wrap gap-4">
                     <div>
                         <h3 class="font-bold text-slate-900">
-                            <?= ($displayCurrency === 'USD') ? 'Viewing prices in USD ($)' : 'Want to fund with USD instead?' ?>
+                            <?= ($displayCurrency === 'USD') ? 'Viewing prices in USD ($)' : 'Want to pay with USD instead?' ?>
                         </h3>
-                        <p class="text-sm text-slate-500">Your configuration is initialized inside: <strong><?php echo $displayCurrency; ?></strong>.</p>
+                        <p class="text-sm text-slate-500">Your currency is currently set to: <strong><?php echo $displayCurrency; ?></strong>.</p>
                     </div>
                     <?php if ($displayCurrency === 'USD'): ?>
                         <a href="?currency=local&amount=<?= $input_amount; ?>" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 py-3 font-semibold transition">Switch to <?php echo $localCurrency; ?></a>
@@ -193,8 +192,8 @@ function checkAmountSelection(e, targetUrl) {
             <?php endif; ?>
 
             <div class="bg-white rounded-3xl shadow-xl p-8">
-                <h2 class="text-2xl font-black mb-2">1. Input Target Deposit Sum</h2>
-                <p class="text-slate-500 mb-6">Enter the total amount of funds you wish to clear directly into your profile logs.</p>
+                <h2 class="text-2xl font-black mb-2">1. Enter Deposit Amount</h2>
+                <p class="text-slate-500 mb-6">Specify the amount of money you want to add to your wallet.</p>
                 
                 <div class="relative rounded-2xl shadow-sm max-w-md">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -209,7 +208,7 @@ function checkAmountSelection(e, targetUrl) {
 
             <div class="bg-white rounded-3xl shadow-xl p-8">
                 <h2 class="text-2xl font-black mb-2">2. Choose Payment Method</h2>
-                <p class="text-slate-500 mb-8">Click your preferred offline allocation mechanism below.</p>
+                <p class="text-slate-500 mb-8">Select your preferred payment gateway below to continue.</p>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                     <?php foreach($paymentMethods as $method): ?>
@@ -219,7 +218,7 @@ function checkAmountSelection(e, targetUrl) {
                             ?>
                             <a href="<?php echo htmlspecialchars($targetUrl); ?>" onclick="return checkAmountSelection(event, '<?php echo $targetUrl; ?>')" class="group rounded-2xl border border-slate-200 bg-white hover:border-blue-600 hover:shadow-xl transition p-6 flex flex-col justify-between items-center min-h-[140px]">
                                 <img src="../uploads/payment-methods/<?php echo htmlspecialchars($method['image_path']); ?>" class="mx-auto h-16 object-contain group-hover:scale-105 transition">
-                                <span class="text-xs uppercase tracking-wider text-blue-600 font-bold mt-2 opacity-0 group-hover:opacity-100 transition-all">Select Portal &rarr;</span>
+                                <span class="text-xs uppercase tracking-wider text-blue-600 font-bold mt-2 opacity-0 group-hover:opacity-100 transition-all">Pay Now &rarr;</span>
                             </a>
                         <?php else: ?>
                             <button type="button" onclick="showPaymentError('<?php echo htmlspecialchars(addslashes($method['error_msg'])); ?>')" class="rounded-2xl border bg-gray-50 opacity-60 cursor-not-allowed p-6 min-h-[140px] w-full">
@@ -238,8 +237,8 @@ function checkAmountSelection(e, targetUrl) {
                 <div class="space-y-5">
                     <div class="flex justify-between border-b border-white/10 pb-4">
                         <div>
-                            <div class="font-semibold">Wallet Funding Ledger</div>
-                            <div class="text-sm text-white/70">Credits Top Up Addition</div>
+                            <div class="font-semibold">Deposit Amount</div>
+                            <div class="text-sm text-white/70">Funds to add</div>
                         </div>
                         <div class="font-bold font-mono">
                             <?= $displaySymbol ?><span id="summary_amount_box"><?= number_format($convertedTotal, 2) ?></span>
@@ -250,8 +249,8 @@ function checkAmountSelection(e, targetUrl) {
                 <div class="border-t border-white/20 mt-8 pt-6">
                     <div class="flex justify-between items-center">
                         <div>
-                            <div class="text-white/70">Total Crediting Value</div>
-                            <div class="text-xs text-amber-300 mt-1">* Requires system confirmation verify parameters</div>
+                            <div class="text-white/70">Total Balance to Credit</div>
+                            <div class="text-xs text-amber-300 mt-1">* Subject to manual approval and verification</div>
                         </div>
                         <i class="fas fa-wallet text-5xl text-blue-400"></i>
                     </div>
