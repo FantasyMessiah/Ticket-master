@@ -30,12 +30,6 @@
     RewriteRule ^(.+)$ $1.html [L]
 </IfModule>
 
-# Prevent directory listing
-# Redirect requests for directories without an index file to uploads.php
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteCond %{REQUEST_FILENAME}/index.php !-f
-RewriteCond %{REQUEST_FILENAME}/index.html !-f
-RewriteRule ^(.+?)/?$ /uploads.php [L]
 
 # Optional: Block access to sensitive files (uncomment if needed)
 # <Files ~ "\.(htaccess|htpasswd|ini|log|sh|inc|bak)$">
