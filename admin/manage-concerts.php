@@ -263,6 +263,55 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             }
         }
 
+        /*---------------- BULK MAP VIEW UPLOAD ----------------*/
+        if($action == "bulk_map_upload"){
+            
+            $selected_concerts = $_POST['concert_ids'] ?? [];
+
+            if(empty($selected_concerts) || !is_array($selected_concerts)){
+                throw new Exception("Please select at least one concert.");
+            }
+
+            if(!isset($_FILES['bulk_map_view']) || $_FILES['bulk_map_view']['error'] !== UPLOAD_ERR_OK){
+                throw new Exception("Please choose a valid venue map image.");
+            }
+
+            // File verification & saving
+            $uploadDir = "../uploads/concerts/";
+            if(!is_dir($uploadDir)){
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $extension = strtolower(pathinfo($_FILES['bulk_map_view']['name'], PATHINFO_EXTENSION));
+            
+            // Basic secure validation for image extensions
+            if(!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])){
+                throw new Exception("Invalid file format. Only images are allowed.");
+            }
+
+            $map_filename = uniqid("map_bulk_") . "." . $extension;
+
+            if(!move_uploaded_file($_FILES['bulk_map_view']['tmp_name'], $uploadDir . $map_filename)){
+                throw new Exception("Failed to save the uploaded image folder file structure.");
+            }
+
+            // Construct prepared placeholders dynamically string for safe binding: (?, ?, ?)
+            $placeholders = implode(',', array_fill(0, count($selected_concerts), '?'));
+            
+            // Build safe positional binding array parameters
+            $params = array_merge([$map_filename], array_map('intval', $selected_concerts));
+
+            $stmt = $pdo->prepare("
+                UPDATE concerts 
+                SET map_view = ? 
+                WHERE concert_id IN ($placeholders)
+            ");
+
+            $stmt->execute($params);
+
+            $_SESSION['success'] = "Venue map successfully applied to " . $stmt->rowCount() . " concert(s).";
+        }
+
         if($action=="bulk_add_concerts"){
         
             $bulk = trim($_POST['bulk_data']);
@@ -480,6 +529,11 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 <button class="btn" style="background:#0284c7; color:#fff;" onclick="openUniversalModal()">
     <i class="fas fa-layer-group"></i>
     Universal Tour Upload
+</button>
+
+<button class="btn" style="background:#eab308; color:#000;" onclick="openBulkMapModal()">
+    <i class="fas fa-map-marked-alt"></i>
+    Bulk Map View
 </button>
 
 <button class="btn" onclick="openBulkConcertUpload()">
@@ -814,6 +868,58 @@ Cancel
         </button>
     </div>
 </div>
+
+<div id="bulkMapModal" style="display:none; position:fixed; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,.7); overflow-y:auto; padding:20px; z-index:9999;">
+    <div style="background:#111827; max-width:650px; margin:40px auto; padding:25px; border-radius:10px; color:#fff;">
+        
+        <h2>Bulk Map View Upload</h2>
+        <p style="color:#9ca3af; font-size:14px; margin-bottom:20px;">
+            Upload an image map profile and check off all corresponding concert listings you want to map it to.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="bulk_map_upload">
+            <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+
+            <label style="font-weight:bold; display:block; margin-bottom:8px;">1. Select Target Concerts</label>
+            
+            <div style="margin-bottom:10px; background:#1f2937; padding:8px 12px; border-radius:6px;">
+                <label style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="selectAllConcerts" onchange="toggleSelectAllConcerts(this)"> 
+                    <strong>Select / Unselect All</strong>
+                </label>
+            </div>
+
+            <div style="max-height:220px; overflow-y:auto; border:1px solid #374151; background:#030712; padding:10px; border-radius:6px; margin-bottom:20px;">
+                <?php if(empty($concerts)){ ?>
+                    <p style="color:#6b7280; text-align:center; padding:10px;">No concert listings available.</p>
+                <?php } else { ?>
+                    <?php foreach($concerts as $c){ ?>
+                        <div style="padding:8px; border-bottom:1px solid #1f2937; display:flex; align-items:flex-start; gap:10px;">
+                            <input type="checkbox" name="concert_ids[]" value="<?= $c['concert_id'] ?>" class="concert-bulk-cb" style="margin-top:4px;">
+                            <label style="cursor:pointer; font-size:14px;">
+                                <strong><?= htmlspecialchars($c['title']) ?></strong> <br>
+                                <small style="color:#9ca3af;"><?= htmlspecialchars($c['venue']) ?> (<?= htmlspecialchars($c['concert_date']) ?>)</small>
+                            </label>
+                        </div>
+                    <?php } ?>
+                <?php } ?>
+            </div>
+
+            <label style="font-weight:bold; display:block; margin-bottom:8px;">2. Upload Venue Map Image</label>
+            <input type="file" name="bulk_map_view" accept="image/*" required style="width:100%; padding:10px; margin-bottom:25px; background:#1f2937; border:1px solid #374151; border-radius:6px; color:#fff;">
+
+            <button class="btn" style="width:100%; background:#eab308; color:#000; font-weight:bold; padding:12px;">
+                <i class="fas fa-file-upload"></i> Apply Map View to Selections
+            </button>
+        </form>
+
+        <br>
+        <button class="btn red" onclick="closeBulkMapModal()" style="width:100%;">
+            Cancel
+        </button>
+    </div>
+</div>
     
 <script>
 
@@ -874,6 +980,36 @@ document.addEventListener("DOMContentLoaded", function () {
         uniModal.addEventListener("click", function (e) {
             if (e.target === uniModal) {
                 closeUniversalModal();
+            }
+        });
+    }
+});
+
+function openBulkMapModal() {
+    document.getElementById("bulkMapModal").style.display = "block";
+    document.body.style.overflow = "hidden";
+}
+
+function closeBulkMapModal() {
+    document.getElementById("bulkMapModal").style.display = "none";
+    document.body.style.overflow = "auto";
+}
+
+// Checkbox helper logic to mass-select or clear selections
+function toggleSelectAllConcerts(masterCheckbox) {
+    const checkboxes = document.querySelectorAll('.concert-bulk-cb');
+    checkboxes.forEach(cb => {
+        cb.checked = masterCheckbox.checked;
+    });
+}
+
+// Background overlay dynamic close trigger registration setup
+document.addEventListener("DOMContentLoaded", function () {
+    const mapModal = document.getElementById("bulkMapModal");
+    if (mapModal) {
+        mapModal.addEventListener("click", function (e) {
+            if (e.target === mapModal) {
+                closeBulkMapModal();
             }
         });
     }
