@@ -142,6 +142,127 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
 
         }
 
+        if ($action == "universal_bulk_upload") {
+            $bulk = trim($_POST['universal_bulk_data']);
+            $artist_id = (int)$_POST['artist_id'];
+        
+            if (empty($bulk)) {
+                throw new Exception("No upload data supplied.");
+            }
+        
+            // 1. Split the data into Concerts Section and Tickets Section
+            $sections = explode("&&&", $bulk);
+            $concerts_raw = trim($sections[0] ?? '');
+            $tickets_raw = trim($sections[1] ?? '');
+        
+            if (empty($concerts_raw)) {
+                throw new Exception("Concert data section is missing.");
+            }
+        
+            // 2. Isolate blocks by double spacing
+            $concert_blocks = array_filter(array_map('trim', preg_split("/\R\s*\R/", $concerts_raw)));
+            $ticket_blocks  = array_filter(array_map('trim', preg_split("/\R\s*\R/", $tickets_raw)));
+        
+            // Track relational mapping [User_Provided_Number => Real_Database_Concert_ID]
+            $concert_id_mapping = [];
+            $concert_count = 0;
+            $ticket_count = 0;
+        
+            try {
+                // START TRANSACTION: Keeps operations atomic and safe
+                $pdo->beginTransaction();
+        
+                /*----------------------------------------------------
+                PROCESS CONCERTS
+                ----------------------------------------------------*/
+                $stmt_concert = $pdo->prepare("
+                    INSERT INTO concerts (artist_id, concert_date, day_time, venue, location, title, index_type, map_view)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+                ");
+        
+                foreach ($concert_blocks as $block) {
+                    $lines = array_values(array_filter(array_map('trim', preg_split("/\R/", $block))));
+                    
+                    // Expected: Line 0 = Identifier Number, Lines 1 to 6 = Data fields (Total 7 lines)
+                    if (count($lines) < 7) {
+                        continue; 
+                    }
+        
+                    $user_index = $lines[0]; // e.g. "1", "2"
+                    $date       = $lines[1];
+                    $day_time   = $lines[2];
+                    $venue      = $lines[3];
+                    $location   = $lines[4];
+                    $title      = $lines[5];
+                    $index_type = $lines[6];
+        
+                    if (!in_array($index_type, ['upcoming', 'trending', 'sponsored'])) {
+                        $index_type = 'upcoming';
+                    }
+        
+                    $stmt_concert->execute([$artist_id, $date, $day_time, $venue, $location, $title, $index_type]);
+                    
+                    // Map the user identifier to the generated Auto-Increment Key
+                    $concert_id_mapping[$user_index] = $pdo->lastInsertId();
+                    $concert_count++;
+                }
+        
+                /*----------------------------------------------------
+                PROCESS TICKETS
+                ----------------------------------------------------*/
+                if (!empty($ticket_blocks) && !empty($concert_id_mapping)) {
+                    $stmt_ticket = $pdo->prepare("
+                        INSERT INTO tickets (concert_id, ticket_name, section_name, row_name, seat_name, price, section_view)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL)
+                    ");
+        
+                    foreach ($ticket_blocks as $block) {
+                        $lines = array_values(array_filter(array_map('trim', preg_split("/\R/", $block))));
+                        
+                        // Expected: Line 0 = Mapping Number, Lines 1 to 5 = Data fields (Total 6 lines)
+                        if (count($lines) < 6) {
+                            continue;
+                        }
+        
+                        $mapped_index = $lines[0]; // e.g. "1", "2"
+                        
+                        // If this ticket points to a concert mapping that failed or doesn't exist, skip it
+                        if (!isset($concert_id_mapping[$mapped_index])) {
+                            continue;
+                        }
+        
+                        $real_concert_id = $concert_id_mapping[$mapped_index];
+                        $ticket_name     = $lines[1];
+                        $section_name    = $lines[2];
+                        $row_name        = $lines[3];
+                        $seat_name       = $lines[4];
+                        
+                        // Price extraction normalization
+                        $price = str_replace(["$", ","], "", $lines[5]);
+                        $price = (float)$price;
+        
+                        if ($price <= 0) {
+                            continue; 
+                        }
+        
+                        $stmt_ticket->execute([$real_concert_id, $ticket_name, $section_name, $row_name, $seat_name, $price]);
+                        $ticket_count++;
+                    }
+                }
+        
+                // Complete execution securely
+                $pdo->commit();
+                $_SESSION['success'] = "Successfully loaded $concert_count concerts and $ticket_count tickets seamlessly.";
+        
+            } catch (Exception $e) {
+                // Something broke; undo everything to prevent broken matching associations
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                throw $e;
+            }
+        }
+
         if($action=="bulk_add_concerts"){
         
             $bulk = trim($_POST['bulk_data']);
@@ -355,6 +476,11 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 </div>
 
 <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+
+<button class="btn" style="background:#0284c7; color:#fff;" onclick="openUniversalModal()">
+    <i class="fas fa-layer-group"></i>
+    Universal Tour Upload
+</button>
 
 <button class="btn" onclick="openBulkConcertUpload()">
     <i class="fas fa-upload"></i>
@@ -659,6 +785,35 @@ Cancel
 
 </div>
 </div>
+
+<div id="universalModal" style="display:none; position:fixed; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,.7); overflow-y:auto; padding:20px; z-index:9999;">
+    <div style="background:#111827; max-width:750px; margin:20px auto; padding:25px; border-radius:10px; color:#fff;">
+        
+        <h2>Universal Tour & Inventory Upload</h2>
+        <p style="color:#9ca3af; font-size:14px; margin-bottom:15px;">
+            Paste your complete manifest structured with a <code>&&&</code> section breakout. Use numbering lines to associate tickets directly to target show records.
+        </p>
+
+        <form method="POST">
+            <input type="hidden" name="action" value="universal_bulk_upload">
+            <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+
+            <textarea name="universal_bulk_data" required 
+                placeholder="1&#10;2026-12-01&#10;8:00 PM&#10;Arena&#10;City&#10;Tour Title&#10;upcoming&#10;&#10;&amp;&amp;&amp;&#10;&#10;1&#10;Standard Ticket&#10;Sec A&#10;Row 1&#10;Seat 5&#10;$95.00"
+                style="width:100%; height:380px; padding:12px; font-family:monospace; background:#030712; color:#34d399; border:1px solid #374151; border-radius:6px; resize:vertical;"></textarea>
+
+            <br><br>
+            <button class="btn" style="width:100%; background:#10b981; color:#fff; font-weight:bold; padding:12px;">
+                Execute Master Upload
+            </button>
+        </form>
+
+        <br>
+        <button class="btn red" onclick="closeUniversalModal()" style="width:100%;">
+            Cancel
+        </button>
+    </div>
+</div>
     
 <script>
 
@@ -701,6 +856,28 @@ function closeBulkConcertDelete(){
     document.getElementById("bulkDeleteModal").style.display="none";
     document.body.style.overflow="auto";
 }
+
+function openUniversalModal() {
+    document.getElementById("universalModal").style.display = "block";
+    document.body.style.overflow = "hidden";
+}
+
+function closeUniversalModal() {
+    document.getElementById("universalModal").style.display = "none";
+    document.body.style.overflow = "auto";
+}
+
+// Global Document overlay close helper listener
+document.addEventListener("DOMContentLoaded", function () {
+    const uniModal = document.getElementById("universalModal");
+    if (uniModal) {
+        uniModal.addEventListener("click", function (e) {
+            if (e.target === uniModal) {
+                closeUniversalModal();
+            }
+        });
+    }
+});
 
 </script>
 
