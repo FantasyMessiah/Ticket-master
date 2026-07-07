@@ -143,7 +143,7 @@ try {
 
         <div class="bg-white border-b border-gray-200 py-6 px-4 md:px-8 shadow-sm">
             <div class="max-w-7xl mx-auto">
-                <span class="text-xs font-black uppercase tracking-wider text-[#024DDF] bg-blue-50 px-2.5 py-1 rounded">Selected Concert Node</span>
+                <span class="text-xs font-black uppercase tracking-wider text-[#024DDF] bg-blue-50 px-2.5 py-1 rounded">Selected Concert Ticket(s)</span>
                 <h1 class="text-2xl md:text-4xl font-black text-gray-900 tracking-tight mt-2">
                     <?php echo htmlspecialchars($artist_name); ?> — <span class="font-bold text-gray-700"><?php echo htmlspecialchars($concert_title); ?></span>
                 </h1>
@@ -166,7 +166,7 @@ try {
                 onclick="openImageModal('<?php echo htmlspecialchars($stadium_map_image, ENT_QUOTES); ?>','map')"
                 class="absolute bottom-4 left-4 md:left-8 bg-black/70 backdrop-blur-md border border-gray-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-black/80 transition">
                 <i class="fas fa-map-marked-alt mr-1.5 text-blue-400"></i>
-                Map Reference Vector
+                Map View
             </div>
         </div>
 
