@@ -312,6 +312,25 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             $_SESSION['success'] = "Venue map successfully applied to " . $stmt->rowCount() . " concert(s).";
         }
 
+        if ($action == "clone_tickets") {
+            $source_id = (int)$_POST['source_concert_id'];
+            $target_id = (int)$_POST['target_concert_id'];
+        
+            if ($source_id === $target_id) {
+                throw new Exception("Source and target concert cannot be the same.");
+            }
+        
+            $stmt = $pdo->prepare("
+                INSERT INTO tickets (concert_id, ticket_name, section_name, row_name, seat_name, price, section_view)
+                SELECT ?, ticket_name, section_name, row_name, seat_name, price, section_view
+                FROM tickets
+                WHERE concert_id = ?
+            ");
+            $stmt->execute([$target_id, $source_id]);
+        
+            $_SESSION['success'] = $stmt->rowCount() . " tickets cloned successfully.";
+        }
+
         if($action=="bulk_add_concerts"){
         
             $bulk = trim($_POST['bulk_data']);
@@ -549,6 +568,10 @@ style="width:70px;height:70px;border-radius:10px;object-fit:cover;">
 <button class="btn" onclick="openModal()">
     <i class="fas fa-plus"></i>
     Add Concert
+</button>
+
+<button class="btn" style="background:#8b5cf6;" onclick="openCloneModal()">
+    <i class="fas fa-copy"></i> Clone Tickets
 </button>
 
 </div>
@@ -920,6 +943,33 @@ Cancel
         </button>
     </div>
 </div>
+
+<div id="cloneModal" style="display:none; position:fixed; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,.7); z-index:9999; padding:20px;">
+    <div style="background:#111827; max-width:500px; margin:40px auto; padding:25px; border-radius:10px; color:#fff;">
+        <h2>Clone Tickets</h2>
+        <form method="POST">
+            <input type="hidden" name="action" value="clone_tickets">
+            <input type="hidden" name="artist_id" value="<?= $artist_id ?>">
+            
+            <label>Source Concert (Copy from)</label>
+            <select name="source_concert_id" required style="width:100%; padding:10px; margin-bottom:15px;">
+                <?php foreach($concerts as $c){ ?>
+                    <option value="<?= $c['concert_id'] ?>"><?= htmlspecialchars($c['title']) ?> (<?= $c['concert_date'] ?>)</option>
+                <?php } ?>
+            </select>
+
+            <label>Target Concert (Paste to)</label>
+            <select name="target_concert_id" required style="width:100%; padding:10px; margin-bottom:15px;">
+                <?php foreach($concerts as $c){ ?>
+                    <option value="<?= $c['concert_id'] ?>"><?= htmlspecialchars($c['title']) ?> (<?= $c['concert_date'] ?>)</option>
+                <?php } ?>
+            </select>
+
+            <button class="btn" style="width:100%; background:#8b5cf6;">Execute Clone</button>
+        </form>
+        <button class="btn red" style="width:100%; margin-top:10px;" onclick="closeCloneModal()">Cancel</button>
+    </div>
+</div>
     
 <script>
 
@@ -1014,6 +1064,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+function openCloneModal() {
+    document.getElementById("cloneModal").style.display = "block";
+    document.body.style.overflow = "hidden";
+}
+
+function closeCloneModal() {
+    document.getElementById("cloneModal").style.display = "none";
+    document.body.style.overflow = "auto";
+}
 
 </script>
 
