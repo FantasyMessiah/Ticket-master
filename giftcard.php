@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. Define the Catalog of Major Gift Cards with their custom parameters
+// 1. Define the Catalog of Major Gift Cards using digital delivery platforms (e.g., CardDelivery, Dundle)
 $giftcards_catalog = [
     'amazon' => [
         'name' => 'Amazon Gift Card',
@@ -12,9 +12,9 @@ $giftcards_catalog = [
         'text_color' => 'text-orange-500',
         'bg_light' => 'bg-orange-50',
         'border_color' => 'border-orange-200',
-        'url' => 'https://www.amazon.com/giftcards',
-        'youtube_id' => 'dQw4w9WgXcQ', // Replace with an Amazon specific tutorial video ID
-        'instructions' => 'Select eGift or Print-at-Home, enter your target balance allocation, input the destination email address, and complete standard credit card authorization steps.'
+        'url' => 'https://www.carddelivery.com/amazon-gift-card',
+        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a CardDelivery Amazon tutorial video ID
+        'instructions' => 'Choose your desired Amazon card denomination on CardDelivery, proceed to the secure checkout, and receive your digital claim code instantly via email.'
     ],
     'apple' => [
         'name' => 'Apple Gift Card',
@@ -23,9 +23,9 @@ $giftcards_catalog = [
         'text_color' => 'text-slate-800',
         'bg_light' => 'bg-slate-50',
         'border_color' => 'border-slate-200',
-        'url' => 'https://www.apple.com/shop/gift-cards',
-        'youtube_id' => 'dQw4w9WgXcQ', // Replace with an Apple specific tutorial video ID
-        'instructions' => 'Choose digital delivery options, pick a design layout preset, select a predefined fund balance, and checkout using Apple Pay or standard visa systems.'
+        'url' => 'https://www.carddelivery.com/itunes-gift-card',
+        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a CardDelivery Apple tutorial video ID
+        'instructions' => 'Select the Apple/iTunes card value, pay using secure methods like PayPal or credit card, and check your inbox for the immediate digital code delivery.'
     ],
     'googleplay' => [
         'name' => 'Google Play Gift Card',
@@ -34,9 +34,9 @@ $giftcards_catalog = [
         'text_color' => 'text-emerald-600',
         'bg_light' => 'bg-emerald-50',
         'border_color' => 'border-emerald-200',
-        'url' => 'https://play.google.com/about/giftcards/',
-        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a Google Play tutorial video ID
-        'instructions' => 'Navigate to the official digital distribution supplier, authorize your profile identifier, designate your total face value, and execute local currency clearing routines.'
+        'url' => 'https://www.carddelivery.com/google-play-gift-card',
+        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a CardDelivery Google Play tutorial video ID
+        'instructions' => 'Pick a Google Play balance increment, complete the quick checkout process, and instantly receive your redemption PIN via email for the Google Play Store.'
     ],
     'playstation' => [
         'name' => 'PlayStation Network Card',
@@ -45,9 +45,9 @@ $giftcards_catalog = [
         'text_color' => 'text-blue-600',
         'bg_light' => 'bg-blue-50',
         'border_color' => 'border-blue-200',
-        'url' => 'https://www.playstation.com/en-us/playstation-gift-cards/',
-        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a PlayStation tutorial video ID
-        'instructions' => 'Choose your regional network zone, select the correct wallet fund increments ($10 - $100), add the product block to your cart, and finish instant delivery processing.'
+        'url' => 'https://www.carddelivery.com/playstation-network-card',
+        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a CardDelivery PlayStation tutorial video ID
+        'instructions' => 'Select your PlayStation Network region and card value, finalize the purchase securely, and retrieve your PSN code directly from your email inbox.'
     ],
     'steam' => [
         'name' => 'Steam Wallet Code',
@@ -56,9 +56,9 @@ $giftcards_catalog = [
         'text_color' => 'text-indigo-950',
         'bg_light' => 'bg-slate-100',
         'border_color' => 'border-slate-300',
-        'url' => 'https://store.steampowered.com/digitalgiftcards/',
-        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a Steam tutorial video ID
-        'instructions' => 'Log in to your active Steam client framework, select the active friend recipient or personal account allocation, input settlement credentials, and clear the transaction.'
+        'url' => 'https://www.carddelivery.com/steam-gift-card',
+        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a CardDelivery Steam tutorial video ID
+        'instructions' => 'Choose your Steam Wallet code amount, check out using your preferred payment gateway, and get your digital key emailed instantly to top up your Steam account.'
     ],
     'razer' => [
         'name' => 'Razer Gold Pin',
@@ -67,9 +67,9 @@ $giftcards_catalog = [
         'text_color' => 'text-green-600',
         'bg_light' => 'bg-green-50',
         'border_color' => 'border-green-200',
-        'url' => 'https://gold.razer.com/',
-        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a Razer Gold tutorial video ID
-        'instructions' => 'Select the Razer Gold PIN direct option, set your payment structural balance gateway matrix, input secure two-factor auth data, and receive the alphanumeric string instantly.'
+        'url' => 'https://dundle.com/razer-gold/',
+        'youtube_id' => 'dQw4w9WgXcQ', // Replace with a Dundle Razer Gold tutorial video ID
+        'instructions' => 'Select the Razer Gold PIN amount on Dundle, choose from over 70 payment methods, and your PIN will appear instantly on-screen and in your email.'
     ]
 ];
 
@@ -89,7 +89,7 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
     echo '<head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Buy Gift Cards — Step-by-Step Purchase Guide</title>
+            <title>Buy Gift Cards — Fast Digital Delivery Guide</title>
             <script src="https://cdn.tailwindcss.com"></script>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
           </head>';
@@ -104,12 +104,12 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
         <div class="bg-gradient-to-r <?php echo $active_card['color']; ?> text-white py-12 px-4 md:px-8 shadow-md transition-all duration-300">
             <div class="max-w-6xl mx-auto text-center md:text-left flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <span class="text-xs font-black uppercase tracking-widest bg-black/30 px-3 py-1 rounded-full">Official Purchase Hub</span>
+                    <span class="text-xs font-black uppercase tracking-widest bg-black/30 px-3 py-1 rounded-full">Instant Digital Delivery</span>
                     <h1 class="text-3xl md:text-5xl font-black tracking-tight mt-3 flex items-center justify-center md:justify-start gap-3">
                         <i class="<?php echo $active_card['icon']; ?>"></i> How to Buy <?php echo htmlspecialchars($active_card['name']); ?>
                     </h1>
                     <p class="text-xs md:text-sm text-white/80 mt-2 max-w-xl leading-relaxed font-medium mx-auto md:mx-0">
-                        Follow our verified digital onboarding blueprint down below to safely secure and claim valid credit codes instantly through verified merchant platforms.
+                        Follow our verified digital onboarding blueprint below to safely secure and claim valid credit codes instantly through trusted third-party delivery platforms.
                     </p>
                 </div>
             </div>
@@ -147,9 +147,9 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
                             1
                         </div>
                         <div>
-                            <h4 class="text-sm font-bold text-gray-900">Access Portal Link</h4>
+                            <h4 class="text-sm font-bold text-gray-900">Access Delivery Platform</h4>
                             <p class="text-xs text-gray-500 leading-relaxed mt-1">
-                                Click the primary <span class="font-bold text-gray-700">"Proceed to Purchase Website"</span> button located on the right sidebar module to launch the official web instance safely.
+                                Click the primary <span class="font-bold text-gray-700">"Proceed to Purchase Website"</span> button located on the right sidebar module to launch the trusted retail portal securely.
                             </p>
                         </div>
                     </div>
@@ -160,7 +160,7 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
                             2
                         </div>
                         <div>
-                            <h4 class="text-sm font-bold text-gray-900">Custom Processing Config</h4>
+                            <h4 class="text-sm font-bold text-gray-900">Configure & Checkout</h4>
                             <p class="text-xs text-gray-500 leading-relaxed mt-1">
                                 <?php echo htmlspecialchars($active_card['instructions']); ?>
                             </p>
@@ -172,9 +172,9 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
                             3
                         </div>
                         <div>
-                            <h4 class="text-sm font-bold text-gray-900">Upload Transaction Invoice Voucher</h4>
+                            <h4 class="text-sm font-bold text-gray-900">Check Email & Validate</h4>
                             <p class="text-xs text-gray-500 leading-relaxed mt-1">
-                                Keep your processing completion validation receipt statement file safe, then upload it into your client profile panel area to finalize automatic asset validation loops.
+                                Check your email inbox (and spam folder) for the delivery confirmation containing your alphanumeric code. Keep your receipt file safe and redeem the pin on the official platform.
                             </p>
                         </div>
                     </div>
@@ -185,7 +185,7 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
                     <div>
                         <h5 class="text-xs font-extrabold text-amber-900 uppercase tracking-wider">Security Notice</h5>
                         <p class="text-[11px] text-amber-700 leading-relaxed mt-0.5">
-                            Verify the external domain browser navigation strings match secure SSL structures. Never disclose active alphanumeric keys to unverified support entities.
+                            Verify the external domain browser navigation strings match secure SSL structures. Never disclose active alphanumeric keys to unverified support entities or third parties.
                         </p>
                     </div>
                 </div>
@@ -199,7 +199,7 @@ if (file_exists("inc/head.php")) { include "inc/head.php"; } else {
                     </div>
                     <h3 class="text-sm font-black text-gray-900 tracking-tight uppercase">Ready to Purchase?</h3>
                     <p class="text-xs text-gray-500 mt-1 mb-6 leading-relaxed">
-                        Redirect instantly to our certified merchant system instance to clear your dynamic cash balance allocations.
+                        Redirect instantly to our certified digital delivery merchant system to securely purchase your card code.
                     </p>
                     
                     <a href="<?php echo htmlspecialchars($active_card['url']); ?>" 
