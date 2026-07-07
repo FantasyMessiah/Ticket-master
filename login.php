@@ -17,7 +17,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'login_sim') {
         $_SESSION["user_id"] = $user['id'];
         $_SESSION["email"] = $user['email'];
         
-        $redirect = !empty($_POST['redirect']) ? $_POST['redirect'] : ($_SESSION["redirect_after_auth"] ?? "auth/dashboard.php");
+        $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? $_SESSION["redirect_after_auth"] ?? "auth/dashboard.php";
         unset($_SESSION["redirect_after_auth"]);
         header("Location: " . $redirect);
         exit;
