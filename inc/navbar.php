@@ -112,6 +112,10 @@
         }
     }
 
+    .contact-main i{
+        pointer-events: none;
+    }
+
     
   </style>
 </head>
