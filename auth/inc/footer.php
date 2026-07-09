@@ -142,5 +142,12 @@
   </div>
 </footer>
 
+<div class="whatsapp-float-wrapper">
+    <a href="https://wa.me/<?= $whatsapp ?>" target="_blank" class="whatsapp-float">
+        <i class="fab fa-headset"></i>
+    </a>
+    <div class="whatsapp-label">Instant help</div>
+</div>
+
 </body>
 </html>
