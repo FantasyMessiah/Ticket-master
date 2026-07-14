@@ -2,10 +2,10 @@
 
 class Database {
 
-    private $host = "sql207.infinityfree.com";
-    private $dbname = "if0_42273705_ticket2";
-    private $username = "if0_42273705";
-    private $password = "MWJvmCfpNDKo";
+    private $host = "sql302.infinityfree.com";
+    private $dbname = "if0_42412327_db";
+    private $username = "if0_42412327";
+    private $password = "Zsq0Wnj8TX";
 
     public function connect() {
 
